@@ -1,0 +1,770 @@
+@{
+    ViewData["Title"] = "Masuk ke Sistem";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Masuk - Sistem Penilaian Kinerja Karyawan (360° - AHP)</title>
+    
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        :root {
+            --brand-primary: #0d9488;
+            --brand-dark: #0f766e;
+            --brand-light: #2dd4bf;
+            --brand-bg: #f0fdfa;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border-color: #e2e8f0;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        html, body {
+            width: 100%;
+            max-width: 100vw;
+            min-height: 100vh;
+            background-color: #f8fafc;
+            color: var(--text-main);
+            overflow-x: hidden;
+        }
+
+        .auth-container {
+            display: flex;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* LEFT PANEL: SPLIT-SCREEN VISUAL & PLATFORM HERO (Identik Project 7) */
+        .auth-visual-side {
+            flex: 1.15;
+            position: relative;
+            background-color: #0a101d;
+            background-image: 
+                radial-gradient(circle at 15% 20%, rgba(13, 148, 136, 0.42) 0%, transparent 45%),
+                radial-gradient(circle at 85% 25%, rgba(2, 132, 199, 0.32) 0%, transparent 45%),
+                radial-gradient(circle at 75% 85%, rgba(16, 185, 129, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 20% 90%, rgba(15, 23, 42, 0.9) 0%, transparent 60%);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 48px 56px;
+            color: #ffffff;
+            overflow: hidden;
+        }
+
+        .auth-visual-grid {
+            position: absolute;
+            inset: 0;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+            background-size: 36px 36px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .auth-visual-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .visual-brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 40px;
+        }
+
+        .visual-brand-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--brand-light) 0%, var(--brand-dark) 100%);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(13, 148, 136, 0.5);
+        }
+
+        .visual-brand-text h2 {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+            margin: 0;
+        }
+
+        .visual-brand-text span {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--brand-light);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .hero-badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(13, 148, 136, 0.18);
+            border: 1px solid rgba(45, 212, 191, 0.35);
+            border-radius: 9999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #5eead4;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 34px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.03em;
+            margin-bottom: 16px;
+            color: #ffffff;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, #5eead4 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-desc {
+            font-size: 14px;
+            line-height: 1.65;
+            color: #94a3b8;
+            max-width: 520px;
+            margin-bottom: 32px;
+        }
+
+        .hero-features-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            max-width: 520px;
+            margin-bottom: 36px;
+        }
+
+        .hero-feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            padding: 14px 18px;
+            background: rgba(255, 255, 255, 0.035);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 14px;
+            backdrop-filter: blur(10px);
+            transition: all 0.25s ease;
+        }
+
+        .hero-feature-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(45, 212, 191, 0.3);
+            transform: translateX(4px);
+        }
+
+        .feature-icon-box {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(13, 148, 136, 0.25);
+            border: 1px solid rgba(45, 212, 191, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #5eead4;
+            font-size: 15px;
+            flex-shrink: 0;
+        }
+
+        .feature-text-block h4 {
+            font-size: 13.5px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 3px;
+        }
+
+        .feature-text-block p {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .quote-box {
+            position: relative;
+            padding: 16px 20px;
+            background: rgba(15, 23, 42, 0.65);
+            border-left: 3px solid var(--brand-light);
+            border-radius: 0 14px 14px 0;
+            font-size: 12.5px;
+            color: #cbd5e1;
+            line-height: 1.6;
+            font-style: italic;
+        }
+
+        .quote-box strong {
+            display: block;
+            margin-top: 6px;
+            font-style: normal;
+            font-size: 11px;
+            color: #5eead4;
+            font-weight: 700;
+        }
+
+        .visual-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #64748b;
+            padding-top: 24px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            position: relative;
+            z-index: 2;
+        }
+
+        /* RIGHT PANEL: FORM LOGIN */
+        .auth-form-side {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 32px;
+            background-color: #ffffff;
+            position: relative;
+        }
+
+        .form-wrapper {
+            width: 100%;
+            max-width: 440px;
+        }
+
+        .form-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 5px 12px;
+            background: #f0fdfa;
+            border: 1px solid #ccfbf1;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #0f766e;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 14px;
+        }
+
+        .form-header h1 {
+            font-size: 24px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            margin-bottom: 6px;
+        }
+
+        .form-header p {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 22px;
+            line-height: 1.5;
+        }
+
+        .alert-box {
+            display: none;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .alert-box.alert-error {
+            display: flex;
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #b91c1c;
+        }
+
+        .alert-box.alert-success {
+            display: flex;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #15803d;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 7px;
+        }
+
+        .input-group-custom {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon-left {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 15px;
+            pointer-events: none;
+        }
+
+        .input-custom {
+            width: 100%;
+            height: 46px;
+            padding: 10px 42px 10px 42px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 13.5px;
+            color: #0f172a;
+            background-color: #f8fafc;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .input-custom:focus {
+            background-color: #ffffff;
+            border-color: var(--brand-primary);
+            box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.12);
+        }
+
+        .btn-password-toggle {
+            position: absolute;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 6px;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-password-toggle:hover {
+            color: #0f172a;
+        }
+
+        .btn-submit-main {
+            width: 100%;
+            height: 48px;
+            background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-dark) 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 10px 20px -5px rgba(13, 148, 136, 0.45);
+            transition: all 0.25s ease;
+        }
+
+        .btn-submit-main:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 24px -5px rgba(13, 148, 136, 0.55);
+        }
+
+        .btn-submit-main:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .demo-section-box {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px dashed #e2e8f0;
+        }
+
+        .demo-title-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .demo-title-row span {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .demo-card-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+        }
+
+        .demo-card-item:hover {
+            background: #f0fdfa;
+            border-color: #99f6e4;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08);
+        }
+
+        .demo-avatar {
+            width: 34px;
+            height: 34px;
+            background: linear-gradient(135deg, #0d9488, #0f766e);
+            color: #fff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .demo-meta .demo-name {
+            font-size: 12.5px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .demo-meta .demo-email {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .demo-badge-action {
+            font-size: 10.5px;
+            font-weight: 700;
+            color: #0f766e;
+            background: #ccfbf1;
+            padding: 3px 8px;
+            border-radius: 5px;
+        }
+
+        @@media (max-width: 992px) {
+            .auth-visual-side {
+                display: none;
+            }
+            .auth-form-side {
+                padding: 32px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        
+        <!-- PANEL KIRI (Branding & Arsitektur SPK) -->
+        <div class="auth-visual-side">
+            <div class="auth-visual-grid"></div>
+            
+            <div class="auth-visual-content">
+                <div class="visual-brand">
+                    <div class="visual-brand-icon">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    <div class="visual-brand-text">
+                        <h2>Sistem Penilaian</h2>
+                        <span>Evaluasi &amp; Capaian Kinerja</span>
+                    </div>
+                </div>
+
+                <div class="hero-badge-pill">
+                    <i class="fas fa-certificate"></i> Sistem Informasi Penilaian Kinerja Karyawan
+                </div>
+                
+                <h1 class="hero-title">
+                    Evaluasi Kinerja <span>Terukur, Transparan,</span> dan Objektif
+                </h1>
+                
+                <p class="hero-desc">
+                    Platform terpadu untuk pengelolaan penilaian kinerja karyawan melalui partisipasi multi-penilai dan standar pembobotan yang adil.
+                </p>
+
+                <div class="hero-features-list">
+                    <div class="hero-feature-item">
+                        <div class="feature-icon-box">
+                            <i class="fas fa-users-viewfinder"></i>
+                        </div>
+                        <div class="feature-text-block">
+                            <h4>Penilaian Menyeluruh (360°)</h4>
+                            <p>Mengumpulkan umpan balik komprehensif dari atasan, rekan sejawat, dan evaluasi mandiri.</p>
+                        </div>
+                    </div>
+
+                    <div class="hero-feature-item">
+                        <div class="feature-icon-box">
+                            <i class="fas fa-scale-balanced"></i>
+                        </div>
+                        <div class="feature-text-block">
+                            <h4>Standar Pembobotan Teruji</h4>
+                            <p>Pembobotan kriteria terstruktur untuk menghasilkan evaluasi yang objektif dan dapat dipertanggungjawabkan.</p>
+                        </div>
+                    </div>
+
+                    <div class="hero-feature-item">
+                        <div class="feature-icon-box">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <div class="feature-text-block">
+                            <h4>Rekomendasi Tindak Lanjut Terarah</h4>
+                            <p>Membantu penetapan kelanjutan kerja dan pengembangan kompetensi karyawan secara tepat.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="quote-box">
+                    &ldquo;Penilaian yang adil dan transparan mendorong peningkatan produktivitas serta pertumbuhan profesional setiap karyawan.&rdquo;
+                    <strong>&mdash; Manajemen Sumber Daya Manusia</strong>
+                </div>
+            </div>
+
+            <div class="visual-footer">
+                <span>&copy; 2026 Sistem Informasi Penilaian Kinerja Karyawan.</span>
+                <span>Hak Cipta Dilindungi.</span>
+            </div>
+        </div>
+
+        <!-- PANEL KANAN (Form Login) -->
+        <div class="auth-form-side">
+            <div class="form-wrapper">
+                <div class="form-header-badge">
+                    <i class="fas fa-shield-halved"></i> Portal Akses Pengguna
+                </div>
+
+                <div class="form-header">
+                    <h1>Masuk ke Sistem</h1>
+                    <p>Masukkan alamat email dan kata sandi Anda untuk mengakses akun.</p>
+                </div>
+
+                <!-- Alert Message -->
+                <div class="alert-box" id="alertBox">
+                    <i class="fas fa-circle-exclamation mt-1" id="alertIcon"></i>
+                    <div id="alertMessage"></div>
+                </div>
+
+                <!-- Form Login -->
+                <form id="formLogin" onsubmit="event.preventDefault(); submitLoginAction();">
+                    <div class="form-group">
+                        <label class="form-label" for="loginEmail">Alamat Email</label>
+                        <div class="input-group-custom">
+                            <i class="fas fa-envelope input-icon-left"></i>
+                            <input type="email" id="loginEmail" class="input-custom" placeholder="contoh@sistempenilaian.com" required autocomplete="username" />
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label mb-0" for="loginPassword">Kata Sandi</label>
+                            <a href="/Account/ForgotPassword" class="text-teal" style="font-size: 11.5px; text-decoration: none; font-weight: 600;">
+                                <i class="fas fa-key me-1"></i> Lupa Kata Sandi?
+                            </a>
+                        </div>
+                        <div class="input-group-custom">
+                            <i class="fas fa-lock input-icon-left"></i>
+                            <input type="password" id="loginPassword" class="input-custom" placeholder="••••••••" required autocomplete="current-password" />
+                            <button type="button" class="btn-password-toggle" onclick="togglePasswordVisibility('loginPassword', 'eyeIcon')" title="Tampilkan/Sembunyikan sandi">
+                                <i class="fas fa-eye" id="eyeIcon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="submit" id="btnSubmit" class="btn-submit-main">
+                        <i class="fas fa-arrow-right-to-bracket"></i>
+                        <span>Masuk ke Sistem</span>
+                    </button>
+                </form>
+
+                <!-- Quick Fill Demo -->
+                <div class="demo-section-box">
+                    <div class="demo-title-row">
+                        <span><i class="fas fa-bolt text-warning me-1"></i> Akses Cepat Akun Percobaan</span>
+                    </div>
+
+                    <div class="demo-card-item" onclick="quickFillAccount('hrd@sistempenilaian.com', 'Admin123!')" title="Gunakan Akun HRD">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="demo-avatar" style="background:linear-gradient(135deg, #0d9488, #0f766e);">HR</div>
+                            <div class="demo-meta">
+                                <div class="demo-name">Administrator HRD</div>
+                                <div class="demo-email">hrd@sistempenilaian.com</div>
+                            </div>
+                        </div>
+                        <div class="demo-badge-action">Gunakan &rarr;</div>
+                    </div>
+
+                    <div class="demo-card-item" onclick="quickFillAccount('budi@sistempenilaian.com', 'Karyawan123!')" title="Gunakan Akun Karyawan Budi">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="demo-avatar" style="background:linear-gradient(135deg, #0284c7, #0369a1);">BS</div>
+                            <div class="demo-meta">
+                                <div class="demo-name">Budi Santoso (Karyawan)</div>
+                                <div class="demo-email">budi@sistempenilaian.com</div>
+                            </div>
+                        </div>
+                        <div class="demo-badge-action">Gunakan &rarr;</div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Core Scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="~/js/api-config.js" asp-append-version="true"></script>
+
+    <script>
+        function togglePasswordVisibility(inputId, iconId) {
+            var $input = $('#' + inputId);
+            var $icon = $('#' + iconId);
+            if ($input.attr('type') === 'password') {
+                $input.attr('type', 'text');
+                $icon.removeClass('fa-eye').addClass('fa-eye-slash');
+            } else {
+                $input.attr('type', 'password');
+                $icon.removeClass('fa-eye-slash').addClass('fa-eye');
+            }
+        }
+
+        function showAlert(msg, isSuccess) {
+            var $box = $('#alertBox');
+            var $icon = $('#alertIcon');
+            var $msg = $('#alertMessage');
+
+            $box.removeClass('alert-error alert-success');
+            if (isSuccess) {
+                $box.addClass('alert-success');
+                $icon.removeClass().addClass('fas fa-circle-check mt-1');
+            } else {
+                $box.addClass('alert-error');
+                $icon.removeClass().addClass('fas fa-circle-exclamation mt-1');
+            }
+            $msg.html(msg);
+            $box.css('display', 'flex');
+        }
+
+        function quickFillAccount(email, password) {
+            $('#loginEmail').val(email);
+            $('#loginPassword').val(password);
+            $('#alertBox').hide();
+        }
+
+        function submitLoginAction() {
+            var email = $('#loginEmail').val().trim();
+            var password = $('#loginPassword').val();
+
+            if (!email || !password) {
+                showAlert('Harap isi alamat email dan kata sandi.', false);
+                return;
+            }
+
+            $.ajax({
+                url: API_BASE_URL + '/auth/login',
+                type: 'POST',
+                contentType: 'application/json',
+                dataType: 'json',
+                data: JSON.stringify({ email: email, password: password }),
+                beforeSend: function () {
+                    $('#btnSubmit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i> Otentikasi...');
+                    $('#alertBox').hide();
+                },
+                success: function (res) {
+                    if (res.success && res.token) {
+                        window.AuthSession.setToken(res.token);
+                        window.AuthSession.setUser(res.user);
+
+                        showAlert('Login berhasil! Mengarahkan ke sistem...', true);
+
+                        setTimeout(function () {
+                            if (res.user && res.user.roleId === 2) {
+                                window.location.href = '/Karyawan/Beranda';
+                            } else {
+                                window.location.href = '/Admin/Dashboard';
+                            }
+                        }, 600);
+                    } else {
+                        $('#btnSubmit').prop('disabled', false).html('<i class="fas fa-arrow-right-to-bracket"></i> <span>Masuk ke Sistem</span>');
+                        showAlert(res.message || 'Login gagal.', false);
+                    }
+                },
+                error: function (xhr) {
+                    $('#btnSubmit').prop('disabled', false).html('<i class="fas fa-arrow-right-to-bracket"></i> <span>Masuk ke Sistem</span>');
+                    var msg = 'Email atau kata sandi tidak cocok.';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
+                    showAlert(msg, false);
+                }
+            });
+        }
+        $(function () {
+            var urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('sessionExpired') === '1') {
+                showAlert('Sesi login Anda telah berakhir. Silakan masuk kembali untuk melanjutkan.', false);
+                if (window.history && window.history.replaceState) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+            } else {
+                try {
+                    var token = window.AuthSession ? window.AuthSession.getToken() : null;
+                    var user = window.AuthSession ? window.AuthSession.getUser() : null;
+                    if (token && user && user.roleId) {
+                        if (user.roleId === 2) {
+                            window.location.href = '/Karyawan/Dashboard';
+                        } else {
+                            window.location.href = '/Admin/Dashboard';
+                        }
+                    }
+                } catch (e) { }
+            }
+        });
+    </script>
+</body>
+</html>

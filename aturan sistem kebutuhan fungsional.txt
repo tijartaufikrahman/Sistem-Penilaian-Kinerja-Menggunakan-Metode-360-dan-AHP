@@ -1,0 +1,68 @@
+================================================================================
+ATURAN SISTEM KEBUTUHAN FUNGSIONAL (360 - AHP)
+================================================================================
+
+1. AKTOR SISTEM
+--------------------------------------------------------------------------------
+1. HRD      : Pengelola data master, penentu bobot AHP melalui perbandingan berpasangan, 
+              pengelola master kategori, pembuat periode, serta pengambil keputusan hasil evaluasi.
+2. Karyawan : Penilai (evaluator) 360 derajat (menilai rekan, atasan, dan evaluasi diri) 
+              serta penerima rapor hasil evaluasi kinerja pribadi.
+
+
+2. KEBUTUHAN FUNGSIONAL AKTOR HRD
+--------------------------------------------------------------------------------
+Kode       | Kebutuhan Fungsional        | Keterangan
+-----------+-----------------------------+-------------------------------------------------------------
+F-HRD-01   | Login & Logout              | Masuk dan keluar sistem sebagai administrator (Role HRD).
+F-HRD-02   | Kelola Data Karyawan        | Tambah, ubah, aktifkan/nonaktifkan akun Karyawan (Kode KRY).
+F-HRD-03   | Kelola Master Kategori      | Atur rentang skor minimum, maksimum, nama kategori & rekomendasi.
+F-HRD-04   | Input Perbandingan AHP      | AKTIVITAS UTAMA: HRD mengisi 21 pasangan perbandingan berpasangan
+           |                             | antar 7 kriteria (skala Saaty 1-9) untuk membuat Master_BobotAHP.
+F-HRD-05   | Validasi Konsistensi AHP    | Sistem otomatis hitung CR. Jika CR > 0.1 ditolak, jika CR <= 0.1
+           |                             | sistem mengizinkan penguncian bobot.
+F-HRD-06   | Kunci Master Bobot AHP      | Mengunci dan mengaktifkan aturan bobot baru (Kode RUL-AHP-xx).
+F-HRD-07   | Kelola Periode Penilaian    | Buka periode baru dengan memilih Master Bobot AHP yang aktif, 
+           |                             | serta menutup/mengunci periode selesai.
+F-HRD-08   | Monitoring Penilaian 360    | Memantau input nilai yang masuk dari para karyawan.
+F-HRD-09   | Proses Kalkulasi SPK        | Memicu sistem menghitung rata-rata 360, mengalikan bobot AHP, 
+           |                             | menentukan KategoriId & Rekomendasi, serta membuat Ranking.
+F-HRD-10   | Laporan Hasil Akhir         | Melihat tabel hasil lengkap HasilPenilaianSistem.
+F-HRD-11   | Cetak / Ekspor Laporan      | Mengunduh laporan hasil evaluasi periode aktif dalam format PDF/Excel.
+F-HRD-12   | History Penilaian Global    | Mengakses seluruh arsip data hasil penilaian periode-periode terdahulu.
+F-HRD-13   | History Tren Karyawan       | Memantau grafik rekam jejak performa individu lintas periode.
+
+
+3. KEBUTUHAN FUNGSIONAL AKTOR KARYAWAN
+--------------------------------------------------------------------------------
+Kode       | Kebutuhan Fungsional        | Keterangan
+-----------+-----------------------------+-------------------------------------------------------------
+F-KAR-01   | Login & Logout              | Masuk dan keluar sistem dengan akun karyawan pribadi.
+F-KAR-02   | Daftar Tugas Evaluasi 360   | Melihat daftar rekan kerja, atasan, atau form evaluasi diri yang harus dinilai.
+F-KAR-03   | Input Kuesioner (7 Kriteria)| Menginputkan nilai 1.00 - 100.00 untuk 7 parameter kriteria.
+F-KAR-04   | Validasi & Kirim Evaluasi   | Sistem memvalidasi kelengkapan 7 nilai sebelum data tersimpan ke Penilaian360.
+F-KAR-05   | History Formulir Terisi     | Melihat arsip kuesioner yang pernah ia kirimkan (mode read-only).
+F-KAR-06   | History Rapor Pribadi       | Melihat riwayat skor akhir AHP, kategori, dan rekomendasi kontrak 
+           |                             | dirinya sendiri dari setiap periode yang telah disahkan HRD.
+
+
+4. MATRIKS HAK AKSES SISTEM (ACCESS CONTROL MATRIX)
+--------------------------------------------------------------------------------
+Fitur / Modul                                    | HRD        | Karyawan
+-------------------------------------------------+------------+-----------------
+Login & Logout                                   | Ya         | Ya
+Kelola Data Pengguna / Karyawan                  | Ya         | Tidak
+Kelola Master Kategori & Rekomendasi             | Ya         | Tidak
+Input Perbandingan Berpasangan 7 Kriteria (AHP)  | Ya         | Tidak
+Validasi CR & Kunci Master Bobot AHP             | Ya         | Tidak
+Buka / Kunci Periode Penilaian                   | Ya         | Tidak
+Monitoring Transaksi Penilaian 360               | Ya         | Tidak
+Input Nilai Penilaian 360 (7 Kriteria)           | Tidak      | Ya
+Proses Kalkulasi & Terbitkan Hasil Sistem        | Ya         | Tidak
+Lihat Laporan Ranking & Keputusan Semua Karyawan | Ya         | Tidak
+Cetak / Ekspor Dokumen Laporan                   | Ya         | Tidak
+History Seluruh Periode Perusahaan               | Ya         | Tidak
+History Tren Kinerja Karyawan                    | Ya         | Tidak
+History Pengisian Kuesioner Pribadi              | Tidak      | Ya
+History Rapor Kinerja Pribadi                    | Tidak      | Ya
+================================================================================

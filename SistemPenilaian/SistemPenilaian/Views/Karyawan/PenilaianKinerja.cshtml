@@ -1,0 +1,1008 @@
+@{
+    ViewData["Title"] = "Penilaian Kinerja";
+}
+
+<style>
+    /* ── Criterion Box ── */
+    .criterion-box-v2 {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.15rem 1.25rem;
+        margin-bottom: 0.85rem;
+        transition: all 0.2s ease;
+    }
+    .criterion-box-v2:hover {
+        border-color: #99f6e4;
+        box-shadow: 0 2px 10px rgba(13, 148, 136, 0.06);
+    }
+    .criterion-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0d9488, #14b8a6);
+        color: #fff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    /* ── Score Display ── */
+    .score-display-big {
+        font-size: 28px;
+        font-weight: 800;
+        font-family: 'Courier New', monospace;
+        color: #0d9488;
+        line-height: 1;
+    }
+
+    /* ── Custom Range ── */
+    .form-range::-webkit-slider-thumb { background: #0d9488; }
+    .form-range::-moz-range-thumb { background: #0d9488; }
+
+    /* ── Compact Card Header & Table Spacing ── */
+    .admin-card-header.compact-header {
+        padding: 0.75rem 1.15rem !important;
+    }
+    .admin-card-header.compact-header .admin-card-title {
+        font-size: 0.92rem !important;
+    }
+    .admin-card-header.compact-header .admin-card-desc {
+        font-size: 0.73rem !important;
+    }
+    .compact-table-card .table-responsive {
+        padding: 0.75rem 1.15rem 1rem !important;
+    }
+    .compact-table-card .dataTables_wrapper > .row:first-child {
+        margin-bottom: 0.5rem !important;
+    }
+    .compact-table-card .dataTables_wrapper > .row:nth-child(2) > div,
+    .compact-table-card .dataTables_wrapper .dt-row > div {
+        margin-bottom: 0.75rem !important;
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current" id="breadcrumbCurrent">Penilaian Kinerja</span>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- VIEW 1 ─ DAFTAR PERIODE PENILAIAN (CARD TABLE)            -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div id="viewDaftarPeriode">
+            <div class="admin-card compact-table-card mb-4">
+                <div class="admin-card-header compact-header">
+                    <div class="row align-items-center g-2 w-100 m-0">
+                        <div class="col-12 col-md p-0">
+                            <h3 class="admin-card-title">Daftar Periode Penilaian</h3>
+                            <p class="admin-card-desc mb-0">Pilih periode penilaian yang sedang berlangsung untuk melihat daftar rekan kerja yang perlu dievaluasi</p>
+                        </div>
+                        <div class="col-12 col-md-auto ms-md-auto p-0 text-md-end">
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="loadPeriodeList()">
+                                <i class="fas fa-sync-alt me-1"></i> Segarkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="tablePeriodePenilaian">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th style="width: 45px; text-align: center;">NO</th>
+                                <th style="width: 130px;">KODE</th>
+                                <th>NAMA PERIODE</th>
+                                <th class="text-center" style="width: 130px;">STATUS</th>
+                                <th style="text-align: right; width: 100px;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablePeriodeBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- VIEW 2 ─ DAFTAR KARYAWAN YANG DINILAI (CARD TABLE)         -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div id="viewDaftarTugas" style="display:none;">
+            <div class="admin-card compact-table-card mb-4">
+                <div class="admin-card-header compact-header">
+                    <div class="row align-items-center g-2 w-100 m-0">
+                        <div class="col-12 col-md p-0">
+                            <h3 class="admin-card-title" id="cardTitleDaftarTugas">Daftar Karyawan yang Perlu Dinilai</h3>
+                            <p class="admin-card-desc mb-0" id="cardDescDaftarTugas">Pilih rekan kerja dari daftar untuk membuka dan mengisi formulir penilaian kinerja</p>
+                        </div>
+                        <div class="col-12 col-md-auto ms-md-auto p-0 d-flex gap-2">
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="kembaliKeView1()">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Periode
+                            </button>
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="loadTugasSaya()">
+                                <i class="fas fa-sync-alt me-1"></i> Segarkan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="px-3 px-md-4 pt-3" id="boxTugasProgressBanner" style="display:none;">
+                    <div class="p-3 rounded-3 border bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5" style="font-size:12.5px;">
+                            <span><i class="fas fa-tasks text-teal me-1.5"></i> Progres Evaluasi Rekan Kerja: <strong class="text-dark" id="textTugasRatio">0 / 0 Rekan</strong></span>
+                            <span class="fw-bold font-monospace text-teal" id="textTugasPct">0%</span>
+                        </div>
+                        <div class="progress" style="height:7px;">
+                            <div class="progress-bar bg-teal" id="barTugasRatio" role="progressbar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="tableTugasPenilaian">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th style="width: 45px; text-align: center;">NO</th>
+                                <th style="width: 120px;">KODE</th>
+                                <th>NAMA KARYAWAN</th>
+                                <th>HUBUNGAN PENILAI</th>
+                                <th class="text-center" style="width: 120px;">STATUS</th>
+                                <th style="width: 180px;">TANGGAL PENGISIAN</th>
+                                <th style="text-align: right; width: 90px;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableTugasBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <!-- VIEW 3 ─ FORMULIR PENILAIAN (FOKUS ISI NILAI)              -->
+        <!-- ═══════════════════════════════════════════════════════════ -->
+        <div id="viewFormPenilaian" style="display:none;">
+            <div class="admin-card mb-4">
+                <div class="admin-card-header">
+                    <div class="row align-items-center g-3 w-100 m-0">
+                        <div class="col-12 col-md p-0">
+                            <div class="d-flex flex-wrap align-items-center gap-2 mb-1">
+                                <h3 class="admin-card-title mb-0">Formulir Penilaian Karyawan</h3>
+                                <span id="badgeFormStatus" class="status-pill pill-active" style="display:none;"><span class="dot-indicator"></span>Selesai</span>
+                            </div>
+                            <p class="admin-card-desc mb-0">
+                                Menilai: <strong class="text-dark" id="formTargetNama">-</strong> &middot; <span id="formTargetKode">-</span>
+                            </p>
+                        </div>
+                        <div class="col-12 col-md-auto ms-md-auto p-0">
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="kembaliKeView2()">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Karyawan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 p-md-4">
+                    <!-- Notifikasi Status Jika Sudah Selesai Diisi -->
+                    <div id="alertStatusSudahDiisi" class="p-3 rounded-3 mb-3" style="display:none; background:#f0fdfa; border:1px solid #99f6e4;">
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="flex-shrink-0" style="width:34px; height:34px; border-radius:8px; background:#0d9488; color:#fff; display:flex; align-items:center; justify-content:center; font-size:15px;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="flex-grow-1" style="font-size:12.5px; color:#134e4a;">
+                                <strong class="d-block mb-1 text-teal" style="font-size:13px;">Penilaian Sudah Selesai Diisi</strong>
+                                <div style="line-height:1.45;">
+                                    Formulir penilaian ini telah selesai diisi pada <strong id="alertTanggalDiisi">-</strong>. Nilai yang tersimpan otomatis dimuat langsung ke setiap kriteria di bawah. Anda dapat melakukan perubahan nilai dan klik <strong>Perbarui Penilaian</strong> jika diperlukan.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="formPenilaian360" onsubmit="return false;">
+                        <input type="hidden" id="evaluasiTaskId" value="" />
+                        <input type="hidden" id="evaluasiPeriodeId" value="" />
+                        <input type="hidden" id="evaluasiTargetUserId" value="" />
+                        <input type="hidden" id="evaluasiTipePenilai" value="Rekan" />
+                        <input type="hidden" id="evaluasiBobotPersen" value="30" />
+                        <!-- Ringkasan Rata-rata Nilai Berjalan -->
+                        <div class="d-flex flex-wrap align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                            <div>
+                                <span class="text-muted d-block" style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.5px; font-weight:600;">Estimasi Rata-rata Nilai</span>
+                                <span class="text-muted" style="font-size:12px;">Rata-rata kumulatif dari 7 kriteria penilaian</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-3">
+                                <span id="formLiveCategory" class="status-pill pill-active" style="font-size:12px; font-weight:600;">Sangat Baik</span>
+                                <div class="d-flex align-items-baseline gap-1">
+                                    <span class="fw-bold font-monospace text-teal" id="formLiveAverage" style="font-size:26px; line-height:1;">80.0</span>
+                                    <span class="text-muted" style="font-size:12px;">/ 100</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 1. Kerjasama Tim -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">1</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Kerjasama Tim</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Koordinasi, komunikasi efektif, toleransi pendapat, dan kontribusi aktif dalam tim.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_kerjasama" min="1" max="100" value="80" oninput="syncScoreInput('kerjasama', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_kerjasama" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('kerjasama', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 2. Ketepatan Waktu -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">2</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Ketepatan Waktu</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Disiplin jam kerja, kepatuhan batas waktu pengiriman tugas (deadline), dan efisiensi kerja.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_ketepatan" min="1" max="100" value="80" oninput="syncScoreInput('ketepatan', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_ketepatan" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('ketepatan', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 3. Tanggung Jawab -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">3</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Tanggung Jawab</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Komitmen pada kewajiban tugas, integritas hasil, kejujuran kerja, dan tidak melempar kesalahan.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_tanggung" min="1" max="100" value="80" oninput="syncScoreInput('tanggung', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_tanggung" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('tanggung', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 4. Inisiatif -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">4</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Inisiatif</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Keberanian memberi ide pemecahan masalah, bergerak proaktif tanpa harus selalu menunggu instruksi.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_inisiatif" min="1" max="100" value="80" oninput="syncScoreInput('inisiatif', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_inisiatif" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('inisiatif', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 5. Keterlibatan Kerja -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">5</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Keterlibatan Kerja</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Konsentrasi penuh saat bertugas, loyalitas kerja, dan antusiasme aktif dalam agenda perusahaan.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_keterlibatan" min="1" max="100" value="80" oninput="syncScoreInput('keterlibatan', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_keterlibatan" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('keterlibatan', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 6. Interaksi Kolega -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">6</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Interaksi Kolega</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Kesantunan bergaul, empati sesama rekan, kemampuan mengelola emosi dan konflik secara dewasa.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_interaksi" min="1" max="100" value="80" oninput="syncScoreInput('interaksi', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_interaksi" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('interaksi', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- 7. Tindak Lanjut -->
+                        <div class="criterion-box-v2">
+                            <div class="d-flex align-items-start gap-3 mb-2">
+                                <span class="criterion-num">7</span>
+                                <div>
+                                    <strong style="color:#0f172a; font-size:14px;">Tindak Lanjut</strong>
+                                    <p class="text-muted mb-0" style="font-size:11.5px;">Kecepatan merespon catatan evaluasi, implementasi saran perbaikan, dan eksekusi arahan kerja.</p>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center gap-3 pt-1">
+                                <input type="range" class="form-range flex-grow-1" id="slider_tindaklanjut" min="1" max="100" value="80" oninput="syncScoreInput('tindaklanjut', this.value)" />
+                                <input type="number" class="form-field-input text-center" id="num_tindaklanjut" min="1" max="100" value="80" style="width:75px; height:36px; font-weight:700; font-size:14px; border-radius:8px;" oninput="syncScoreSlider('tindaklanjut', this.value)" />
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2 mt-4 pt-3 border-top">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn-secondary-admin" onclick="resetFormEvaluasi()">
+                                    <i class="fas fa-undo me-1"></i> Reset Nilai Default (80)
+                                </button>
+                                <button type="button" class="btn-secondary-admin" id="btnRevertSaved" style="display:none;" onclick="pulihkanNilaiTersimpan()">
+                                    <i class="fas fa-history me-1"></i> Pulihkan Nilai Tersimpan
+                                </button>
+                            </div>
+                            <button type="button" class="btn-primary-admin" id="btnSubmitEvaluasi" onclick="kirimEvaluasi360()">
+                                <i class="fas fa-paper-plane me-1"></i> Simpan &amp; Kirim Penilaian
+                            </button>
+                        </div>
+
+                        <!-- Skala Nilai Info -->
+                        <div class="d-flex flex-wrap align-items-center gap-2 mt-3 pt-3 border-top text-muted" style="font-size:12px;">
+                            <span class="fw-bold text-dark"><i class="fas fa-info-circle text-teal me-1"></i> Skala Penilaian:</span>
+                            <span><span class="status-pill pill-active me-1" style="padding:1px 6px;">80 – 100</span> Sangat Baik</span>
+                            <span class="text-muted">&bull;</span>
+                            <span><span class="status-pill pill-role me-1" style="padding:1px 6px;">60 – 79</span> Cukup</span>
+                            <span class="text-muted">&bull;</span>
+                            <span><span class="status-pill pill-inactive me-1" style="padding:1px 6px;">1 – 59</span> Kurang</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var periodeList = [];
+    var currentMyTasks = [];
+    var activePeriodeId = null;
+    var activePeriodeObj = null;
+    var selectedTaskIndex = -1;
+
+    var dtPeriodePenilaian = null;
+    var dtTugasPenilaian = null;
+
+    /* ══════════════════════════════════════════════════════════════════
+       ROUTING & URL SYNC
+       ══════════════════════════════════════════════════════════════════ */
+
+    function getUrlParams() {
+        var params = new URLSearchParams(window.location.search);
+        var pId = parseInt(params.get('periodeId'));
+        var tId = parseInt(params.get('taskId'));
+        return {
+            periodeId: (!isNaN(pId) && pId > 0) ? pId : null,
+            taskId: (!isNaN(tId) && tId > 0) ? tId : null
+        };
+    }
+
+    function setUrlState(periodeId, taskId, replace) {
+        var url = '/Karyawan/PenilaianKinerja';
+        if (periodeId && taskId) {
+            url += '?periodeId=' + periodeId + '&taskId=' + taskId;
+        } else if (periodeId) {
+            url += '?periodeId=' + periodeId;
+        }
+
+        var currentUrl = window.location.pathname + window.location.search;
+        if (currentUrl !== url) {
+            if (replace) {
+                window.history.replaceState({ periodeId: periodeId, taskId: taskId }, '', url);
+            } else {
+                window.history.pushState({ periodeId: periodeId, taskId: taskId }, '', url);
+            }
+        }
+    }
+
+    function applyRouteFromUrl() {
+        var params = getUrlParams();
+
+        if (!params.periodeId) {
+            activePeriodeId = null;
+            activePeriodeObj = null;
+            $('#breadcrumbCurrent').text('Penilaian Kinerja');
+            showView('viewDaftarPeriode');
+            if (!periodeList || periodeList.length === 0) {
+                loadPeriodeList();
+            } else {
+                renderPeriodeTable();
+            }
+            return;
+        }
+
+        activePeriodeId = params.periodeId;
+        var proceed = function () {
+            activePeriodeObj = periodeList.find(function (p) { return p.id == activePeriodeId || p.Id == activePeriodeId; });
+            if (!activePeriodeObj) {
+                setUrlState(null, null, true);
+                kembaliKeView1(true);
+                return;
+            }
+
+            var kode = activePeriodeObj.kodePeriode || activePeriodeObj.KodePeriode || ('PRD-' + (activePeriodeObj.id || activePeriodeObj.Id));
+            var nama = activePeriodeObj.namaPeriode || activePeriodeObj.NamaPeriode || '';
+            $('#cardTitleDaftarTugas').text('Daftar Karyawan yang Harus Dinilai — ' + nama);
+            $('#cardDescDaftarTugas').text('Periode: ' + kode + ' · Klik salah satu baris untuk membuka formulir penilaian');
+            $('#breadcrumbCurrent').html(
+                '<span style="cursor:pointer;" onclick="kembaliKeView1()">Penilaian Kinerja</span>' +
+                ' <span class="breadcrumb-separator">/</span> ' + escHtml(kode)
+            );
+
+            loadTugasSaya(function () {
+                if (params.taskId) {
+                    var taskIndex = currentMyTasks.findIndex(function (t) { return t.id == params.taskId || t.Id == params.taskId; });
+                    if (taskIndex !== -1) {
+                        bukaFormPenilaian(taskIndex, true);
+                    } else {
+                        setUrlState(activePeriodeId, null, true);
+                        showView('viewDaftarTugas');
+                    }
+                } else {
+                    showView('viewDaftarTugas');
+                }
+            });
+        };
+
+        if (!periodeList || periodeList.length === 0) {
+            loadPeriodeList(proceed);
+        } else {
+            proceed();
+        }
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       VIEW 1 ─ DAFTAR PERIODE (TABLE)
+       ══════════════════════════════════════════════════════════════════ */
+
+    function loadPeriodeList(callback) {
+        if (dtPeriodePenilaian) {
+            dtPeriodePenilaian.destroy();
+            dtPeriodePenilaian = null;
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/periode',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tablePeriodeBody').html('<tr><td colspan="5" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Memuat daftar periode...</td></tr>');
+            },
+            success: function (data) {
+                periodeList = data || [];
+                renderPeriodeTable();
+                if (typeof callback === 'function') callback();
+            },
+            error: function () {
+                $('#tablePeriodeBody').html('<tr><td colspan="5" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Gagal memuat data periode.</td></tr>');
+            }
+        });
+    }
+
+    function renderPeriodeTable() {
+        if (dtPeriodePenilaian) {
+            dtPeriodePenilaian.destroy();
+            dtPeriodePenilaian = null;
+        }
+
+        if (!periodeList || periodeList.length === 0) {
+            $('#tablePeriodeBody').html(
+                '<tr><td colspan="5" class="text-center py-4 text-muted">' +
+                    '<i class="fas fa-calendar-times fa-2x mb-2 d-block"></i>Belum ada periode penilaian terdaftar.' +
+                '</td></tr>'
+            );
+            return;
+        }
+
+        var rows = '';
+        for (var i = 0; i < periodeList.length; i++) {
+            var p = periodeList[i];
+            var isActive = (p.status === 'Berjalan');
+            var statusBadge = isActive
+                ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Berjalan</span>'
+                : '<span class="status-pill pill-inactive"><span class="dot-indicator"></span>' + escHtml(p.status || 'Selesai') + '</span>';
+
+            rows +=
+                '<tr style="cursor:pointer;" onclick="masukPeriode(' + p.id + ')">' +
+                    '<td class="text-center">' + (i + 1) + '</td>' +
+                    '<td><span class="fw-bold font-monospace text-dark">' + escHtml(p.kodePeriode || ('PRD-' + p.id)) + '</span></td>' +
+                    '<td><strong>' + escHtml(p.namaPeriode) + '</strong></td>' +
+                    '<td class="text-center">' + statusBadge + '</td>' +
+                    '<td class="text-end">' +
+                        '<button type="button" class="btn-primary-admin btn-sm" onclick="event.stopPropagation(); masukPeriode(' + p.id + ')">' +
+                            '<i class="fas fa-arrow-right me-1"></i> Buka' +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+        }
+
+        $('#tablePeriodeBody').html(rows);
+
+        dtPeriodePenilaian = $('#tablePeriodePenilaian').DataTable({
+            pageLength: 10,
+            lengthMenu: window.dtLengthMenuConfig || [[5, 10, 25, -1], [5, 10, 25, 'Semua']],
+            language: window.dtLanguageConfig || {},
+            ordering: true,
+            info: true
+        });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       VIEW 2 ─ DAFTAR TUGAS / KARYAWAN YG DINILAI (TABLE)
+       ══════════════════════════════════════════════════════════════════ */
+
+    function masukPeriode(periodeId, skipHistory) {
+        activePeriodeId = periodeId;
+        activePeriodeObj = periodeList.find(function (p) { return p.id == periodeId || p.Id == periodeId; });
+
+        if (activePeriodeObj) {
+            var kode = activePeriodeObj.kodePeriode || activePeriodeObj.KodePeriode || ('PRD-' + (activePeriodeObj.id || activePeriodeObj.Id));
+            var nama = activePeriodeObj.namaPeriode || activePeriodeObj.NamaPeriode || '';
+            $('#cardTitleDaftarTugas').text('Daftar Karyawan yang Harus Dinilai — ' + nama);
+            $('#cardDescDaftarTugas').text('Periode: ' + kode + ' · Klik salah satu baris untuk membuka formulir penilaian');
+            $('#breadcrumbCurrent').html(
+                '<span style="cursor:pointer;" onclick="kembaliKeView1()">Penilaian Kinerja</span>' +
+                ' <span class="breadcrumb-separator">/</span> ' +
+                escHtml(kode)
+            );
+        }
+
+        if (!skipHistory) {
+            setUrlState(periodeId, null);
+        }
+
+        showView('viewDaftarTugas');
+        loadTugasSaya();
+    }
+
+    function loadTugasSaya(callback) {
+        var currentUser = window.AuthSession ? window.AuthSession.getUser() : null;
+        if (!currentUser) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        if (dtTugasPenilaian) {
+            dtTugasPenilaian.destroy();
+            dtTugasPenilaian = null;
+        }
+
+        var periodeId = activePeriodeId || 0;
+        $.ajax({
+            url: API_BASE_URL + '/penilaian360/tugas-saya?penilaiId=' + currentUser.id + (periodeId > 0 ? '&periodeId=' + periodeId : ''),
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableTugasBody').html('<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Memuat tugas penilaian...</td></tr>');
+            },
+            success: function (tasks) {
+                currentMyTasks = tasks || [];
+                renderDaftarTugas();
+                if (typeof callback === 'function') callback();
+            },
+            error: function () {
+                $('#tableTugasBody').html('<tr><td colspan="7" class="text-center py-4 text-danger"><i class="fas fa-exclamation-triangle me-2"></i> Gagal memuat tugas penilaian.</td></tr>');
+            }
+        });
+    }
+
+    function formatTanggalText(tgl) {
+        if (!tgl) return '-';
+        try {
+            var raw = String(tgl).trim();
+            // Match ISO or SQL format: 2026-09-23 05:10:27 or 2026-09-23T05:10:27 or 2026-09-23 05:10
+            var match = raw.match(/^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}:\d{2}))?/);
+            if (match) {
+                var timePart = match[4] ? ' ' + match[4] : '';
+                return match[3] + '/' + match[2] + '/' + match[1] + timePart;
+            }
+
+            // Match if already slash: DD/MM/YYYY
+            var matchSlash = raw.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:[ T](\d{2}:\d{2}))?/);
+            if (matchSlash) {
+                return raw;
+            }
+
+            var d = new Date(raw.replace(' ', 'T'));
+            if (!isNaN(d.getTime())) {
+                var day = String(d.getDate()).padStart(2, '0');
+                var month = String(d.getMonth() + 1).padStart(2, '0');
+                var year = d.getFullYear();
+                var hours = String(d.getHours()).padStart(2, '0');
+                var minutes = String(d.getMinutes()).padStart(2, '0');
+                return day + '/' + month + '/' + year + ' ' + hours + ':' + minutes;
+            }
+        } catch (e) {}
+
+        return String(tgl);
+    }
+
+    function formatTanggalDiisi(tgl, status) {
+        if (status !== 'Selesai' || !tgl) {
+            return '<span class="text-muted fst-italic" style="font-size:12px;">Belum diisi</span>';
+        }
+
+        var formatted = formatTanggalText(tgl);
+        return '<span class="text-nowrap" style="color:#334155; font-size:12.5px; font-weight:500;">' +
+            '<i class="far fa-calendar-check text-teal me-1"></i>' + escHtml(formatted) +
+        '</span>';
+    }
+
+    function renderDaftarTugas() {
+        if (dtTugasPenilaian) {
+            dtTugasPenilaian.destroy();
+            dtTugasPenilaian = null;
+        }
+
+        if (!currentMyTasks || currentMyTasks.length === 0) {
+            $('#boxTugasProgressBanner').hide();
+            $('#tableTugasBody').html(
+                '<tr><td colspan="7" class="text-center py-4 text-muted">' +
+                    '<i class="fas fa-inbox fa-2x mb-2 d-block"></i>Tidak ada tugas penilaian karyawan pada periode ini.' +
+                '</td></tr>'
+            );
+            return;
+        }
+
+        var totalTasks = currentMyTasks.length;
+        var doneTasks = 0;
+        for (var i = 0; i < totalTasks; i++) {
+            var itm = currentMyTasks[i];
+            if (itm.statusPengisian === 'Selesai' || itm.StatusPengisian === 'Selesai') {
+                doneTasks++;
+            }
+        }
+        var pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+        $('#textTugasRatio').text(doneTasks + ' / ' + totalTasks + ' Rekan');
+        $('#textTugasPct').text(pct + '%');
+        $('#barTugasRatio').css('width', pct + '%');
+        $('#boxTugasProgressBanner').show();
+
+        var rows = '';
+        for (var idx = 0; idx < currentMyTasks.length; idx++) {
+            var item = currentMyTasks[idx];
+            var isDone = (item.statusPengisian === 'Selesai' || item.StatusPengisian === 'Selesai');
+            var relationLabel = (item.tipePenilai === 'Self' || item.TipePenilai === 'Self') ? 'Self Assessment' : 'Peer Review';
+            var statusBadge = isDone
+                ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Selesai</span>'
+                : '<span class="status-pill pill-pending"><span class="dot-indicator"></span>Belum Diisi</span>';
+            var tglDiisiHtml = formatTanggalDiisi(item.tanggalPenilaian || item.TanggalPenilaian, item.statusPengisian || item.StatusPengisian);
+            var btnLabel = isDone ? 'Lihat / Ubah' : 'Nilai';
+            var btnIcon = isDone ? 'fa-eye' : 'fa-pen';
+
+            rows +=
+                '<tr style="cursor:pointer;" onclick="bukaFormPenilaian(' + idx + ')">' +
+                    '<td class="text-center">' + (idx + 1) + '</td>' +
+                    '<td><span class="fw-bold font-monospace text-dark">' + escHtml(item.kodeKaryawanDinilai || item.KodeKaryawanDinilai || '-') + '</span></td>' +
+                    '<td><strong>' + escHtml(item.namaKaryawanDinilai || item.NamaKaryawanDinilai || '-') + '</strong></td>' +
+                    '<td>' + relationLabel + '</td>' +
+                    '<td class="text-center">' + statusBadge + '</td>' +
+                    '<td>' + tglDiisiHtml + '</td>' +
+                    '<td class="text-end">' +
+                        '<button type="button" class="btn-secondary-admin btn-sm" onclick="event.stopPropagation(); bukaFormPenilaian(' + idx + ')">' +
+                            '<i class="fas ' + btnIcon + ' me-1"></i> ' + btnLabel +
+                        '</button>' +
+                    '</td>' +
+                '</tr>';
+        }
+
+        $('#tableTugasBody').html(rows);
+
+        dtTugasPenilaian = $('#tableTugasPenilaian').DataTable({
+            pageLength: 10,
+            lengthMenu: window.dtLengthMenuConfig || [[5, 10, 25, -1], [5, 10, 25, 'Semua']],
+            language: window.dtLanguageConfig || {},
+            ordering: true,
+            info: true
+        });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       VIEW 3 ─ FORM PENILAIAN
+       ══════════════════════════════════════════════════════════════════ */
+
+    function getTaskScore(task, snakeProp, camelProp, defaultVal) {
+        if (!task) return defaultVal;
+        if (task[snakeProp] !== undefined && task[snakeProp] !== null && !isNaN(parseFloat(task[snakeProp]))) {
+            return Math.round(parseFloat(task[snakeProp]));
+        }
+        if (camelProp && task[camelProp] !== undefined && task[camelProp] !== null && !isNaN(parseFloat(task[camelProp]))) {
+            return Math.round(parseFloat(task[camelProp]));
+        }
+        var pascalProp = snakeProp.charAt(0).toUpperCase() + snakeProp.slice(1);
+        if (task[pascalProp] !== undefined && task[pascalProp] !== null && !isNaN(parseFloat(task[pascalProp]))) {
+            return Math.round(parseFloat(task[pascalProp]));
+        }
+        return defaultVal;
+    }
+
+    function pulihkanNilaiTersimpan() {
+        if (selectedTaskIndex < 0 || !currentMyTasks || !currentMyTasks[selectedTaskIndex]) return;
+        var task = currentMyTasks[selectedTaskIndex];
+        setScoreValue('kerjasama', getTaskScore(task, 'kerjasama_tim', 'kerjasamaTim', 80));
+        setScoreValue('ketepatan', getTaskScore(task, 'ketepatan_waktu', 'ketepatanWaktu', 80));
+        setScoreValue('tanggung', getTaskScore(task, 'tanggung_jawab', 'tanggungJawab', 80));
+        setScoreValue('inisiatif', getTaskScore(task, 'inisiatif', 'inisiatif', 80));
+        setScoreValue('keterlibatan', getTaskScore(task, 'keterlibatan_kerja', 'keterlibatanKerja', 80));
+        setScoreValue('interaksi', getTaskScore(task, 'interaksi_kolega', 'interaksiKolega', 80));
+        setScoreValue('tindaklanjut', getTaskScore(task, 'tindak_lanjut', 'tindakLanjut', 80));
+        updateLiveAverage();
+    }
+
+    function bukaFormPenilaian(index, skipHistory) {
+        if (!currentMyTasks || index < 0 || index >= currentMyTasks.length) return;
+        selectedTaskIndex = index;
+        var task = currentMyTasks[index];
+
+        $('#evaluasiTaskId').val(task.id || task.Id);
+        $('#evaluasiPeriodeId').val(task.periodeId || task.PeriodeId);
+        $('#evaluasiTargetUserId').val(task.userId || task.UserId || task.targetUserId || 0);
+        $('#evaluasiTipePenilai').val(task.tipePenilai || task.TipePenilai || 'Rekan');
+        $('#evaluasiBobotPersen').val(task.bobotPersen || task.BobotPersen || 30);
+
+        $('#formTargetNama').text(task.namaKaryawanDinilai || task.NamaKaryawanDinilai || '-');
+        var kodeKaryawan = task.kodeKaryawanDinilai || task.KodeKaryawanDinilai || '-';
+        var tipePenilai = task.tipePenilai || task.TipePenilai || 'Rekan';
+        $('#formTargetKode').text(kodeKaryawan + ' · ' + (tipePenilai === 'Self' ? 'Self Assessment' : 'Peer Review'));
+
+        // Update breadcrumb
+        var periodeKode = activePeriodeObj ? (activePeriodeObj.kodePeriode || activePeriodeObj.KodePeriode || ('PRD-' + (activePeriodeObj.id || activePeriodeObj.Id))) : '';
+        $('#breadcrumbCurrent').html(
+            '<span style="cursor:pointer;" onclick="kembaliKeView1()">Penilaian Kinerja</span>' +
+            ' <span class="breadcrumb-separator">/</span> ' +
+            '<span style="cursor:pointer;" onclick="kembaliKeView2()">' + escHtml(periodeKode) + '</span>' +
+            ' <span class="breadcrumb-separator">/</span> ' +
+            escHtml(task.namaKaryawanDinilai || task.NamaKaryawanDinilai || '')
+        );
+
+        var isDone = (task.statusPengisian === 'Selesai' || task.StatusPengisian === 'Selesai');
+        if (isDone) {
+            $('#badgeFormStatus')
+                .attr('class', 'status-pill pill-active')
+                .html('<span class="dot-indicator"></span>Selesai')
+                .show();
+
+            var tglRaw = task.tanggalPenilaian || task.TanggalPenilaian;
+            var tglDiisiFormatted = formatTanggalText(tglRaw);
+            $('#alertTanggalDiisi').text(tglDiisiFormatted);
+            $('#alertStatusSudahDiisi').show();
+
+            $('#btnSubmitEvaluasi').html('<i class="fas fa-check me-1"></i> Perbarui Penilaian');
+            $('#btnRevertSaved').show();
+
+            pulihkanNilaiTersimpan();
+        } else {
+            $('#badgeFormStatus')
+                .attr('class', 'status-pill pill-pending')
+                .html('<span class="dot-indicator"></span>Belum Diisi')
+                .show();
+
+            $('#alertStatusSudahDiisi').hide();
+            $('#btnSubmitEvaluasi').html('<i class="fas fa-paper-plane me-1"></i> Simpan &amp; Kirim Penilaian');
+            $('#btnRevertSaved').hide();
+
+            resetFormEvaluasi();
+        }
+
+        if (!skipHistory) {
+            setUrlState(activePeriodeId, task.id || task.Id);
+        }
+
+        showView('viewFormPenilaian');
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       NAVIGATION
+       ══════════════════════════════════════════════════════════════════ */
+
+    function showView(viewId) {
+        $('#viewDaftarPeriode, #viewDaftarTugas, #viewFormPenilaian').hide();
+        $('#' + viewId).show();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function kembaliKeView1(skipHistory) {
+        activePeriodeId = null;
+        activePeriodeObj = null;
+        $('#breadcrumbCurrent').text('Penilaian Kinerja');
+        if (!skipHistory) {
+            setUrlState(null, null);
+        }
+        showView('viewDaftarPeriode');
+        if (!periodeList || periodeList.length === 0) {
+            loadPeriodeList();
+        }
+    }
+
+    function kembaliKeView2(skipHistory) {
+        if (!skipHistory && activePeriodeId) {
+            setUrlState(activePeriodeId, null);
+        }
+        if (activePeriodeObj) {
+            var kode = activePeriodeObj.kodePeriode || activePeriodeObj.KodePeriode || ('PRD-' + (activePeriodeObj.id || activePeriodeObj.Id));
+            $('#breadcrumbCurrent').html(
+                '<span style="cursor:pointer;" onclick="kembaliKeView1()">Penilaian Kinerja</span>' +
+                ' <span class="breadcrumb-separator">/</span> ' + escHtml(kode)
+            );
+        }
+        showView('viewDaftarTugas');
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       SCORE HELPERS
+       ══════════════════════════════════════════════════════════════════ */
+
+    function syncScoreInput(crit, val) {
+        var num = parseInt(val) || 1;
+        if (num > 100) num = 100;
+        if (num < 1) num = 1;
+        $('#num_' + crit).val(num);
+        $('#slider_' + crit).val(num);
+        updateLiveAverage();
+    }
+
+    function syncScoreSlider(crit, val) {
+        var num = parseInt(val) || 1;
+        if (num > 100) num = 100;
+        if (num < 1) num = 1;
+        $('#slider_' + crit).val(num);
+        $('#num_' + crit).val(num);
+        updateLiveAverage();
+    }
+
+    function setScoreValue(crit, val) {
+        var num = parseInt(val) || 80;
+        $('#slider_' + crit).val(num);
+        $('#num_' + crit).val(num);
+    }
+
+    function resetFormEvaluasi() {
+        var criteria = ['kerjasama', 'ketepatan', 'tanggung', 'inisiatif', 'keterlibatan', 'interaksi', 'tindaklanjut'];
+        for (var i = 0; i < criteria.length; i++) {
+            setScoreValue(criteria[i], 80);
+        }
+        updateLiveAverage();
+    }
+
+    function updateLiveAverage() {
+        var criteria = ['kerjasama', 'ketepatan', 'tanggung', 'inisiatif', 'keterlibatan', 'interaksi', 'tindaklanjut'];
+        var sum = 0;
+        for (var i = 0; i < criteria.length; i++) {
+            var v = parseFloat($('#num_' + criteria[i]).val()) || 0;
+            sum += v;
+        }
+        var avg = sum / criteria.length;
+        $('#formLiveAverage').text(avg.toFixed(1));
+
+        var catText = 'Kurang';
+        var catClass = 'status-pill pill-inactive';
+        if (avg >= 80) {
+            catText = 'Sangat Baik';
+            catClass = 'status-pill pill-active';
+        } else if (avg >= 60) {
+            catText = 'Cukup';
+            catClass = 'status-pill pill-role';
+        }
+        $('#formLiveCategory').attr('class', catClass).text(catText);
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       SUBMIT EVALUASI
+       ══════════════════════════════════════════════════════════════════ */
+
+    function kirimEvaluasi360() {
+        var taskId = parseInt($('#evaluasiTaskId').val()) || 0;
+        if (taskId <= 0) {
+            Swal.fire('Peringatan', 'Pilih tugas penilaian terlebih dahulu.', 'warning');
+            return;
+        }
+
+        var isDone = false;
+        if (selectedTaskIndex >= 0 && currentMyTasks && currentMyTasks[selectedTaskIndex]) {
+            var cur = currentMyTasks[selectedTaskIndex];
+            isDone = (cur.statusPengisian === 'Selesai' || cur.StatusPengisian === 'Selesai');
+        }
+
+        var user = window.AuthSession ? window.AuthSession.getUser() : null;
+        var payload = {
+            id: taskId,
+            periodeId: parseInt($('#evaluasiPeriodeId').val()) || null,
+            userId: parseInt($('#evaluasiTargetUserId').val()) || 0,
+            penilaiUserId: user ? user.id : 0,
+            tipePenilai: $('#evaluasiTipePenilai').val() || "Rekan",
+            bobotPersen: parseFloat($('#evaluasiBobotPersen').val()) || 30.0,
+            kerjasama_tim: parseFloat($('#num_kerjasama').val()) || 0,
+            ketepatan_waktu: parseFloat($('#num_ketepatan').val()) || 0,
+            tanggung_jawab: parseFloat($('#num_tanggung').val()) || 0,
+            inisiatif: parseFloat($('#num_inisiatif').val()) || 0,
+            keterlibatan_kerja: parseFloat($('#num_keterlibatan').val()) || 0,
+            interaksi_kolega: parseFloat($('#num_interaksi').val()) || 0,
+            tindak_lanjut: parseFloat($('#num_tindaklanjut').val()) || 0,
+            statusPengisian: "Selesai"
+        };
+
+        var targetName = $('#formTargetNama').text();
+        var confirmTitle = isDone ? 'Perbarui Penilaian?' : 'Kirim Penilaian?';
+        var confirmText = (isDone ? 'Perbarui hasil penilaian untuk ' : 'Simpan penilaian untuk ') + targetName + '?';
+        var confirmBtnText = isDone ? 'Ya, Perbarui' : 'Ya, Kirim';
+
+        Swal.fire({
+            title: confirmTitle,
+            text: confirmText,
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d9488',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: confirmBtnText,
+            cancelButtonText: 'Batal'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                var btnLoadingText = isDone
+                    ? '<i class="fas fa-spinner fa-spin me-1"></i> Memperbarui...'
+                    : '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...';
+                $('#btnSubmitEvaluasi').prop('disabled', true).html(btnLoadingText);
+
+                $.ajax({
+                    url: API_BASE_URL + '/penilaian360/submit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        $('#btnSubmitEvaluasi').prop('disabled', false).html(isDone ? '<i class="fas fa-check me-1"></i> Perbarui Penilaian' : '<i class="fas fa-paper-plane me-1"></i> Simpan &amp; Kirim Penilaian');
+                        if (res && res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil!',
+                                text: 'Penilaian untuk ' + targetName + ' berhasil ' + (isDone ? 'diperbarui.' : 'disimpan.'),
+                                confirmButtonColor: '#0d9488'
+                            }).then(function () {
+                                kembaliKeView2();
+                                loadTugasSaya();
+                            });
+                        } else {
+                            Swal.fire('Gagal', res.message || 'Gagal mengirim evaluasi.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#btnSubmitEvaluasi').prop('disabled', false).html(isDone ? '<i class="fas fa-check me-1"></i> Perbarui Penilaian' : '<i class="fas fa-paper-plane me-1"></i> Simpan &amp; Kirim Penilaian');
+                        var msg = 'Terjadi kesalahan sistem.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       UTILITIES
+       ══════════════════════════════════════════════════════════════════ */
+
+    function getInitials(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    /* ══════════════════════════════════════════════════════════════════
+       INIT & HISTORY EVENT LISTENER
+       ══════════════════════════════════════════════════════════════════ */
+
+    window.addEventListener('popstate', function () {
+        applyRouteFromUrl();
+    });
+
+    $(function () {
+        applyRouteFromUrl();
+    });
+</script>
+}

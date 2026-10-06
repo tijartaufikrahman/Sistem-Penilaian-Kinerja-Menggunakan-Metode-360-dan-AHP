@@ -1,0 +1,257 @@
+// ============================================================================
+// SKEMA DATABASE SPK PENILAIAN KINERJA KARYAWAN (360 DEGREE - AHP)
+// Basis: RestAPIDefault (Users Tunggal) + Master_Kategori
+// Semua tabel dilengkapi Audit Metadata:
+// CreatedAt, CreatedBy, UpdatedAt, UpdatedBy (Nullable, Tanpa Relasi FK)
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// 1. MODUL MASTER PENGGUNA (ASLI RESTAPIDEFAULT)
+// ----------------------------------------------------------------------------
+
+Table Roles {
+  Id int [pk, increment]
+  NamaRole varchar(50) [not null, note: 'HRD, Karyawan']
+  Deskripsi varchar(200)
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+Table Users {
+  Id int [pk, increment]
+  RoleId int [not null]
+  KodeKaryawan varchar(20) [unique, not null, note: 'KRY-001, KRY-002']
+  NamaLengkap varchar(100) [not null]
+  Email varchar(100) [unique, not null]
+  PasswordHash varchar(255) [not null]
+  IsActive boolean [default: true]
+  ResetPasswordToken varchar(255) [null]
+  ResetPasswordExpiry datetime [null]
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+Table Menu_Roles {
+  Id int [pk, increment]
+  RoleId int [not null]
+  NamaMenu varchar(100) [not null]
+  Icon varchar(100) [null]
+  Url varchar(200) [not null]
+  Urutan int [default: 0]
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// 2. MODUL TRANSAKSI INPUT NILAI 360 DERAJAT (BEBAS TANPA PERIODE)
+// ----------------------------------------------------------------------------
+
+Table Penilaian360 {
+  Id int [pk, increment]
+  KodePenilaian varchar(30) [unique, not null, note: 'EVL-2026-0001']
+  PeriodeId int [null, note: 'Relasi ke Periode penilaian']
+  UserId int [not null, note: 'Karyawan yang dinilai']
+  PenilaiUserId int [not null, note: 'Karyawan yang menilai']
+  TipePenilai varchar(20) [not null, note: 'Self, Atasan, Rekan']
+  BobotPersen decimal(5,2) [not null, note: 'Misal: 50% Atasan, 30% Rekan, 20% Self']
+  
+  // 7 Parameter Nilai yang Diinput Penilai (Skala 1 - 100)
+  kerjasama_tim decimal(5,2) [not null, default: 0.00]
+  ketepatan_waktu decimal(5,2) [not null, default: 0.00]
+  tanggung_jawab decimal(5,2) [not null, default: 0.00]
+  inisiatif decimal(5,2) [not null, default: 0.00]
+  keterlibatan_kerja decimal(5,2) [not null, default: 0.00]
+  interaksi_kolega decimal(5,2) [not null, default: 0.00]
+  tindak_lanjut decimal(5,2) [not null, default: 0.00]
+  
+  TanggalPenilaian datetime [default: `now()`]
+  StatusPengisian varchar(20) [default: 'Draft', note: 'Draft, Selesai']
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// 3. MASTER KRITERIA, MASTER ATURAN BOBOT AHP, & MASTER KATEGORI
+// ----------------------------------------------------------------------------
+
+Table Master_Kriteria {
+  Id int [pk, increment]
+  KodeKriteria varchar(20) [unique, not null, note: 'C1, C2, C3, dst']
+  NamaKriteria varchar(100) [not null, note: 'Kerjasama Tim, Ketepatan Waktu, dll']
+  Deskripsi varchar(255) [null]
+  IsActive boolean [default: true, note: 'Kriteria aktif digunakan']
+
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+Table Master_BobotAHP {
+  Id int [pk, increment]
+  KodeAturan varchar(30) [unique, not null, note: 'Contoh: RUL-AHP-01']
+  NamaAturan varchar(100) [not null, note: 'Bobot Standar 2026 / Bobot Fokus Disiplin']
+  Keterangan text [null, note: 'Rationale / Catatan pertimbangan kebijakan HRD']
+  
+  // 7 Parameter Default Nilai Bobot AHP (Total = 1.00)
+  Bobot_KerjasamaTim decimal(6,4) [not null, default: 0.1500]
+  Bobot_KetepatanWaktu decimal(6,4) [not null, default: 0.2000]
+  Bobot_TanggungJawab decimal(6,4) [not null, default: 0.2500]
+  Bobot_Inisiatif decimal(6,4) [not null, default: 0.1000]
+  Bobot_KeterlibatanKerja decimal(6,4) [not null, default: 0.1000]
+  Bobot_InteraksiKolega decimal(6,4) [not null, default: 0.0500]
+  Bobot_TindakLanjut decimal(6,4) [not null, default: 0.1500]
+  
+  ConsistencyRatio_CR decimal(8,4) [not null, note: 'Wajib CR <= 0.1 agar sah']
+  IsActive boolean [default: true, note: 'Penanda aturan aktif']
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+Table Master_BobotAHP_Kriteria {
+  Id int [pk, increment]
+  BobotAHPId int [not null, note: 'Relasi ke Master_BobotAHP']
+  KriteriaId int [not null, note: 'Relasi ke Master_Kriteria yang dipilih']
+  Bobot decimal(6,4) [not null, note: 'Hasil normalisasi bobot ilmiah AHP']
+
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// 3. MODUL MASTER KATEGORI & ATURAN REKOMENDASI (HEADER - DETAIL)
+// ----------------------------------------------------------------------------
+
+Table Master_Kategori {
+  Id int [pk, increment]
+  KodeKategori varchar(30) [unique, not null, note: 'Contoh: KAT-STD-01, KAT-5LVL-02']
+  NamaKategori varchar(100) [not null, note: 'Contoh: Klasifikasi Standar 3 Tingkat, Skema 5 Grade KPI']
+  Deskripsi text [null, note: 'Deskripsi peruntukan atau pedoman skema klasifikasi kategori ini']
+  IsActive boolean [default: true, note: 'Status aktif skema kategori']
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+Table Master_Kategori_Detail {
+  Id int [pk, increment]
+  KategoriId int [not null, note: 'Relasi ke Master_Kategori (Parent Skema)']
+  NamaGrade varchar(50) [not null, note: 'Nama kategori/grade: Sangat Baik, Baik, Cukup, Kurang, atau Grade A/B/C/D']
+  NilaiMin decimal(5,2) [not null, note: 'Batas bawah skor, contoh: 85.00']
+  NilaiMax decimal(5,2) [not null, note: 'Batas atas skor, contoh: 100.00']
+  Rekomendasi varchar(150) [not null, note: 'Perpanjangan Kontrak (Diprioritaskan), Perpanjangan Kontrak (Evaluasi Berkala), Tidak Diperpanjang']
+  Keterangan text [null, note: 'Catatan rekomendasi / tindakan untuk grade ini']
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// 4. MODUL PERIODE PENILAIAN (MENGIKAT ATURAN BOBOT AHP & SKEMA KATEGORI)
+// ----------------------------------------------------------------------------
+
+Table Periode {
+  Id int [pk, increment]
+  KodePeriode varchar(30) [unique, not null, note: 'Contoh: PRD-2026-A']
+  BobotAHPId int [not null, note: 'Relasi ke Master_BobotAHP yang digunakan']
+  KategoriId int [not null, note: 'Relasi ke Master_Kategori (Skema Kategori) yang digunakan pada periode ini']
+  NamaPeriode varchar(100) [not null, note: 'Nama Penilaian Kinerja']
+  Status varchar(20) [default: 'Draft', note: 'Draft, Berjalan, Selesai']
+  TanggalMulai date [not null, note: 'Tanggal mulai rentang kuesioner 360°']
+  TanggalSelesai date [not null, note: 'Tanggal selesai rentang kuesioner 360°']
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// 5. MODUL HASIL PENILAIAN SISTEM (TERIKAT PERIODE, USER, & MASTER KATEGORI DETAIL)
+// ----------------------------------------------------------------------------
+
+Table HasilPenilaianSistem {
+  Id int [pk, increment]
+  KodeHasil varchar(30) [unique, not null, note: 'RPT-2026-0001']
+  PeriodeId int [not null, note: 'Terikat ke Periode']
+  UserId int [not null, note: 'Karyawan yang dinilai']
+  KategoriDetailId int [not null, note: 'Relasi ke Master_Kategori_Detail berdasarkan perolehan SkorAkhirAHP']
+  
+  // Rata-rata Gabungan 360 Derajat untuk 7 Kriteria
+  Rata2_KerjasamaTim decimal(5,2) [not null]
+  Rata2_KetepatanWaktu decimal(5,2) [not null]
+  Rata2_TanggungJawab decimal(5,2) [not null]
+  Rata2_Inisiatif decimal(5,2) [not null]
+  Rata2_KeterlibatanKerja decimal(5,2) [not null]
+  Rata2_InteraksiKolega decimal(5,2) [not null]
+  Rata2_TindakLanjut decimal(5,2) [not null]
+  
+  // Output Kalkulasi AHP
+  SkorAkhirAHP decimal(5,2) [not null, note: 'Total perkalian Rata2 x Bobot AHP']
+  Ranking int [not null]
+  CatatanHRD text [null]
+  
+  // Audit Metadata
+  CreatedAt datetime [default: `now()`]
+  CreatedBy int [null, note: 'UserId pembuat (audit log, no FK)']
+  UpdatedAt datetime [null]
+  UpdatedBy int [null, note: 'UserId pengubah (audit log, no FK)']
+}
+
+// ----------------------------------------------------------------------------
+// DEFINISI RELASI DATABASE (HANYA ENTITAS BISNIS, METADATA TANPA RELASI FK)
+// ----------------------------------------------------------------------------
+
+// Relasi Autentikasi
+Ref: Users.RoleId > Roles.Id
+Ref: Menu_Roles.RoleId > Roles.Id
+
+// Relasi Input Nilai 360
+Ref: Penilaian360.UserId > Users.Id
+Ref: Penilaian360.PenilaiUserId > Users.Id
+Ref: Penilaian360.PeriodeId > Periode.Id
+
+// Relasi Master Kategori (Header - Detail)
+Ref: Master_Kategori_Detail.KategoriId > Master_Kategori.Id [delete: cascade]
+
+// Relasi Periode ke Master Bobot AHP & Master Kategori
+Ref: Periode.BobotAHPId > Master_BobotAHP.Id
+Ref: Periode.KategoriId > Master_Kategori.Id
+
+// Relasi Master Bobot AHP ke Master Kriteria (Many-to-Many via Master_BobotAHP_Kriteria)
+Ref: Master_BobotAHP_Kriteria.BobotAHPId > Master_BobotAHP.Id
+Ref: Master_BobotAHP_Kriteria.KriteriaId > Master_Kriteria.Id
+
+// Relasi Hasil Penilaian Sistem
+Ref: HasilPenilaianSistem.PeriodeId > Periode.Id
+Ref: HasilPenilaianSistem.UserId > Users.Id
+Ref: HasilPenilaianSistem.KategoriDetailId > Master_Kategori_Detail.Id

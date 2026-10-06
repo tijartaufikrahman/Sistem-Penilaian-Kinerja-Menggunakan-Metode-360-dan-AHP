@@ -1,0 +1,37 @@
+# ATURAN & PANDUAN FUNGSI DASAR BACKEND (JWT & EMAIL SERVICE)
+
+* CATATAN PENTING:
+Aturan di bawah ini adalah fungsi-fungsi wajib yang harus tersedia pada backend.
+Segala hal, implementasi tambahan, logika bisnis, atau struktur lain yang TIDAK DISEBUTKAN berarti SEPENUHNYA BEBAS dikembangkan sesuai kebutuhan.
+
+1. Fungsi Autentikasi JWT (JSON Web Token) Wajib:
+   - Sistem wajib menyediakan layanan pembuatan (generate) dan validasi token JWT.
+   - Token JWT harus memuat klaim dasar: ID Pengguna (Sub/NameIdentifier), Nama Lengkap, Email, dan Role.
+   - Middleware autentikasi & otorisasi Bearer Token wajib diaktifkan pada endpoint yang memerlukan proteksi.
+   - Endpoint login mengembalikan token JWT yang valid kepada client/frontend.
+
+2. Fungsi Layanan Email (Email Service / SMTP) Wajib:
+   - Sistem wajib menyediakan service pengiriman email via protokol SMTP (menggunakan MailKit / SmtpClient).
+   - Layanan email minimal digunakan untuk fitur:
+     * Reset Password / Lupa Password (pengiriman link token reset).
+     * Notifikasi sistem penting / verifikasi jika diperlukan.
+   - Pengiriman email harus mendukung format HTML template yang rapi dan informatif.
+
+================================================================================
+DATA KONFIGURASI ASLI (APPSETTINGS.JSON):
+================================================================================
+Gunakan data konfigurasi asli berikut pada konfigurasi backend:
+
+"Jwt": {
+  "Key": "KunciRahasia",
+  "Issuer": "KunciRahasia",
+  "Audience": "KunciRahasiaApp"
+},
+
+"EmailSettings": {
+  "Host": "smtp.gmail.com",
+  "Port": 587,
+  "Email": "tijar.10122021@mahasiswa.unikom.ac.id",
+  "Password": "hwyv ndsv ajat vrcs"
+}
+================================================================================

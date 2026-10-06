@@ -1,0 +1,706 @@
+@{
+    ViewData["Title"] = "Kategori & Rekomendasi";
+}
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current" id="breadcrumbCurrentText">Kategori &amp; Rekomendasi</span>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- VIEW 1: KATALOG DAFTAR SKEMA KATEGORI (HEADER)       -->
+        <!-- ==================================================== -->
+        <div id="viewKatalogKategori">
+            <div class="admin-card mb-4">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Skema Kategori Penilaian</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Pengelompokan hasil penilaian kinerja dan panduan rekomendasi tindak lanjut bagi karyawan</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-primary-admin" onclick="openCreateKategoriModal()">
+                                <i class="fas fa-plus me-1"></i> Tambah Skema Kategori
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="tableKategori">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th style="width: 45px; text-align:center;">NO</th>
+                                <th class="text-nowrap">KODE SKEMA</th>
+                                <th>NAMA SKEMA KATEGORI</th>
+                                <th>GRADE YANG TERSEDIA</th>
+                                <th>KETERANGAN</th>
+                                <th class="text-center">STATUS</th>
+                                <th class="text-end text-nowrap" style="width: 175px; min-width: 175px;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableKategoriBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================================================== -->
+        <!-- VIEW 2: DETAIL GRADE & RENTANG SKOR SKEMA (DETAIL)   -->
+        <!-- ==================================================== -->
+        <div id="viewDetailKategori" style="display: none;">
+            
+            <!-- Banner Info Skema yang Dipilih -->
+            <div class="admin-card mb-3 p-3" style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);">
+                <div class="d-flex align-items-center justify-content-between gap-3 flex-wrap">
+                    <div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <span class="code-tag" id="detailHeaderKode">-</span>
+                            <h4 class="mb-0 fw-bold" style="color: #0f172a; font-size: 1.05rem;" id="detailHeaderNama">-</h4>
+                        </div>
+                        <p class="mb-0 text-muted" style="font-size:12.5px;" id="detailHeaderDeskripsi">-</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-secondary-admin btn-sm" onclick="backToKatalog()">
+                            <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Skema
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Tabel Item Grade -->
+            <div class="admin-card mb-4">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Rentang Nilai &amp; Rekomendasi Tindak Lanjut</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Batas nilai minimum-maksimum serta rekomendasi kelanjutan kerja untuk setiap kategori</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-primary-admin" onclick="openCreateGradeModal()">
+                                <i class="fas fa-plus me-1"></i> Tambah Kategori Nilai
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="tableGrade">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th style="width: 45px; text-align:center;">NO</th>
+                                <th>KATEGORI / GRADE</th>
+                                <th class="text-center">RENTANG NILAI (MIN - MAKS)</th>
+                                <th>REKOMENDASI KELANJUTAN KERJA</th>
+                                <th>CATATAN / TINDAKAN EVALUASI</th>
+                                <th class="text-end text-nowrap" style="width: 90px; min-width: 90px;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableGradeBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- ========================================== -->
+<!-- MODAL 1: SKEMA KATEGORI (HEADER)           -->
+<!-- ========================================== -->
+<div class="admin-modal-backdrop" id="modalKategori">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title" id="modalKategoriTitle">Tambah Skema Kategori</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalKategori')">&times;</button>
+        </div>
+        <form id="formKategori" onsubmit="event.preventDefault(); submitKategori();">
+            <input type="hidden" id="katId" />
+            <div class="admin-modal-content">
+                <div class="form-field-group">
+                    <label class="form-field-label">Kode Skema Kategori</label>
+                    <input type="text" id="katKode" class="form-field-input" placeholder="Contoh: KAT-STD-01 (Kosongkan untuk otomatis)" />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Nama Skema Kategori <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="katNama" class="form-field-input" placeholder="Contoh: Klasifikasi Standar 3 Tingkat" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Deskripsi / Peruntukan</label>
+                    <textarea id="katDeskripsi" class="form-field-input" rows="2" placeholder="Contoh: Digunakan untuk seluruh evaluasi semesteran divisi operasional"></textarea>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Status Operasional</label>
+                    <select id="katStatus" class="form-field-input">
+                        <option value="true" selected>Aktif (Bisa Dipilih di Periode)</option>
+                        <option value="false">Nonaktif (Diarsipkan)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalKategori')">Batal</button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveKategori">Simpan Skema</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ========================================== -->
+<!-- MODAL 2: ITEM GRADE DETAIL                 -->
+<!-- ========================================== -->
+<div class="admin-modal-backdrop" id="modalGrade">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title" id="modalGradeTitle">Tambah Item Grade</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalGrade')">&times;</button>
+        </div>
+        <form id="formGrade" onsubmit="event.preventDefault(); submitGrade();">
+            <input type="hidden" id="gradeId" />
+            <div class="admin-modal-content">
+                <div class="form-field-group">
+                    <label class="form-field-label">Nama Grade / Kategori <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="gradeNama" class="form-field-input" placeholder="Contoh: Sangat Baik / Grade A" required />
+                </div>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <div class="form-field-group">
+                            <label class="form-field-label">Nilai Minimum (0 - 100) <span style="color:#ef4444;">*</span></label>
+                            <input type="number" step="0.01" min="0" max="100" id="gradeMin" class="form-field-input font-monospace" placeholder="0.00" required />
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="form-field-group">
+                            <label class="form-field-label">Nilai Maksimum (0 - 100) <span style="color:#ef4444;">*</span></label>
+                            <input type="number" step="0.01" min="0" max="100" id="gradeMax" class="form-field-input font-monospace" placeholder="100.00" required />
+                        </div>
+                    </div>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Rekomendasi Kelanjutan Kontrak <span style="color:#ef4444;">*</span></label>
+                    <input type="text" list="listRekomendasi" id="gradeRekomendasi" class="form-field-input" placeholder="Contoh: Perpanjangan Kontrak (Diprioritaskan)" required />
+                    <datalist id="listRekomendasi">
+                        <option value="Perpanjangan Kontrak (Diprioritaskan Promosi)"></option>
+                        <option value="Perpanjangan Kontrak (Diprioritaskan)"></option>
+                        <option value="Perpanjangan Kontrak"></option>
+                        <option value="Perpanjangan Kontrak (Evaluasi Berkala)"></option>
+                        <option value="Perpanjangan Kontrak (Evaluasi 3 Bulan)"></option>
+                        <option value="Perpanjangan Kontrak (Evaluasi 6 Bulan)"></option>
+                        <option value="Tidak Diperpanjang"></option>
+                        <option value="Pemutusan Hubungan Kerja (PHK)"></option>
+                    </datalist>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Catatan / Tindakan Evaluasi HRD</label>
+                    <textarea id="gradeKeterangan" class="form-field-input" rows="2" placeholder="Catatan panduan tindakan HRD untuk grade ini"></textarea>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalGrade')">Batal</button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveGrade">Simpan Item Grade</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dtKategori = null;
+    var dtGrade = null;
+    var allKategoriList = [];
+    var currentActiveKategori = null;
+
+    // ==========================================
+    // KATALOG SKEMA KATEGORI (VIEW 1)
+    // ==========================================
+    function loadKategoriTable() {
+        if (dtKategori) {
+            dtKategori.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableKategoriBody').html('<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat master skema kategori...</td></tr>');
+            },
+            success: function (data) {
+                allKategoriList = data || [];
+
+                var totalSkema = allKategoriList.length;
+                var skemaAktif = 0;
+                var totalGrade = 0;
+                for (var s = 0; s < allKategoriList.length; s++) {
+                    var itm = allKategoriList[s];
+                    var act = (itm.isActive !== undefined && itm.isActive !== null) ? (itm.isActive === true || itm.isActive === 'true') : true;
+                    if (act) skemaAktif++;
+                    if (itm.details && itm.details.length) {
+                        totalGrade += itm.details.length;
+                    }
+                }
+                $('#statTotalSkema').text(totalSkema);
+                $('#statSkemaAktif').text(skemaAktif);
+                $('#statTotalGrade').text(totalGrade);
+
+                var html = '';
+
+                if (allKategoriList.length > 0) {
+                    for (var i = 0; i < allKategoriList.length; i++) {
+                        var k = allKategoriList[i];
+                        var isActive = (k.isActive !== undefined && k.isActive !== null) ? (k.isActive === true || k.isActive === 'true') : true;
+                        var statusClass = isActive ? 'pill-active' : 'pill-inactive';
+                        var statusLabel = isActive ? 'Aktif' : 'Nonaktif';
+
+                        // Render badge komposisi grade secara vertikal satu per satu
+                        var gradeBadges = '';
+                        if (k.details && k.details.length > 0) {
+                            var itemsHtml = '';
+                            for (var g = 0; g < k.details.length; g++) {
+                                var gd = k.details[g];
+                                itemsHtml += '<span class="status-pill pill-role" style="font-size:11px; padding:3px 8px; width:fit-content;">' + escHtml(gd.namaGrade) + '</span>';
+                            }
+                            gradeBadges = '<div class="d-flex flex-column gap-1">' + itemsHtml + '</div>';
+                        } else {
+                            gradeBadges = '<span class="text-muted" style="font-size:11px;">Belum ada grade</span>';
+                        }
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td class="text-nowrap"><span class="code-tag">' + escHtml(k.kodeKategori) + '</span></td>' +
+                            '<td><strong style="color:#0f172a; font-size:13px;">' + escHtml(k.namaKategori) + '</strong></td>' +
+                            '<td>' + gradeBadges + '</td>' +
+                            '<td><small style="color:#64748b;">' + escHtml(k.deskripsi || '-') + '</small></td>' +
+                            '<td class="text-center text-nowrap"><span class="status-pill ' + statusClass + '"><span class="dot-indicator"></span>' + statusLabel + '</span></td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group">' +
+                                    '<button type="button" class="btn-action-spk" title="Masuk & Kelola Item Grade" onclick="openDetailView(' + k.id + ')">' +
+                                        '<i class="fas fa-layer-group"></i><span>Detail Grade</span>' +
+                                    '</button>' +
+                                    '<button type="button" class="btn-action-edit" title="Edit Skema" onclick="openEditKategoriModal(' + i + ')">' +
+                                        '<i class="fas fa-pen"></i>' +
+                                    '</button>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Skema" onclick="confirmDeleteKategori(' + k.id + ', \'' + escHtml(k.namaKategori).replace(/'/g, "\\'") + '\')">' +
+                                        '<i class="fas fa-trash"></i>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                }
+
+                $('#tableKategoriBody').html(html);
+
+                dtKategori = $('#tableKategori').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+
+                applyRouteFromUrl();
+            },
+            error: function () {
+                $('#tableKategoriBody').html('<tr><td colspan="7" class="text-center py-4 text-danger">Gagal memuat daftar master skema kategori.</td></tr>');
+            }
+        });
+    }
+
+    function openCreateKategoriModal() {
+        $('#formKategori')[0].reset();
+        $('#katId').val('');
+        $('#katStatus').val('true');
+        $('#modalKategoriTitle').text('Tambah Skema Kategori Baru');
+        AdminModal.open('modalKategori');
+    }
+
+    function openEditKategoriModal(index) {
+        var k = allKategoriList[index];
+        if (!k) return;
+
+        $('#katId').val(k.id);
+        $('#katKode').val(k.kodeKategori);
+        $('#katNama').val(k.namaKategori);
+        $('#katDeskripsi').val(k.deskripsi || '');
+        $('#katStatus').val(k.isActive ? 'true' : 'false');
+
+        $('#modalKategoriTitle').text('Edit Skema Kategori');
+        AdminModal.open('modalKategori');
+    }
+
+    function submitKategori() {
+        var id = parseInt($('#katId').val()) || null;
+        var payload = {
+            id: id,
+            kodeKategori: $('#katKode').val().trim(),
+            namaKategori: $('#katNama').val().trim(),
+            deskripsi: $('#katDeskripsi').val().trim() || null,
+            isActive: $('#katStatus').val() === 'true'
+        };
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(payload),
+            beforeSend: function () {
+                $('#btnSaveKategori').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+            },
+            success: function () {
+                $('#btnSaveKategori').prop('disabled', false).text('Simpan Skema');
+                AdminModal.close('modalKategori');
+                AdminToast.success('Skema kategori berhasil disimpan');
+                loadKategoriTable();
+            },
+            error: function (xhr) {
+                $('#btnSaveKategori').prop('disabled', false).text('Simpan Skema');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menyimpan skema kategori.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    function confirmDeleteKategori(id, name) {
+        Swal.fire({
+            title: 'Hapus Skema Kategori?',
+            text: 'Apakah Anda yakin ingin menghapus skema "' + name + '" beserta seluruh detail gradenya?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/masterkategori/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (r) {
+                        if (r.success) {
+                            AdminToast.success('Skema kategori berhasil dihapus');
+                            loadKategoriTable();
+                        } else {
+                            Swal.fire('Gagal', r.message || 'Gagal menghapus.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus skema.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // ==========================================
+    // URL ROUTING & STATE SYNC
+    // ==========================================
+    function getUrlParams() {
+        var params = {};
+        var search = window.location.search;
+        if (search) {
+            var pairs = search.substring(1).split('&');
+            for (var i = 0; i < pairs.length; i++) {
+                var p = pairs[i].split('=');
+                if (p[0]) {
+                    params[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+                }
+            }
+        }
+        return params;
+    }
+
+    function setUrlState(kategoriId, replace) {
+        var currentUrl = new URL(window.location.href);
+        if (kategoriId) {
+            currentUrl.searchParams.set('id', kategoriId);
+        } else {
+            currentUrl.searchParams.delete('id');
+        }
+        var newUrl = currentUrl.pathname + (currentUrl.searchParams.toString() ? '?' + currentUrl.searchParams.toString() : '');
+        if (replace) {
+            window.history.replaceState({ id: kategoriId }, '', newUrl);
+        } else {
+            window.history.pushState({ id: kategoriId }, '', newUrl);
+        }
+    }
+
+    function applyRouteFromUrl() {
+        var params = getUrlParams();
+        var id = params.id ? parseInt(params.id) : null;
+        if (id) {
+            openDetailView(id, true);
+        } else {
+            if ($('#viewDetailKategori').is(':visible')) {
+                backToKatalog(true);
+            }
+        }
+    }
+
+    window.addEventListener('popstate', function () {
+        applyRouteFromUrl();
+    });
+
+    // ==========================================
+    // DETAIL ITEM GRADE (VIEW 2)
+    // ==========================================
+    function openDetailView(kategoriId, skipHistory) {
+        var targetKategori = null;
+        if (allKategoriList && allKategoriList.length > 0) {
+            targetKategori = allKategoriList.find(function (k) { return k.id == kategoriId; });
+        }
+
+        if (!targetKategori) {
+            // Jika direct access dari URL dan allKategoriList belum ada atau kategori dicari via API
+            $.ajax({
+                url: API_BASE_URL + '/masterkategori/' + kategoriId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    if (data) {
+                        currentActiveKategori = data;
+                        renderDetailKategoriView(skipHistory);
+                    } else {
+                        backToKatalog();
+                    }
+                },
+                error: function () {
+                    backToKatalog();
+                }
+            });
+            return;
+        }
+
+        currentActiveKategori = targetKategori;
+        renderDetailKategoriView(skipHistory);
+    }
+
+    function renderDetailKategoriView(skipHistory) {
+        if (!currentActiveKategori) return;
+
+        if (!skipHistory) {
+            setUrlState(currentActiveKategori.id, false);
+        }
+
+        // Update Breadcrumb
+        $('#pageBreadcrumb').html(
+            '<span class="breadcrumb-parent">Sistem Penilaian</span>' +
+            '<span class="breadcrumb-separator">/</span>' +
+            '<a href="javascript:backToKatalog()" class="breadcrumb-parent text-decoration-none">Kategori &amp; Rekomendasi</a>' +
+            '<span class="breadcrumb-separator">/</span>' +
+            '<span class="breadcrumb-current">' + escHtml(currentActiveKategori.namaKategori) + '</span>'
+        );
+
+        // Update Banner Info
+        $('#detailHeaderKode').text(currentActiveKategori.kodeKategori);
+        $('#detailHeaderNama').text(currentActiveKategori.namaKategori);
+        $('#detailHeaderDeskripsi').text(currentActiveKategori.deskripsi || 'Tidak ada deskripsi khusus.');
+
+        // Toggle View
+        $('#sectionMetricsKategori').hide();
+        $('#viewKatalogKategori').hide();
+        $('#viewDetailKategori').show();
+
+        loadGradeTable(currentActiveKategori.id);
+    }
+
+    function backToKatalog(skipHistory) {
+        if (!skipHistory) {
+            setUrlState(null, false);
+        }
+
+        $('#pageBreadcrumb').html(
+            '<span class="breadcrumb-parent">Sistem Penilaian</span>' +
+            '<span class="breadcrumb-separator">/</span>' +
+            '<span class="breadcrumb-current">Kategori &amp; Rekomendasi</span>'
+        );
+        $('#viewDetailKategori').hide();
+        $('#sectionMetricsKategori').show();
+        $('#viewKatalogKategori').show();
+        currentActiveKategori = null;
+        if (!allKategoriList || allKategoriList.length === 0) {
+            loadKategoriTable();
+        }
+    }
+
+    function loadGradeTable(kategoriId) {
+        if (dtGrade) {
+            dtGrade.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori/' + kategoriId + '/details',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableGradeBody').html('<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat item grade...</td></tr>');
+            },
+            success: function (data) {
+                var grades = data || [];
+                // Simpan ke object kategori aktif
+                if (currentActiveKategori) {
+                    currentActiveKategori.details = grades;
+                }
+
+                var html = '';
+                if (grades.length > 0) {
+                    for (var i = 0; i < grades.length; i++) {
+                        var g = grades[i];
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td><strong style="color:#0f172a; font-size:13px;"><i class="fas fa-award text-teal me-1"></i>' + escHtml(g.namaGrade) + '</strong></td>' +
+                            '<td class="text-center font-monospace fw-bold" style="color:#0f766e; font-size:12.5px;">' + Number(g.nilaiMin).toFixed(2) + ' &mdash; ' + Number(g.nilaiMax).toFixed(2) + '</td>' +
+                            '<td><strong style="color:#0f172a; font-size:12.5px;">' + escHtml(g.rekomendasi) + '</strong></td>' +
+                            '<td><small style="color:#64748b;">' + escHtml(g.keterangan || '-') + '</small></td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group">' +
+                                    '<button type="button" class="btn-action-edit" title="Edit Item Grade" onclick="openEditGradeModal(' + i + ')">' +
+                                        '<i class="fas fa-pen"></i>' +
+                                    '</button>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Item Grade" onclick="confirmDeleteGrade(' + g.id + ', \'' + escHtml(g.namaGrade).replace(/'/g, "\\'") + '\')">' +
+                                        '<i class="fas fa-trash"></i>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                } else {
+                    html = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada item grade untuk skema ini. Klik tombol "Tambah Item Grade" untuk menambahkan.</td></tr>';
+                }
+
+                $('#tableGradeBody').html(html);
+
+                if (grades.length > 0) {
+                    dtGrade = $('#tableGrade').DataTable({
+                        pageLength: 10,
+                        lengthMenu: window.dtLengthMenuConfig,
+                        language: window.dtLanguageConfig
+                    });
+                }
+            },
+            error: function () {
+                $('#tableGradeBody').html('<tr><td colspan="6" class="text-center py-4 text-danger">Gagal memuat item grade.</td></tr>');
+            }
+        });
+    }
+
+    function openCreateGradeModal() {
+        if (!currentActiveKategori) return;
+        $('#formGrade')[0].reset();
+        $('#gradeId').val('');
+        $('#modalGradeTitle').text('Tambah Item Grade (' + currentActiveKategori.kodeKategori + ')');
+        AdminModal.open('modalGrade');
+    }
+
+    function openEditGradeModal(index) {
+        if (!currentActiveKategori || !currentActiveKategori.details) return;
+        var g = currentActiveKategori.details[index];
+        if (!g) return;
+
+        $('#gradeId').val(g.id);
+        $('#gradeNama').val(g.namaGrade);
+        $('#gradeMin').val(Number(g.nilaiMin).toFixed(2));
+        $('#gradeMax').val(Number(g.nilaiMax).toFixed(2));
+        $('#gradeRekomendasi').val(g.rekomendasi);
+        $('#gradeKeterangan').val(g.keterangan || '');
+
+        $('#modalGradeTitle').text('Edit Item Grade');
+        AdminModal.open('modalGrade');
+    }
+
+    function submitGrade() {
+        if (!currentActiveKategori) return;
+
+        var id = parseInt($('#gradeId').val()) || null;
+        var minVal = parseFloat($('#gradeMin').val());
+        var maxVal = parseFloat($('#gradeMax').val());
+
+        if (isNaN(minVal) || isNaN(maxVal)) {
+            Swal.fire('Validasi Gagal', 'Nilai minimum dan maksimum harus berupa angka yang valid.', 'warning');
+            return;
+        }
+
+        if (minVal > maxVal) {
+            Swal.fire('Validasi Gagal', 'Nilai minimum tidak boleh lebih besar dari nilai maksimum.', 'warning');
+            return;
+        }
+
+        var payload = {
+            id: id,
+            kategoriId: currentActiveKategori.id,
+            namaGrade: $('#gradeNama').val().trim(),
+            nilaiMin: minVal,
+            nilaiMax: maxVal,
+            rekomendasi: $('#gradeRekomendasi').val().trim(),
+            keterangan: $('#gradeKeterangan').val().trim() || null
+        };
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori/detail',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(payload),
+            beforeSend: function () {
+                $('#btnSaveGrade').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+            },
+            success: function () {
+                $('#btnSaveGrade').prop('disabled', false).text('Simpan Item Grade');
+                AdminModal.close('modalGrade');
+                AdminToast.success('Item grade berhasil disimpan');
+                loadGradeTable(currentActiveKategori.id);
+            },
+            error: function (xhr) {
+                $('#btnSaveGrade').prop('disabled', false).text('Simpan Item Grade');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menyimpan item grade.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    function confirmDeleteGrade(id, name) {
+        if (!currentActiveKategori) return;
+
+        Swal.fire({
+            title: 'Hapus Item Grade?',
+            text: 'Apakah Anda yakin ingin menghapus item grade "' + name + '"?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/masterkategori/detail/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (r) {
+                        if (r.success) {
+                            AdminToast.success('Item grade berhasil dihapus');
+                            loadGradeTable(currentActiveKategori.id);
+                        } else {
+                            Swal.fire('Gagal', r.message || 'Gagal menghapus.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus item grade.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    $(function () {
+        loadKategoriTable();
+    });
+</script>
+}

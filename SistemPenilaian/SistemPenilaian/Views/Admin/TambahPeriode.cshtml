@@ -1,0 +1,858 @@
+@{
+    ViewData["Title"] = "Buka Penilaian Kinerja Baru";
+}
+
+<style>
+    /* Styling modul komponen form parameter modular identik template form2 */
+    .step-circle {
+        width: 24px;
+        height: 24px;
+        background: #0d9488;
+        color: #ffffff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.76rem;
+        flex-shrink: 0;
+    }
+    .param-title {
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0;
+    }
+    .param-group-box {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 1.25rem;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .param-group-box:focus-within {
+        border-color: #0d9488;
+        box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08);
+    }
+    .field-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        display: block;
+    }
+    .field-help-text {
+        font-size: 0.72rem;
+        line-height: 1.35;
+        color: #64748b;
+        display: block;
+        margin-top: 0.35rem;
+    }
+    .preview-detail-box {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.85rem;
+        margin-top: 0.75rem;
+    }
+    .target-mode-card {
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        padding: 0.85rem 0.65rem;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #ffffff;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+    .target-mode-card:hover {
+        border-color: #0d9488;
+        background: #f8fafc;
+    }
+    .target-mode-card.selected {
+        border-color: #0d9488;
+        background: #f0fdfa;
+        box-shadow: 0 0 0 1px #0d9488;
+    }
+    .user-checklist-container {
+        max-height: 175px;
+        overflow-y: auto;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        background: #f8fafc;
+        padding: 0.5rem 0.75rem;
+    }
+    .user-check-item {
+        background: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 6px;
+        padding: 0.4rem 0.65rem;
+        font-size: 0.76rem;
+        transition: background 0.15s ease;
+    }
+    .user-check-item:hover {
+        background: #f1f5f9;
+    }
+    .relasi-option-card {
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.75rem 0.9rem;
+        background: #ffffff;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .relasi-option-card:hover {
+        border-color: #94a3b8;
+        background: #f8fafc;
+    }
+    .relasi-option-card.selected {
+        border-color: #0d9488;
+        background: #f0fdfa;
+        box-shadow: 0 0 0 1px #0d9488;
+    }
+    .custom-radio-check-wrap {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+    }
+    .custom-radio-check-wrap .form-check-input {
+        margin: 2px 0 0 0 !important;
+        flex-shrink: 0;
+        cursor: pointer;
+        width: 17px;
+        height: 17px;
+    }
+    .admin-card {
+        border: 1px solid #cbd5e1 !important;
+    }
+    .admin-card-header {
+        border-bottom: 1px solid #e2e8f0 !important;
+    }
+    @@media (min-width: 992px) {
+        .border-lg-end {
+            border-right: 1px solid #cbd5e1 !important;
+        }
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to styling guidelines -->
+<div class="row">
+    <div class="col-12 mb-4">
+
+        <!-- Breadcrumb Bar -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent"><a href="/Admin/Periode" style="color:inherit; text-decoration:none;">Penilaian Kinerja</a></span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Buka Penilaian Kinerja Baru</span>
+            </div>
+        </div>
+
+        <!-- Form Card Utama -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-3 px-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="admin-card-title mb-0">Buka Penilaian Kinerja Baru</h3>
+                    <p class="admin-card-desc mb-0 mt-0.5">Pengaturan periode penilaian baru dengan menentukan jadwal pelaksanaan, pembobotan kriteria, dan skema rekomendasi</p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="/Admin/Periode" class="btn-secondary-admin py-1.5 px-3">
+                        <i class="fas fa-arrow-left me-1.5 text-muted"></i> Kembali
+                    </a>
+                </div>
+            </div>
+
+            <div class="admin-card-body p-4">
+                <form id="formTambahPeriode" onsubmit="event.preventDefault(); submitTambahPeriode();">
+                    
+                    <!-- 2 Parameter Groups Dipisah Modular Identik form2.cshtml -->
+                    <div class="row g-3 g-xl-4 mb-3">
+
+                        <!-- GROUP 1: Informasi & Jadwal Penilaian (col-12 col-lg-6) -->
+                        <div class="col-12 col-lg-6">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                                        <span class="step-circle">1</span>
+                                        <h5 class="param-title">Informasi &amp; Jadwal Penilaian</h5>
+                                    </div>
+
+                                    <!-- Nama Periode Penilaian -->
+                                    <div class="mb-3">
+                                        <label class="field-label">Nama Penilaian Kinerja <span style="color:#ef4444;">*</span></label>
+                                        <input type="text" id="pNama" class="form-field-input" placeholder="Contoh: Penilaian Kinerja Semester 1 - 2026" required />
+                                        <small class="field-help-text">Nama periode evaluasi yang tampil pada akun karyawan dan laporan.</small>
+                                    </div>
+
+                                    <!-- Rentang Tanggal Pengisian -->
+                                    <div class="row g-2 mb-2">
+                                        <div class="col-12 col-sm-6">
+                                            <label class="field-label">Tanggal Mulai Pengisian <span style="color:#ef4444;">*</span></label>
+                                            <input type="date" id="pMulai" class="form-field-input" required />
+                                            <small class="field-help-text">Hari pertama kuesioner penilaian dibuka.</small>
+                                        </div>
+                                        <div class="col-12 col-sm-6">
+                                            <label class="field-label">Tanggal Batas Akhir <span style="color:#ef4444;">*</span></label>
+                                            <input type="date" id="pSelesai" class="form-field-input" required />
+                                            <small class="field-help-text">Batas akhir pengisian kuesioner.</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- GROUP 2: Aturan Bobot AHP & Skema Kategori (col-12 col-lg-6) -->
+                        <div class="col-12 col-lg-6">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                                        <span class="step-circle">2</span>
+                                        <h5 class="param-title">Pembobotan Kriteria &amp; Skema Rekomendasi</h5>
+                                    </div>
+
+                                    <!-- Aturan Bobot AHP -->
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="field-label mb-0">Pembobotan Kriteria Penilaian <span style="color:#ef4444;">*</span></label>
+                                            <a href="/Admin/MasterBobotAHP" target="_blank" class="text-teal fw-semibold" style="font-size:11px; text-decoration:none;">
+                                                <i class="fas fa-external-link-alt me-1"></i> Buat Pembobotan Baru
+                                            </a>
+                                        </div>
+                                        <select id="pBobotId" class="form-field-input" required onchange="onBobotAHPSelectionChanged()"></select>
+
+                                        <!-- Live Preview Bobot AHP -->
+                                        <div id="boxBobotPreview" class="preview-detail-box" style="display:none;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <strong class="text-dark" id="previewBobotNama" style="font-size:12px;">-</strong>
+                                                <span class="status-pill pill-active" id="previewBobotCR" style="font-size:10px; padding:1px 6px;">
+                                                    <span class="dot-indicator"></span>CR: 0.0000
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2" id="previewBobotKet" style="font-size:11px;">-</p>
+                                            <div>
+                                                <span class="text-muted d-block mb-1" style="font-size:10.5px; font-weight:700; text-transform:uppercase;">Komposisi Bobot:</span>
+                                                <div class="d-flex flex-wrap gap-1" id="previewBobotBadges"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Skema Kategori & Grade -->
+                                    <div class="mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="field-label mb-0">Skema Kategori &amp; Rekomendasi <span style="color:#ef4444;">*</span></label>
+                                            <a href="/Admin/MasterKategori" target="_blank" class="text-teal fw-semibold" style="font-size:11px; text-decoration:none;">
+                                                <i class="fas fa-external-link-alt me-1"></i> Kelola Kategori
+                                            </a>
+                                        </div>
+                                        <select id="pKategoriId" class="form-field-input" required onchange="onKategoriSelectionChanged()"></select>
+
+                                        <!-- Live Preview Skema Kategori -->
+                                        <div id="boxKategoriPreview" class="preview-detail-box" style="display:none;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <strong class="text-dark" id="previewKategoriNama" style="font-size:12px;">-</strong>
+                                                <span class="status-pill pill-active" id="previewKategoriCount" style="font-size:10px; padding:1px 6px;">
+                                                    <span class="dot-indicator"></span>0 Grade
+                                                </span>
+                                            </div>
+                                            <p class="text-muted mb-2" id="previewKategoriKet" style="font-size:11px;">-</p>
+                                            <div>
+                                                <span class="text-muted d-block mb-1" style="font-size:10.5px; font-weight:700; text-transform:uppercase;">Daftar Grade &amp; Rentang Skor:</span>
+                                                <div class="d-flex flex-wrap gap-1" id="previewKategoriBadges"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- GROUP 3: Target Partisipan & Relasi Penilai (col-12) -->
+                    <div class="row g-3 g-xl-4 mb-3">
+                        <div class="col-12">
+                            <div class="param-group-box">
+                                <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom">
+                                    <span class="step-circle">3</span>
+                                    <h5 class="param-title">Target Partisipan &amp; Relasi Penilai</h5>
+                                </div>
+
+                                <div class="row g-3">
+                                    <!-- Kolom Kiri: Siapa yang Dinilai (Target Karyawan) -->
+                                    <div class="col-12 col-lg-7 border-lg-end pe-lg-4">
+                                        <label class="field-label mb-2">Tentukan Siapa yang Akan Dinilai (Target Evaluasi) <span style="color:#ef4444;">*</span></label>
+                                        
+                                        <!-- 3 Pilihan Target Mode -->
+                                        <div class="row g-2 mb-3">
+                                            <div class="col-12 col-sm-4">
+                                                <div class="target-mode-card selected" id="cardTargetAll" onclick="pilihTargetMode('ALL')">
+                                                    <i class="fas fa-users-line mb-1.5 text-teal" style="font-size: 1.25rem;"></i>
+                                                    <span class="fw-bold d-block text-slate-900" style="font-size: 0.8rem;">Semua Karyawan</span>
+                                                    <small class="text-muted d-block" style="font-size: 0.68rem; line-height: 1.25;">Seluruh staf aktif perusahaan</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-4">
+                                                <div class="target-mode-card" id="cardTargetRole" onclick="pilihTargetMode('ROLE_BASED')">
+                                                    <i class="fas fa-user-tag mb-1.5 text-teal" style="font-size: 1.25rem;"></i>
+                                                    <span class="fw-bold d-block text-slate-900" style="font-size: 0.8rem;">Berdasarkan Role</span>
+                                                    <small class="text-muted d-block" style="font-size: 0.68rem; line-height: 1.25;">Filter jabatan / divisi tertentu</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-12 col-sm-4">
+                                                <div class="target-mode-card" id="cardTargetCustom" onclick="pilihTargetMode('CUSTOM_USER')">
+                                                    <i class="fas fa-user-check mb-1.5 text-teal" style="font-size: 1.25rem;"></i>
+                                                    <span class="fw-bold d-block text-slate-900" style="font-size: 0.8rem;">Pilih Spesifik</span>
+                                                    <small class="text-muted d-block" style="font-size: 0.68rem; line-height: 1.25;">Checklist karyawan manual</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="pTargetMode" value="ALL" />
+
+                                        <!-- Container Dropdown Role (Tampil jika Berdasarkan Role) -->
+                                        <div id="containerFilterRole" class="mb-3" style="display:none;">
+                                            <label class="field-label">Pilih Role Sasaran Karyawan <span style="color:#ef4444;">*</span></label>
+                                            <select id="pTargetRoleId" class="form-field-input" onchange="onRoleFilterChanged()">
+                                                <option value="">-- Silahkan Pilih Role Karyawan --</option>
+                                            </select>
+                                            <small class="field-help-text">Hanya akun pengguna dengan role ini yang akan dievaluasi.</small>
+                                        </div>
+
+                                        <!-- Container Checklist Karyawan Spesifik (Tampil jika Pilih Spesifik) -->
+                                        <div id="containerCustomUser" class="mb-3" style="display:none;">
+                                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                                <label class="field-label mb-0">Pilih Daftar Karyawan yang Dinilai <span style="color:#ef4444;">*</span></label>
+                                                <div class="d-flex gap-2">
+                                                    <button type="button" class="btn btn-sm btn-link text-teal p-0 text-decoration-none" style="font-size:11px;" onclick="checkAllCustomUsers(true)">Pilih Semua</button>
+                                                    <span class="text-muted" style="font-size:11px;">|</span>
+                                                    <button type="button" class="btn btn-sm btn-link text-muted p-0 text-decoration-none" style="font-size:11px;" onclick="checkAllCustomUsers(false)">Kosongkan</button>
+                                                </div>
+                                            </div>
+                                            <div class="user-checklist-container" id="boxCustomUserList">
+                                                <div class="text-center py-2 text-muted" style="font-size:11.5px;">
+                                                    <i class="fas fa-spinner fa-spin me-1"></i> Memuat daftar karyawan...
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Live Chips/Badges Sasaran Karyawan -->
+                                        <div>
+                                            <span class="text-muted d-block mb-1.5" style="font-size:10.5px; font-weight:700; text-transform:uppercase;">
+                                                Daftar Karyawan yang Akan Dinilai:
+                                            </span>
+                                            <div class="d-flex flex-wrap gap-1" id="boxTargetBadges">
+                                                <small class="text-muted">Memuat sasaran karyawan...</small>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Kolom Kanan: Kebijakan Relasi Penilai & Proteksi Hirarki -->
+                                    <div class="col-12 col-lg-5 ps-lg-4">
+                                        <label class="field-label mb-2.5">Kebijakan Relasi &amp; Arah Penilai <span style="color:#ef4444;">*</span></label>
+                                        
+                                        <!-- Model Penugasan Evaluasi -->
+                                        <div class="d-flex flex-column gap-2 mb-3">
+                                            <div class="relasi-option-card selected" id="cardRelasi360" onclick="$('#radioRelasi360').prop('checked', true).trigger('change');">
+                                                <div class="custom-radio-check-wrap">
+                                                    <input class="form-check-input" type="radio" name="relasiPenilai" id="radioRelasi360" value="ALL_360" checked onchange="onRelasiPenilaiChanged()" />
+                                                    <div class="flex-grow-1">
+                                                        <label class="fw-bold text-dark d-block mb-1 cursor-pointer" for="radioRelasi360" style="font-size: 0.82rem; line-height: 1.3;">
+                                                            Evaluasi 360&deg; Lengkap (Atasan &amp; Rekan)
+                                                        </label>
+                                                        <p class="text-muted mb-0" style="font-size: 0.73rem; line-height: 1.45;">
+                                                            HRD/Atasan menilai target (bobot 60%) dan sesama rekan kerja saling menilai (bobot 40%).
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="relasi-option-card" id="cardRelasiHRD" onclick="$('#radioRelasiHRD').prop('checked', true).trigger('change');">
+                                                <div class="custom-radio-check-wrap">
+                                                    <input class="form-check-input" type="radio" name="relasiPenilai" id="radioRelasiHRD" value="HRD_ONLY" onchange="onRelasiPenilaiChanged()" />
+                                                    <div class="flex-grow-1">
+                                                        <label class="fw-bold text-dark d-block mb-1 cursor-pointer" for="radioRelasiHRD" style="font-size: 0.82rem; line-height: 1.3;">
+                                                            Penilaian Satu Arah (Hanya HRD / Atasan)
+                                                        </label>
+                                                        <p class="text-muted mb-0" style="font-size: 0.73rem; line-height: 1.45;">
+                                                            Penilaian langsung top-down oleh HRD (bobot 100%). Rekan kerja tidak saling menilai.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Proteksi Hirarki Penilaian (Sesuai Permintaan User: Karyawan Tidak Bisa Menilai HRD) -->
+                                        <div class="rounded border mb-3 p-3" style="background:#f0fdfa; border-color:#99f6e4 !important;">
+                                            <div class="custom-radio-check-wrap">
+                                                <input class="form-check-input" type="checkbox" id="chkExcludeHrd" checked onchange="onRelasiPenilaiChanged()" />
+                                                <div class="flex-grow-1">
+                                                    <label class="fw-bold d-block cursor-pointer mb-1" for="chkExcludeHrd" style="font-size:0.8rem; color:#0f766e; line-height: 1.3;">
+                                                        <i class="fas fa-shield-halved me-1"></i> Proteksi Hirarki: Karyawan tidak menilai HRD
+                                                    </label>
+                                                    <p class="text-muted mb-0" style="font-size:0.72rem; line-height:1.45;">
+                                                        Akun HRD/Atasan bertindak sebagai penilai dan tidak dapat dievaluasi balik oleh karyawan bawahan.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Ringkasan Mekanisme Distribusi -->
+                                        <div class="preview-detail-box mt-0 p-3" style="border-radius: 8px;">
+                                            <div class="d-flex align-items-center gap-1.5 mb-1.5 text-slate-800" style="font-size:0.76rem; font-weight:700;">
+                                                <i class="fas fa-circle-info text-teal"></i> Rangkuman Skema Distribusi:
+                                            </div>
+                                            <p class="text-muted mb-0" id="txtSkemaSummary" style="font-size:0.72rem; line-height:1.45;">
+                                                -
+                                            </p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action Buttons (Identik form2.cshtml) -->
+                    <div class="pt-3 mt-2 border-top d-flex flex-column align-items-center justify-content-center">
+                        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-center">
+                            <button type="submit" class="btn-primary-admin py-2 px-4 shadow-sm" id="btnSavePeriode">
+                                <i class="fas fa-play me-1.5"></i> Buka Penilaian Kinerja
+                            </button>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 text-muted mt-2" style="font-size: 0.74rem;">
+                            <i class="fas fa-shield-halved text-teal"></i>
+                            <span id="txtDistribusiBottomNote">Instrumen evaluasi akan didistribusikan secara otomatis sesuai konfigurasi target partisipan dan relasi penilai yang telah Anda tentukan.</span>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var allBobotList = [];
+    var allKategoriList = [];
+    var allRolesList = [];
+    var allUsersList = [];
+
+    // ==========================================
+    // 1. MASTER KATEGORI & BOBOT AHP (GRUP 2)
+    // ==========================================
+    function loadKategoriDropdown(selectedId) {
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori',
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                allKategoriList = (list || []).filter(function (k) {
+                    return k.isActive || (selectedId && k.id === selectedId);
+                });
+
+                var html = '<option value="">-- Silahkan Pilih Skema Kategori &amp; Grade --</option>';
+                if (allKategoriList && allKategoriList.length > 0) {
+                    for (var i = 0; i < allKategoriList.length; i++) {
+                        var k = allKategoriList[i];
+                        var sel = (selectedId && k.id === selectedId) ? 'selected' : '';
+                        var countGrade = k.details ? k.details.length : (k.totalDetail || 0);
+                        html += '<option value="' + k.id + '" ' + sel + '>' + escHtml(k.kodeKategori) + ' - ' + escHtml(k.namaKategori) + ' (' + countGrade + ' Grade)</option>';
+                    }
+                } else {
+                    html += '<option value="" disabled>Belum ada master skema kategori aktif</option>';
+                }
+                $('#pKategoriId').html(html);
+                onKategoriSelectionChanged();
+            }
+        });
+    }
+
+    function onKategoriSelectionChanged() {
+        var selectedId = parseInt($('#pKategoriId').val());
+        if (!selectedId) {
+            $('#boxKategoriPreview').slideUp(150);
+            return;
+        }
+        var k = allKategoriList.find(function (item) { return item.id === selectedId; });
+        if (!k) {
+            $('#boxKategoriPreview').slideUp(150);
+            return;
+        }
+
+        $('#previewKategoriNama').text(k.kodeKategori + ' - ' + k.namaKategori);
+        var countGrade = k.details ? k.details.length : (k.totalDetail || 0);
+        $('#previewKategoriCount').html('<span class="dot-indicator"></span>' + countGrade + ' Grade');
+        $('#previewKategoriKet').text(k.deskripsi || 'Tidak ada deskripsi skema.');
+
+        var badgesHtml = '';
+        if (k.details && k.details.length > 0) {
+            for (var i = 0; i < k.details.length; i++) {
+                var d = k.details[i];
+                badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">' +
+                    escHtml(d.namaGrade) + ': <b>' + Number(d.nilaiMin).toFixed(0) + '-' + Number(d.nilaiMax).toFixed(0) + '</b></span>';
+            }
+        } else {
+            badgesHtml = '<small class="text-muted">Belum ada rincian grade pada skema ini.</small>';
+        }
+        $('#previewKategoriBadges').html(badgesHtml);
+        $('#boxKategoriPreview').slideDown(150);
+    }
+
+    function loadBobotDropdown(selectedId) {
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp',
+            type: 'GET',
+            dataType: 'json',
+            success: function (rules) {
+                allBobotList = (rules || []).filter(function (r) {
+                    return r.isActive || (selectedId && r.id === selectedId);
+                });
+
+                var html = '<option value="">-- Silahkan Pilih Kebijakan Bobot AHP --</option>';
+                if (allBobotList && allBobotList.length > 0) {
+                    for (var i = 0; i < allBobotList.length; i++) {
+                        var r = allBobotList[i];
+                        var sel = (selectedId && r.id === selectedId) ? 'selected' : '';
+                        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+                        var crText = Number(crNum).toFixed(4);
+                        html += '<option value="' + r.id + '" ' + sel + '>' + escHtml(r.kodeAturan) + ' - ' + escHtml(r.namaAturan) + ' (CR: ' + crText + ')</option>';
+                    }
+                } else {
+                    html += '<option value="" disabled>Belum ada master bobot AHP aktif</option>';
+                }
+                $('#pBobotId').html(html);
+                onBobotAHPSelectionChanged();
+            }
+        });
+    }
+
+    function onBobotAHPSelectionChanged() {
+        var selectedId = parseInt($('#pBobotId').val());
+        if (!selectedId) {
+            $('#boxBobotPreview').slideUp(150);
+            return;
+        }
+        var r = allBobotList.find(function (item) { return item.id === selectedId; });
+        if (!r) {
+            $('#boxBobotPreview').slideUp(150);
+            return;
+        }
+
+        $('#previewBobotNama').text(r.kodeAturan + ' - ' + r.namaAturan);
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+        $('#previewBobotCR').html('<span class="dot-indicator"></span>CR: ' + Number(crNum).toFixed(4));
+        $('#previewBobotKet').text(r.keterangan || 'Tidak ada catatan rationale kebijakan.');
+
+        var details = r.details || [];
+        var badgesHtml = '';
+        if (details.length > 0) {
+            for (var i = 0; i < details.length; i++) {
+                var d = details[i];
+                var pct = (Number(d.bobotPrioritas || 0) * 100).toFixed(1);
+                badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">' +
+                    escHtml(d.namaKriteria) + ': <b>' + pct + '%</b></span>';
+            }
+        } else {
+            badgesHtml = '<small class="text-muted">Belum ada rincian kriteria pada aturan bobot ini.</small>';
+        }
+        $('#previewBobotBadges').html(badgesHtml);
+        $('#boxBobotPreview').slideDown(150);
+    }
+
+    // ==========================================
+    // 2. TARGET PARTISIPAN & RELASI PENILAI (GRUP 3)
+    // ==========================================
+    function loadRolesData() {
+        $.ajax({
+            url: API_BASE_URL + '/roles',
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                allRolesList = list || [];
+                var html = '<option value="">-- Silahkan Pilih Role Karyawan --</option>';
+                for (var i = 0; i < allRolesList.length; i++) {
+                    var r = allRolesList[i];
+                    html += '<option value="' + r.id + '">' + escHtml(r.namaRole) + '</option>';
+                }
+                $('#pTargetRoleId').html(html);
+            }
+        });
+    }
+
+    function loadUsersData() {
+        $.ajax({
+            url: API_BASE_URL + '/users',
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                allUsersList = (list || []).filter(function (u) { return u.isActive; });
+                renderCustomUserChecklist();
+                updateTargetPreview();
+            },
+            error: function () {
+                $('#boxTargetBadges').html('<small class="text-danger">Gagal memuat data pengguna.</small>');
+            }
+        });
+    }
+
+    function renderCustomUserChecklist() {
+        if (allUsersList.length === 0) {
+            $('#boxCustomUserList').html('<div class="text-center py-2 text-muted" style="font-size:11px;">Tidak ada akun pengguna aktif.</div>');
+            return;
+        }
+
+        var html = '<div class="row g-2">';
+        for (var i = 0; i < allUsersList.length; i++) {
+            var u = allUsersList[i];
+            var isHrd = (u.roleId === 1 || (u.roleName || '').toUpperCase() === 'HRD');
+            var roleBadge = isHrd
+                ? '<span class="status-pill pill-active ms-1" style="font-size:9.5px; padding:1px 5px;">HRD</span>'
+                : '<span class="status-pill pill-role ms-1" style="font-size:9.5px; padding:1px 5px;">' + escHtml(u.roleName || 'Karyawan') + '</span>';
+
+            html += '<div class="col-12 col-sm-6">' +
+                '<div class="user-check-item d-flex align-items-center justify-content-between p-2">' +
+                '<div class="d-flex align-items-center gap-2">' +
+                    '<input class="form-check-input chk-custom-user m-0" type="checkbox" value="' + u.id + '" id="chkUser_' + u.id + '" checked onchange="updateTargetPreview()" style="width:16px; height:16px; cursor:pointer; flex-shrink:0;">' +
+                    '<label class="fw-bold text-dark mb-0 cursor-pointer" for="chkUser_' + u.id + '" style="font-size:11.5px;">' +
+                        escHtml(u.namaLengkap) +
+                    '</label>' +
+                    roleBadge +
+                '</div>' +
+                    '<span class="badge bg-light text-muted border ms-2" style="font-size:10px;">' + escHtml(u.kodeKaryawan) + '</span>' +
+                '</div>' +
+            '</div>';
+        }
+        html += '</div>';
+        $('#boxCustomUserList').html(html);
+    }
+
+    function pilihTargetMode(mode) {
+        $('#pTargetMode').val(mode);
+        $('.target-mode-card').removeClass('selected');
+
+        if (mode === 'ALL') {
+            $('#cardTargetAll').addClass('selected');
+            $('#containerFilterRole').slideUp(150);
+            $('#containerCustomUser').slideUp(150);
+        } else if (mode === 'ROLE_BASED') {
+            $('#cardTargetRole').addClass('selected');
+            $('#containerFilterRole').slideDown(150);
+            $('#containerCustomUser').slideUp(150);
+        } else if (mode === 'CUSTOM_USER') {
+            $('#cardTargetCustom').addClass('selected');
+            $('#containerFilterRole').slideUp(150);
+            $('#containerCustomUser').slideDown(150);
+        }
+
+        updateTargetPreview();
+    }
+
+    function checkAllCustomUsers(isChecked) {
+        $('.chk-custom-user').prop('checked', isChecked);
+        updateTargetPreview();
+    }
+
+    function onRoleFilterChanged() {
+        updateTargetPreview();
+    }
+
+    function onRelasiPenilaiChanged() {
+        var isHrdOnly = $('#radioRelasiHRD').is(':checked');
+        if (isHrdOnly) {
+            $('#cardRelasiHRD').addClass('selected');
+            $('#cardRelasi360').removeClass('selected');
+        } else {
+            $('#cardRelasi360').addClass('selected');
+            $('#cardRelasiHRD').removeClass('selected');
+        }
+        updateTargetPreview();
+    }
+
+    function getTargetKaryawans() {
+        var mode = $('#pTargetMode').val();
+        var excludeHrd = $('#chkExcludeHrd').is(':checked');
+
+        if (mode === 'ALL') {
+            // Mode SEMUA: Jika proteksi aktif, hanya karyawan non-HRD. Jika tidak aktif, semua karyawan.
+            return allUsersList.filter(function (u) {
+                if (excludeHrd && (u.roleId === 1 || (u.roleName || '').toUpperCase() === 'HRD')) {
+                    return false;
+                }
+                return true;
+            });
+        } else if (mode === 'ROLE_BASED') {
+            // Mode ROLE: Sesuai role yang dipilih admin (bisa HRD, Karyawan, dll)
+            var selectedRoleId = parseInt($('#pTargetRoleId').val());
+            if (!selectedRoleId) return [];
+            return allUsersList.filter(function (u) {
+                return u.roleId === selectedRoleId;
+            });
+        } else if (mode === 'CUSTOM_USER') {
+            // Mode SPESIFIK: Sesuai pengguna yang dicentang di checklist
+            var checkedIds = [];
+            $('.chk-custom-user:checked').each(function () {
+                checkedIds.push(parseInt($(this).val()));
+            });
+            return allUsersList.filter(function (u) {
+                return checkedIds.indexOf(u.id) !== -1;
+            });
+        }
+        return [];
+    }
+
+    function updateTargetPreview() {
+        var targets = getTargetKaryawans();
+        var isHrdOnly = $('#radioRelasiHRD').is(':checked');
+        var targetCount = targets.length;
+
+        $('#countTargetUser').text(targetCount);
+
+        // Hitung estimasi lembar evaluasi
+        var totalLembar = 0;
+        var summaryText = '';
+
+        if (targetCount === 0) {
+            totalLembar = 0;
+            summaryText = 'Belum ada sasaran karyawan yang dipilih. Silahkan tentukan target evaluasi di kolom kiri.';
+        } else if (isHrdOnly) {
+            // Hanya HRD yang menilai target (1 evaluasi per target)
+            totalLembar = targetCount * 1;
+            summaryText = 'Penilaian Satu Arah: Akun HRD/Atasan akan mengevaluasi ' + targetCount + ' target karyawan (bobot 100%). Rekan kerja tidak saling menilai dan karyawan tidak dapat menilai akun HRD.';
+        } else {
+            // Evaluasi 360: HRD menilai target (N) + Sesama rekan saling menilai (N * (N - 1))
+            var supervisorTasks = targetCount;
+            var peerTasks = targetCount > 1 ? (targetCount * (targetCount - 1)) : 0;
+            totalLembar = supervisorTasks + peerTasks;
+            summaryText = 'Evaluasi 360° Penuh: Akun HRD mengevaluasi ' + targetCount + ' target karyawan (bobot 60%) dan sesama rekan saling menilai (' + peerTasks + ' lembar peer-review, bobot 40%). Karyawan tidak dapat menilai akun HRD.';
+        }
+
+        $('#countLembarEvaluasi').text(totalLembar);
+        $('#txtSkemaSummary').text(summaryText);
+
+        // Render chips/badges nama-nama target karyawan
+        if (targetCount > 0) {
+            var bHtml = '';
+            for (var i = 0; i < targets.length; i++) {
+                var u = targets[i];
+                bHtml += '<span class="status-pill pill-role me-1 mb-1" style="font-size:10.5px; padding:3px 8px;">' +
+                    '<i class="fas fa-user text-teal me-1"></i>' + escHtml(u.namaLengkap) + ' <small class="text-muted">(' + escHtml(u.kodeKaryawan) + ')</small></span>';
+            }
+            $('#boxTargetBadges').html(bHtml);
+        } else {
+            $('#boxTargetBadges').html('<small class="text-danger"><i class="fas fa-exclamation-circle me-1"></i> Belum ada karyawan yang terpilih sebagai target evaluasi.</small>');
+        }
+    }
+
+    // ==========================================
+    // 3. SUBMIT FORM BUKA PENILAIAN KINERJA
+    // ==========================================
+    function submitTambahPeriode() {
+        var namaVal = $('#pNama').val().trim();
+        if (!namaVal) {
+            Swal.fire('Validasi', 'Nama penilaian kinerja wajib diisi.', 'warning');
+            return;
+        }
+
+        var bobotId = parseInt($('#pBobotId').val());
+        if (!bobotId) {
+            Swal.fire('Validasi', 'Silahkan pilih Kebijakan Bobot AHP yang digunakan.', 'warning');
+            return;
+        }
+
+        var kategoriId = parseInt($('#pKategoriId').val());
+        if (!kategoriId) {
+            Swal.fire('Validasi', 'Silahkan pilih Skema Kategori & Grade yang digunakan.', 'warning');
+            return;
+        }
+
+        var targetMode = $('#pTargetMode').val();
+        if (targetMode === 'ROLE_BASED' && !$('#pTargetRoleId').val()) {
+            Swal.fire('Validasi', 'Silahkan pilih Role Sasaran Karyawan yang akan dinilai.', 'warning');
+            return;
+        }
+
+        var targets = getTargetKaryawans();
+        if (targets.length === 0) {
+            Swal.fire('Validasi', 'Tidak ada target karyawan aktif yang terpilih untuk dinilai.', 'warning');
+            return;
+        }
+
+        var isHrdOnly = $('#radioRelasiHRD').is(':checked');
+        var customUserIds = null;
+        if (targetMode === 'CUSTOM_USER') {
+            customUserIds = [];
+            $('.chk-custom-user:checked').each(function () {
+                customUserIds.push(parseInt($(this).val()));
+            });
+        }
+
+        var payload = {
+            kodePeriode: '',
+            namaPeriode: namaVal,
+            tanggalMulai: $('#pMulai').val() || null,
+            tanggalSelesai: $('#pSelesai').val() || null,
+            bobotAHPId: bobotId,
+            kategoriId: kategoriId,
+            status: 'Berjalan',
+            skemaPenilai: isHrdOnly ? 'HRD_ONLY' : (targetMode === 'ROLE_BASED' ? 'ROLE_BASED' : (targetMode === 'CUSTOM_USER' ? 'CUSTOM_USER' : 'ALL_360')),
+            targetRoleId: (targetMode === 'ROLE_BASED') ? parseInt($('#pTargetRoleId').val()) || null : null,
+            targetUserIds: customUserIds,
+            includePeerReview: !isHrdOnly,
+            includeSupervisorReview: true,
+            excludeHrdFromTarget: $('#chkExcludeHrd').is(':checked')
+        };
+
+        $.ajax({
+            url: API_BASE_URL + '/periode',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(payload),
+            beforeSend: function () {
+                $('#btnSavePeriode').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Membuka Penilaian...');
+            },
+            success: function () {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Penilaian kinerja baru berhasil dibuka dan instrumen evaluasi telah disebarkan sesuai aturan partisipan.',
+                    confirmButtonColor: '#0d9488'
+                }).then(function () {
+                    window.location.href = '/Admin/Periode';
+                });
+            },
+            error: function (xhr) {
+                $('#btnSavePeriode').prop('disabled', false).html('<i class="fas fa-play me-1.5"></i> Buka Penilaian Kinerja');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menyimpan data penilaian kinerja.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        var today = new Date();
+        var tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        var formatYYYYMMDD = function (d) {
+            var yyyy = d.getFullYear();
+            var mm = String(d.getMonth() + 1).padStart(2, '0');
+            var dd = String(d.getDate()).padStart(2, '0');
+            return yyyy + '-' + mm + '-' + dd;
+        };
+
+        $('#pMulai').val(formatYYYYMMDD(today));
+        $('#pSelesai').val(formatYYYYMMDD(tomorrow));
+
+        loadBobotDropdown(null);
+        loadKategoriDropdown(null);
+        loadRolesData();
+        loadUsersData();
+    });
+</script>
+}

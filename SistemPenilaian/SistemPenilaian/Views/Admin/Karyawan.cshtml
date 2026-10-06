@@ -1,0 +1,547 @@
+@{
+    ViewData["Title"] = "Data Karyawan";
+}
+
+<style>
+    .dashboard-stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .dashboard-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .dashboard-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin: 0;
+    }
+    .dashboard-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .dashboard-stat-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.15;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+    .dashboard-stat-subtext {
+        font-size: 0.73rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Data Karyawan</span>
+            </div>
+        </div>
+
+        <!-- 4 Metric Stat Cards Karyawan -->
+        <div class="row g-3 mb-3">
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Total Karyawan</span>
+                        <div class="dashboard-stat-icon stat-icon-teal">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statKaryawanTotal">0 Orang</div>
+                        <div class="dashboard-stat-subtext">
+                            <span>Seluruh SDM terdaftar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Karyawan Aktif</span>
+                        <div class="dashboard-stat-icon" style="background:#ecfdf5; color:#059669;">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statKaryawanAktif">0 Orang</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;"><span class="dot-indicator"></span>Aktif</span>
+                            <span>Siap dievaluasi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Akun Karyawan</span>
+                        <div class="dashboard-stat-icon stat-icon-blue">
+                            <i class="fas fa-id-badge"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statKaryawanUser">0 Akun</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-role" style="padding:1px 6px; font-size:10px;">Role Karyawan</span>
+                            <span>Peserta &amp; Penilai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Pengelola (HRD)</span>
+                        <div class="dashboard-stat-icon stat-icon-purple">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statKaryawanAdmin">0 Akun</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;"><span class="dot-indicator"></span>Admin</span>
+                            <span>Pengelola sistem</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Table Card (Identik Project 7) -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-2.5 px-3 px-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                    <div>
+                        <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Data Karyawan</h3>
+                        <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Pengelolaan data karyawan dan hak akses pengguna dalam pelaksanaan penilaian kinerja</p>
+                    </div>
+                    <div>
+                        <button type="button" class="btn-primary-admin" onclick="openCreateModal()">
+                            <i class="fas fa-plus me-1"></i> Tambah Karyawan
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tableKaryawan">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th style="width: 45px; text-align:center;">NO</th>
+                            <th style="width: 100px;">KODE</th>
+                            <th>NAMA &amp; EMAIL KARYAWAN</th>
+                            <th>PERAN (ROLE)</th>
+                            <th class="text-center" style="width: 95px;">STATUS</th>
+                            <th style="text-align: right; width: 110px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableKaryawanBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- Modal Tambah Karyawan (Identik Project 7 AdminModal) -->
+<div class="admin-modal-backdrop" id="modalCreate">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title">Tambah Karyawan Baru</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalCreate')">&times;</button>
+        </div>
+        <form id="formCreate" onsubmit="event.preventDefault(); submitCreate();">
+            <div class="admin-modal-content">
+                <div class="form-field-group">
+                    <label class="form-field-label">Kode Karyawan</label>
+                    <input type="text" id="cKode" class="form-field-input" placeholder="Contoh: KRY-006 (Kosongkan untuk otomatis)" />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Nama Lengkap <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="cName" class="form-field-input" placeholder="Nama lengkap karyawan" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Alamat Email <span style="color:#ef4444;">*</span></label>
+                    <input type="email" id="cEmail" class="form-field-input" placeholder="karyawan@sistempenilaian.com" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Peran Akses <span style="color:#ef4444;">*</span></label>
+                    <select id="cRoleId" class="form-field-input" required>
+                        <option value="2" selected>Karyawan</option>
+                        <option value="1">Pengelola Penilaian (HRD)</option>
+                    </select>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Kata Sandi <span style="color:#ef4444;">*</span></label>
+                    <input type="password" id="cPass" class="form-field-input" placeholder="Minimal 6 karakter" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Konfirmasi Kata Sandi <span style="color:#ef4444;">*</span></label>
+                    <input type="password" id="cConf" class="form-field-input" placeholder="Ulangi kata sandi" required />
+                </div>
+                <div class="form-field-group p-3 rounded-2 border" style="background:#f8fafc; margin-top:14px;">
+                    <label style="display:flex; align-items:flex-start; gap:10px; cursor:pointer; margin-bottom:0;" for="cSendEmail">
+                        <input type="checkbox" id="cSendEmail" style="width:18px; height:18px; margin-top:2px; accent-color:#0d9488; cursor:pointer;" />
+                        <div>
+                            <span style="font-size:0.85rem; font-weight:600; color:#0f172a; display:block;">
+                                <i class="fas fa-envelope text-teal me-1"></i> Kirim informasi akun &amp; kata sandi ke email karyawan
+                            </span>
+                            <span style="font-size:0.75rem; color:#64748b; display:block; margin-top:3px; line-height:1.4;">
+                                Jika dicentang, sistem akan mengirimkan detail akun dan tautan masuk ke alamat email yang didaftarkan.
+                            </span>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalCreate')">Batal</button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveCreate">Simpan Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Karyawan (Identik Project 7 AdminModal) -->
+<div class="admin-modal-backdrop" id="modalEdit">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title">Ubah Data Karyawan</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalEdit')">&times;</button>
+        </div>
+        <form id="formEdit" onsubmit="event.preventDefault(); submitEdit();">
+            <input type="hidden" id="editId" />
+            <div class="admin-modal-content">
+                <div class="form-field-group">
+                    <label class="form-field-label">Kode Karyawan</label>
+                    <input type="text" id="eKode" class="form-field-input" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Nama Lengkap <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="eName" class="form-field-input" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Alamat Email <span style="color:#ef4444;">*</span></label>
+                    <input type="email" id="eEmail" class="form-field-input" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Peran Akses <span style="color:#ef4444;">*</span></label>
+                    <select id="eRoleId" class="form-field-input" required>
+                        <option value="2">Karyawan</option>
+                        <option value="1">Pengelola Penilaian (HRD)</option>
+                    </select>
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Kata Sandi Baru</label>
+                    <input type="password" id="ePass" class="form-field-input" placeholder="Kosongkan jika tidak ingin mengubah kata sandi" />
+                </div>
+                <div class="form-field-group" style="margin-top:12px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem; font-weight:600;">
+                        <input type="checkbox" id="eActive" style="width:16px; height:16px;" checked />
+                        <span>Status Akun Aktif</span>
+                    </label>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalEdit')">Batal</button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveEdit">Perbarui Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dtKaryawan = null;
+    var allKaryawanData = [];
+
+    function loadKaryawanTable() {
+        if (dtKaryawan) {
+            dtKaryawan.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/users',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableKaryawanBody').html('<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat data karyawan...</td></tr>');
+            },
+            success: function (users) {
+                allKaryawanData = users || [];
+
+                // Hitung statistik metrik
+                var totalKaryawan = allKaryawanData.length;
+                var totalAktif = allKaryawanData.filter(function (u) { return u.isActive; }).length;
+                var totalAdmin = allKaryawanData.filter(function (u) { return u.roleId === 1; }).length;
+                var totalUser = allKaryawanData.filter(function (u) { return u.roleId !== 1; }).length;
+
+                $('#statKaryawanTotal').text(totalKaryawan + ' Orang');
+                $('#statKaryawanAktif').text(totalAktif + ' Orang');
+                $('#statKaryawanUser').text(totalUser + ' Akun');
+                $('#statKaryawanAdmin').text(totalAdmin + ' Akun');
+
+                var html = '';
+
+                if (allKaryawanData.length > 0) {
+                    for (var i = 0; i < allKaryawanData.length; i++) {
+                        var u = allKaryawanData[i];
+                        var initial = (u.namaLengkap || 'U').charAt(0).toUpperCase();
+
+                        var roleBadge = '<span class="status-pill pill-role">' + escHtml(u.roleName || 'User') + '</span>';
+                        if (u.roleId === 1) roleBadge = '<span class="status-pill pill-active"><span class="dot-indicator"></span>HRD Admin</span>';
+
+                        var statusBadge = u.isActive 
+                            ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Aktif</span>'
+                            : '<span class="status-pill pill-inactive"><span class="dot-indicator"></span>Nonaktif</span>';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td class="text-nowrap"><span class="code-tag" style="font-size:11px;">' + escHtml(u.kodeKaryawan || '-') + '</span></td>' +
+                            '<td>' +
+                                '<div class="avatar-cell text-nowrap">' +
+                                    '<div class="avatar-circle">' + initial + '</div>' +
+                                    '<div>' +
+                                        '<strong style="color:#0f172a; display:block; font-size:12.5px;">' + escHtml(u.namaLengkap) + '</strong>' +
+                                        '<span style="color:#64748b; font-size:11.5px;">' + escHtml(u.email) + '</span>' +
+                                    '</div>' +
+                                '</div>' +
+                            '</td>' +
+                            '<td class="text-nowrap">' + roleBadge + '</td>' +
+                            '<td class="text-center text-nowrap">' + statusBadge + '</td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group justify-content-end">' +
+                                    '<button type="button" class="btn-action-edit" title="Edit" onclick="openEditModal(' + u.id + ')"><i class="fas fa-pen"></i></button>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus" onclick="confirmDeleteKaryawan(' + u.id + ', \'' + escHtml(u.namaLengkap).replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                }
+
+                $('#tableKaryawanBody').html(html);
+
+                dtKaryawan = $('#tableKaryawan').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+            },
+            error: function () {
+                $('#tableKaryawanBody').html('<tr><td colspan="6" class="text-center py-4 text-danger">Gagal memuat data karyawan.</td></tr>');
+            }
+        });
+    }
+
+    function openCreateModal() {
+        $('#formCreate')[0].reset();
+        $('#cRoleId').val('2');
+        $('#cSendEmail').prop('checked', false);
+        AdminModal.open('modalCreate');
+    }
+
+    function submitCreate() {
+        var p1 = $('#cPass').val();
+        var p2 = $('#cConf').val();
+
+        if (p1 !== p2) {
+            Swal.fire('Peringatan', 'Konfirmasi kata sandi tidak cocok.', 'warning');
+            return;
+        }
+
+        var sendEmail = $('#cSendEmail').is(':checked');
+        var formData = new FormData();
+        formData.append('kodeKaryawan', $('#cKode').val().trim());
+        formData.append('namaLengkap', $('#cName').val().trim());
+        formData.append('email', $('#cEmail').val().trim());
+        formData.append('roleId', $('#cRoleId').val());
+        formData.append('passwordHash', p1);
+        formData.append('confirmPassword', p2);
+        formData.append('sendEmail', sendEmail);
+        formData.append('loginUrl', window.location.origin + '/Account/Login');
+
+        var btnLoadingHtml = sendEmail 
+            ? '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan & Mengirim Email...'
+            : '<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan Data...';
+
+        $.ajax({
+            url: API_BASE_URL + '/users',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('#btnSaveCreate').prop('disabled', true).html(btnLoadingHtml);
+            },
+            success: function (res) {
+                $('#btnSaveCreate').prop('disabled', false).text('Simpan Data');
+                if (res.success) {
+                    AdminModal.close('modalCreate');
+                    if (res.emailSent) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Karyawan Berhasil Ditambahkan',
+                            html: '<div style="font-size:13px; line-height:1.6;">' +
+                                  '<p class="mb-2 text-dark">Data karyawan telah berhasil disimpan ke sistem.</p>' +
+                                  '<p class="text-teal mb-0"><i class="fas fa-paper-plane me-1"></i> Informasi akun (email login, kata sandi, &amp; tautan masuk) telah berhasil dikirimkan ke email:<br><strong>' + escHtml($('#cEmail').val()) + '</strong></p>' +
+                                  '</div>',
+                            confirmButtonColor: '#0d9488'
+                        });
+                    } else if (sendEmail && res.emailSent === false) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Karyawan Ditambahkan (Email Gagal)',
+                            text: res.message || 'Karyawan berhasil disimpan, namun pengiriman email informasi login gagal.',
+                            confirmButtonColor: '#0d9488'
+                        });
+                    } else {
+                        AdminToast.success(res.message || 'Karyawan baru berhasil ditambahkan');
+                    }
+                    loadKaryawanTable();
+                } else {
+                    Swal.fire('Gagal', res.message || 'Gagal menyimpan data karyawan.', 'error');
+                }
+            },
+            error: function (xhr) {
+                $('#btnSaveCreate').prop('disabled', false).text('Simpan Data');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Terjadi kesalahan sistem.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    function openEditModal(id) {
+        $.ajax({
+            url: API_BASE_URL + '/users/' + id,
+            type: 'GET',
+            dataType: 'json',
+            success: function (u) {
+                if (u) {
+                    $('#editId').val(u.id);
+                    $('#eKode').val(u.kodeKaryawan || '');
+                    $('#eName').val(u.namaLengkap || '');
+                    $('#eEmail').val(u.email || '');
+                    $('#eRoleId').val(u.roleId || 2);
+                    $('#ePass').val('');
+                    $('#eActive').prop('checked', u.isActive);
+                    AdminModal.open('modalEdit');
+                }
+            }
+        });
+    }
+
+    function submitEdit() {
+        var id = $('#editId').val();
+        var formData = new FormData();
+        formData.append('id', id);
+        formData.append('kodeKaryawan', $('#eKode').val().trim());
+        formData.append('namaLengkap', $('#eName').val().trim());
+        formData.append('email', $('#eEmail').val().trim());
+        formData.append('roleId', $('#eRoleId').val());
+        formData.append('isActive', $('#eActive').is(':checked'));
+
+        var newPass = $('#ePass').val().trim();
+        if (newPass) {
+            formData.append('password', newPass);
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/users/' + id,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $('#btnSaveEdit').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Memperbarui...');
+            },
+            success: function (res) {
+                $('#btnSaveEdit').prop('disabled', false).text('Perbarui Data');
+                if (res.success) {
+                    AdminModal.close('modalEdit');
+                    AdminToast.success('Data karyawan berhasil diperbarui');
+                    loadKaryawanTable();
+                } else {
+                    Swal.fire('Gagal', res.message || 'Gagal update.', 'error');
+                }
+            },
+            error: function () {
+                $('#btnSaveEdit').prop('disabled', false).text('Perbarui Data');
+                Swal.fire('Gagal', 'Terjadi kesalahan sistem saat memperbarui data.', 'error');
+            }
+        });
+    }
+
+    function confirmDeleteKaryawan(id, name) {
+        Swal.fire({
+            title: 'Hapus Data Karyawan',
+            text: 'Apakah Anda yakin ingin menghapus data karyawan "' + name + '"? Tindakan ini tidak dapat dibatalkan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/users/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (r) {
+                        if (r.success) {
+                            AdminToast.success(r.message || 'Akun karyawan berhasil diproses');
+                            loadKaryawanTable();
+                        } else {
+                            Swal.fire('Informasi', r.message || 'Gagal menghapus.', 'warning');
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = (xhr.responseJSON && xhr.responseJSON.message) ? xhr.responseJSON.message : 'Karyawan tidak dapat dihapus karena masih terkait data penilaian kinerja.';
+                        Swal.fire('Gagal Menghapus', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    $(function () {
+        loadKaryawanTable();
+    });
+</script>
+}

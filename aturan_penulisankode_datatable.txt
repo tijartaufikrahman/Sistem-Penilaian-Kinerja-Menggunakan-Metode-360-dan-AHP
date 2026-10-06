@@ -1,0 +1,56 @@
+# ATURAN & PANDUAN DATATABLES (BAHASA INDONESIA & PAGE LENGTH)
+
+* CATATAN PENTING:
+Aturan di bawah ini adalah hal-hal yang WAJIB dan DILARANG sesuai yang disebutkan.
+Segala konfigurasi lain yang TIDAK DISEBUTKAN berarti SEPENUHNYA BEBAS disesuaikan kebutuhan.
+
+1. Wajib Bahasa Indonesia Penuh (DILARANG Teks Bahasa Inggris):
+   - Jangan biarkan teks default bahasa Inggris seperti "Show 10 entries", "Search:", "No data available in table", dll.
+   - Semua label teks wajib Bahasa Indonesia yang rapi dan baku lewat properti `language`.
+
+2. Aturan Pagination:
+   - WAJIB menggunakan style dan komponen pagination bawaan DataTable (DataTables Bootstrap).
+   - DILARANG menimpa/meng-override style tombol pagination dengan custom CSS aneh yang merusak tampilan standar bawaan DataTable.
+   - Pada tombol pagination (Previous, Next, First, Last), DILARANG menggunakan kata-kata (seperti "Sebelumnya", "Berikutnya", "Pertama", "Terakhir").
+   - WAJIB gunakan simbol panah / ikon:
+     * previous: "‹" atau "&lsaquo;" (atau ikon panah kiri)
+     * next: "›" atau "&rsaquo;" (atau ikon panah kanan)
+     * first: "«" atau "&laquo;"
+     * last: "»" atau "&raquo;"
+
+3. Aturan Jumlah Tampilan Data (Page Length):
+   - Default tampilan awal: 10 data.
+   - Pilihan dropdown (Length Menu): Mulai dari minimal 10 sampai dengan 100, serta ada opsi "Semua":
+     `lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Semua"]]`
+
+4. Format Standar Inisialisasi DataTable (jQuery):
+
+```javascript
+$('#tabelData').DataTable({
+  pageLength: 10,
+  lengthMenu: [
+    [10, 25, 50, 100, -1],
+    [10, 25, 50, 100, "Semua"]
+  ],
+  language: {
+    lengthMenu: "Tampilkan _MENU_ data per halaman",
+    zeroRecords: "Data tidak ditemukan",
+    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ total data",
+    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+    infoFiltered: "(difilter dari _MAX_ total data)",
+    search: "Cari:",
+    searchPlaceholder: "Ketik kata kunci...",
+    paginate: {
+      first: "«",
+      last: "»",
+      next: "›",
+      previous: "‹"
+    },
+    processing: "Sedang memproses data...",
+    loadingRecords: "Memuat data..."
+  }
+});
+```
+
+5. Integrasi dengan AJAX:
+   - Jika mengambil data via AJAX, tetap terapkan konfigurasi pagination bawaan DataTable dengan simbol panah dan aturan di atas.

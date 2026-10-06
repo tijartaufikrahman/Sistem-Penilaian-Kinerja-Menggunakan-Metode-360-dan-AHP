@@ -1,0 +1,364 @@
+@{
+    ViewData["Title"] = "Template Table - Riwayat Penjadwalan Kerja";
+}
+
+<style>
+    /* Styling custom khusus untuk komponen konten Table */
+    .pill-badge-warning {
+        background: #fff7ed;
+        color: #c2410c;
+        border: 1px solid #fed7aa;
+        font-size: 0.74rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    .pill-badge-secondary {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        font-size: 0.74rem;
+        padding: 4px 10px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+    .schedule-code-draft {
+        color: #c2410c;
+        border-color: #ffedd5;
+        background: #fff7ed;
+    }
+    .table-row-num {
+        font-size: 0.82rem;
+        color: #64748b;
+        text-align: center;
+    }
+    .table-link-title {
+        color: #0f172a;
+        font-size: 0.84rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+    .table-link-title:hover {
+        color: #0d9488;
+    }
+    .table-date-range {
+        font-size: 0.82rem;
+        color: #1e293b;
+    }
+    .app-modal-content {
+        border-radius: 14px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+    .app-modal-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .app-modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .app-modal-footer {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+    }
+</style>
+
+<!-- ATURAN 1: Tag pembungkus paling awal di file konten WAJIB diawali <div class="row ..."> -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="admin-card">
+            <!-- Header Card Riwayat -->
+            <div class="admin-card-header py-3 px-4">
+                <div class="d-flex flex-column">
+                    <h5 class="admin-card-title mb-0">Riwayat Penjadwalan Kerja</h5>
+                    <p class="admin-card-desc mb-0 mt-1">Daftar seluruh periode jadwal kerja operasional karyawan yang tersimpan dalam sistem.</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <a href="/Template/Form2" class="btn-primary-admin py-1.5 px-3">
+                        <i class="fas fa-plus"></i> Buat Jadwal Baru
+                    </a>
+                </div>
+            </div>
+
+            <!-- Table Body Container -->
+            <div class="card-body p-4">
+                <div id="alertAreaHistory"></div>
+
+                <div class="table-responsive">
+                    <table id="historyTable" class="table table-hover align-middle mb-0 w-100 modern-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px; text-align: center;">NO</th>
+                                <th style="width: 155px;">KODE JADWAL</th>
+                                <th>NAMA PERIODE</th>
+                                <th>RENTANG KUESIONER</th>
+                                <th style="text-align: center; width: 150px;">STATUS</th>
+                                <th style="width: 130px; text-align: center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Baris 1: Sedang Berjalan -->
+                            <tr>
+                                <td class="table-row-num">1</td>
+                                <td>
+                                    <span class="schedule-code-badge">
+                                        SCH-202609-001
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="lihatDetailJadwal('SCH-202609-001', 'Jadwal 17 Sep - 30 Sep 2026', '17 Sep 2026 – 30 Sep 2026', '14 Hari', 'Sedang Berjalan')" class="table-link-title">
+                                        Jadwal 17 Sep - 30 Sep 2026
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="table-date-range">
+                                        17 Sep 2026 &ndash; 30 Sep 2026 (14 Hari)
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="status-pill pill-active">
+                                        <span class="dot-indicator pulse-dot"></span>Sedang Berjalan
+                                    </span>
+                                </td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    <div class="table-actions-group">
+                                        <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                                        <button type="button" class="table-action-btn view" onclick="lihatDetailJadwal('SCH-202609-001', 'Jadwal 17 Sep - 30 Sep 2026', '17 Sep 2026 – 30 Sep 2026', '14 Hari', 'Sedang Berjalan')" title="Lihat Detail Jadwal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn pdf" onclick="cetakPdfJadwal('SCH-202609-001')" title="Ekspor PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn delete" onclick="hapusJadwalRow(this, 'SCH-202609-001', true)" title="Hapus Jadwal">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Baris 2: Draft -->
+                            <tr>
+                                <td class="table-row-num">2</td>
+                                <td>
+                                    <span class="schedule-code-badge schedule-code-draft">
+                                        SCH-202610-DRAFT
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="lihatDetailJadwal('SCH-202610-DRAFT', 'Jadwal 01 Okt - 14 Okt 2026', '01 Okt 2026 – 14 Okt 2026', '14 Hari', 'Draft')" class="table-link-title">
+                                        Jadwal 01 Okt - 14 Okt 2026
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="table-date-range">
+                                        01 Okt 2026 &ndash; 14 Okt 2026 (14 Hari)
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="pill-badge-warning">
+                                        Draft
+                                    </span>
+                                </td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    <div class="table-actions-group">
+                                        <button type="button" class="table-action-btn view" onclick="lihatDetailJadwal('SCH-202610-DRAFT', 'Jadwal 01 Okt - 14 Okt 2026', '01 Okt 2026 – 14 Okt 2026', '14 Hari', 'Draft')" title="Lihat Detail Jadwal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn pdf" onclick="cetakPdfJadwal('SCH-202610-DRAFT')" title="Ekspor PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn delete" onclick="hapusJadwalRow(this, 'SCH-202610-DRAFT', false)" title="Hapus Jadwal">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Baris 3: Selesai -->
+                            <tr>
+                                <td class="table-row-num">3</td>
+                                <td>
+                                    <span class="schedule-code-badge">
+                                        SCH-202609-002
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="lihatDetailJadwal('SCH-202609-002', 'Jadwal 03 Sep - 16 Sep 2026', '03 Sep 2026 – 16 Sep 2026', '14 Hari', 'Selesai')" class="table-link-title">
+                                        Jadwal 03 Sep - 16 Sep 2026
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="table-date-range">
+                                        03 Sep 2026 &ndash; 16 Sep 2026 (14 Hari)
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="pill-badge-secondary">
+                                        Selesai
+                                    </span>
+                                </td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    <div class="table-actions-group">
+                                        <button type="button" class="table-action-btn view" onclick="lihatDetailJadwal('SCH-202609-002', 'Jadwal 03 Sep - 16 Sep 2026', '03 Sep 2026 – 16 Sep 2026', '14 Hari', 'Selesai')" title="Lihat Detail Jadwal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn pdf" onclick="cetakPdfJadwal('SCH-202609-002')" title="Ekspor PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn delete" onclick="hapusJadwalRow(this, 'SCH-202609-002', true)" title="Hapus Jadwal">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Baris 4: Selesai -->
+                            <tr>
+                                <td class="table-row-num">4</td>
+                                <td>
+                                    <span class="schedule-code-badge">
+                                        SCH-202608-002
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="javascript:void(0)" onclick="lihatDetailJadwal('SCH-202608-002', 'Jadwal 20 Agt - 02 Sep 2026', '20 Agt 2026 – 02 Sep 2026', '14 Hari', 'Selesai')" class="table-link-title">
+                                        Jadwal 20 Agt - 02 Sep 2026
+                                    </a>
+                                </td>
+                                <td>
+                                    <span class="table-date-range">
+                                        20 Agt 2026 &ndash; 02 Sep 2026 (14 Hari)
+                                    </span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <span class="pill-badge-secondary">
+                                        Selesai
+                                    </span>
+                                </td>
+                                <td style="text-align: center; white-space: nowrap;">
+                                    <div class="table-actions-group">
+                                        <button type="button" class="table-action-btn view" onclick="lihatDetailJadwal('SCH-202608-002', 'Jadwal 20 Agt - 02 Sep 2026', '20 Agt 2026 – 02 Sep 2026', '14 Hari', 'Selesai')" title="Lihat Detail Jadwal">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn pdf" onclick="cetakPdfJadwal('SCH-202608-002')" title="Ekspor PDF">
+                                            <i class="fas fa-file-pdf"></i>
+                                        </button>
+                                        <button type="button" class="table-action-btn delete" onclick="hapusJadwalRow(this, 'SCH-202608-002', true)" title="Hapus Jadwal">
+                                            <i class="fas fa-trash-can"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Detail Jadwal (Pure Frontend) -->
+<div class="modal fade" id="modalDetailJadwal" tabindex="-1" aria-labelledby="modalJadwalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal-content">
+            <div class="modal-header app-modal-header">
+                <h5 class="modal-title app-modal-title" id="modalJadwalTitle">
+                    Detail Periode Jadwal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" style="font-size:.9rem;">
+                <div class="mb-2"><strong>Kode Jadwal:</strong> <span id="mDetailKode" class="badge bg-light text-dark border">-</span></div>
+                <div class="mb-2"><strong>Nama Periode:</strong> <span id="mDetailNama" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Rentang Kuesioner:</strong> <span id="mDetailRentang" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Durasi:</strong> <span id="mDetailDurasi" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Status:</strong> <span id="mDetailStatus" class="badge bg-success">-</span></div>
+            </div>
+            <div class="modal-footer app-modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        var dtHistory = null;
+
+        // ATURAN 2: Onclick di tag HTML memanggil fungsi JS & manipulasi DOM 100% menggunakan jQuery $('...')
+        function lihatDetailJadwal(kode, nama, rentang, durasi, status) {
+            $('#mDetailKode').text(kode);
+            $('#mDetailNama').text(nama);
+            $('#mDetailRentang').text(rentang);
+            $('#mDetailDurasi').text(durasi);
+            $('#mDetailStatus').attr('class', status === 'Sedang Berjalan' ? 'badge bg-success' : (status === 'Draft' ? 'badge bg-warning text-dark' : 'badge bg-secondary')).text(status);
+
+            $('#modalDetailJadwal').modal('show');
+        }
+
+        function cetakPdfJadwal(kode) {
+            alert('Menyiapkan file PDF untuk periode jadwal: ' + kode);
+        }
+
+        function publishJadwalRow(btn, kode) {
+            if (confirm('Publikasikan jadwal ' + kode + '? Jadwal yang dipublish akan resmi berlaku bagi seluruh karyawan.')) {
+                var $tr = $(btn).closest('tr');
+                $tr.find('td:eq(4)').html('<span class="status-pill pill-active"><span class="dot-indicator pulse-dot"></span>Sedang Berjalan</span>');
+                $(btn).remove();
+                $('#alertAreaHistory').html('<div class="alert alert-success py-2 mb-3" style="font-size:.85rem;">Jadwal ' + kode + ' berhasil dipublikasikan resmi!</div>');
+            }
+        }
+
+        function hapusJadwalRow(btn, kode, isPublished) {
+            var msg = isPublished 
+                ? 'Hapus Jadwal Resmi ' + kode + '? Menghapus jadwal resmi akan menghapus seluruh penugasan karyawan terkait.' 
+                : 'Hapus Draft Jadwal ' + kode + '? Draft jadwal akan dihapus permanen.';
+
+            if (confirm(msg)) {
+                if (dtHistory) {
+                    var $tr = $(btn).closest('tr');
+                    dtHistory.row($tr).remove().draw();
+                    $('#alertAreaHistory').html('<div class="alert alert-success py-2 mb-3" style="font-size:.85rem;">Data jadwal ' + kode + ' telah berhasil dihapus!</div>');
+                }
+            }
+        }
+
+        // ATURAN 3: Inisialisasi DataTable Bahasa Indonesia Penuh & Pagination Simbol Panah
+        $(function () {
+            dtHistory = $('#historyTable').DataTable({
+                autoWidth: false,
+                pageLength: 10,
+                lengthMenu: [
+                    [10, 25, 50, 100, -1],
+                    [10, 25, 50, 100, "Semua"]
+                ],
+                order: [[0, 'asc']],
+                columnDefs: [
+                    { orderable: true, targets: [0, 1, 2, 3, 4] },
+                    { orderable: false, targets: [5] },
+                    { searchable: false, targets: [5] }
+                ],
+                language: {
+                    lengthMenu: "Tampilkan _MENU_ data per halaman",
+                    zeroRecords: "Data tidak ditemukan",
+                    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ total data",
+                    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+                    infoFiltered: "(difilter dari _MAX_ total data)",
+                    search: "Cari:",
+                    searchPlaceholder: "Ketik kata kunci...",
+                    paginate: {
+                        first: "«",
+                        last: "»",
+                        next: "›",
+                        previous: "‹"
+                    },
+                    processing: "Sedang memproses data...",
+                    loadingRecords: "Memuat data..."
+                }
+            });
+        });
+    </script>
+}

@@ -1,0 +1,433 @@
+@{
+    ViewData["Title"] = "Riwayat Penilaian";
+}
+
+<!-- Outermost View Wrapper adhering to responsive guidelines -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Riwayat Penilaian</span>
+            </div>
+        </div>
+
+        <!-- Action Bar: Tombol Cepat ke Pengisian Penilaian -->
+        <div class="content-action-bar mb-3">
+            <div class="row align-items-center g-2 w-100 m-0">
+                <div class="col-12 col-sm-auto p-0">
+                    <a href="/Karyawan/PenilaianKinerja" class="btn-primary-admin w-100 w-sm-auto text-center d-inline-flex align-items-center justify-content-center text-decoration-none">
+                        <i class="fas fa-clipboard-check me-2"></i> Ke Halaman Penilaian Rekan Kerja
+                    </a>
+                </div>
+                <div class="col-12 col-sm-auto ms-sm-auto p-0 text-sm-end">
+                    <button type="button" class="btn-secondary-admin w-100 w-sm-auto" onclick="muatRiwayatEvaluasiSaya()">
+                        <i class="fas fa-arrows-rotate me-1"></i> Segarkan Data
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Metric Cards (Mobile Responsive) -->
+        <div class="row g-3 mb-4">
+            <!-- Card 1: Total Formulir Terisi -->
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-box">
+                    <div class="stat-header">
+                        <span class="stat-label-text">Total Formulir Terkirim</span>
+                        <div class="stat-icon-wrapper stat-icon-teal">
+                            <i class="fas fa-file-circle-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-number-value" id="statHistoryTotal">0</div>
+                        <div class="stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;"><span class="dot-indicator"></span>Selesai</span>
+                            <span>Kuesioner tersimpan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Penilaian Rekan Kerja (Peer) -->
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-box">
+                    <div class="stat-header">
+                        <span class="stat-label-text">Penilaian Rekan Kerja</span>
+                        <div class="stat-icon-wrapper stat-icon-blue">
+                            <i class="fas fa-user-group"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-number-value" id="statHistoryPeer">0</div>
+                        <div class="stat-subtext">
+                            <span class="status-pill pill-role" style="padding:1px 6px; font-size:10px;">Peer Evaluation</span>
+                            <span>Kolega dinilai</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Evaluasi Mandiri (Self) -->
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-box">
+                    <div class="stat-header">
+                        <span class="stat-label-text">Evaluasi Mandiri (Self)</span>
+                        <div class="stat-icon-wrapper stat-icon-purple">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="stat-number-value" id="statHistorySelf">0</div>
+                        <div class="stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;">Self Review</span>
+                            <span>Penilaian diri</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Table Card -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header">
+                <div class="row align-items-center g-2 w-100 m-0">
+                    <div class="col-12 col-md p-0">
+                        <h3 class="admin-card-title">Riwayat Penilaian yang Pernah Anda Isi</h3>
+                        <p class="admin-card-desc mb-0">Arsip penilaian rekan kerja dan evaluasi mandiri yang telah berhasil dikirimkan</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tabelRiwayatEvaluasi" style="font-size:12.5px;">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th style="width: 40px; text-align:center;">NO</th>
+                            <th>TANGGAL PENGISIAN</th>
+                            <th>KODE FORMULIR</th>
+                            <th>KARYAWAN DINILAI</th>
+                            <th class="text-center">HUBUNGAN PENILAI</th>
+                            <th class="text-center">BOBOT PENILAI</th>
+                            <th class="text-center">RATA-RATA NILAI</th>
+                            <th class="text-center">STATUS</th>
+                            <th style="text-align: right; width: 80px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelRiwayatEvaluasiBody">
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <i class="fas fa-spinner fa-spin me-1 text-teal"></i> Memuat riwayat kuesioner Anda...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Notice Box Privasi & Transparansi Penilaian -->
+        <div class="p-3 rounded-3 border bg-white shadow-sm d-flex align-items-start gap-3 mb-4">
+            <div class="stat-icon-wrapper stat-icon-teal flex-shrink-0" style="width:40px; height:40px; font-size:1.1rem; border-radius:10px;">
+                <i class="fas fa-shield-halved"></i>
+            </div>
+            <div>
+                <strong class="text-dark d-block mb-1" style="font-size:13px;">Kebijakan Kerahasiaan Multi-Rater 360°</strong>
+                <p class="text-muted mb-0" style="font-size:12px; line-height:1.5;">
+                    Data pada halaman ini hanya menampilkan formulir yang <strong>telah Anda isi</strong> untuk rekan kerja atau diri sendiri. Untuk melindungi objektivitas dan kerahasiaan evaluasi, Anda tidak dapat melihat siapa yang menilai Anda maupun rincian skor mentah yang diberikan penilai lain kepada Anda. Capaian akhir evaluasi Anda dapat dipantau secara resmi pada menu <strong>Rapor Kinerja</strong>.
+                </p>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- Modal Rincian 7 Kriteria Kompetensi (Read-Only) -->
+<div class="admin-modal-backdrop" id="modalRincian360">
+    <div class="admin-modal-card" style="max-width: 650px;">
+        <div class="admin-modal-head">
+            <div>
+                <h4 class="admin-modal-title">Rincian Nilai 7 Kriteria Kompetensi</h4>
+                <p class="mb-0 text-muted" style="font-size:11.5px;">Formulir arsip evaluasi kinerja terkirim (Read-Only)</p>
+            </div>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalRincian360')">&times;</button>
+        </div>
+        <div class="admin-modal-content">
+            <div class="p-3 rounded-3 mb-3 border" style="background:#f8fafc; font-size:12.5px;">
+                <div class="row g-2">
+                    <div class="col-12 col-sm-6">
+                        <span class="text-muted d-block" style="font-size:11px;">Karyawan Dinilai:</span>
+                        <strong id="rincianNamaKaryawan" class="text-dark" style="font-size:13px;">-</strong>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <span class="text-muted d-block" style="font-size:11px;">Kode Formulir:</span>
+                        <span class="code-tag" id="rincianKode">-</span>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <span class="text-muted d-block" style="font-size:11px;">Tipe Penilai / Relasi:</span>
+                        <span class="status-pill pill-role" id="rincianTipe">-</span>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <span class="text-muted d-block" style="font-size:11px;">Tanggal Pengisian:</span>
+                        <strong id="rincianTanggal" class="text-secondary">-</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- List 7 Kriteria dengan Progress Bar & Score -->
+            <div id="rincianKriteriaListContainer" class="d-flex flex-column gap-2 mb-3">
+                <!-- 1. Kerjasama Tim -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">1. Kerjasama Tim</span>
+                        <strong class="font-monospace text-teal" id="rinci_kerjasama">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_kerjasama" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 2. Ketepatan Waktu -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">2. Ketepatan Waktu</span>
+                        <strong class="font-monospace text-teal" id="rinci_waktu">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_waktu" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 3. Tanggung Jawab -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">3. Tanggung Jawab</span>
+                        <strong class="font-monospace text-teal" id="rinci_tanggung">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_tanggung" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 4. Inisiatif -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">4. Inisiatif</span>
+                        <strong class="font-monospace text-teal" id="rinci_inisiatif">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_inisiatif" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 5. Keterlibatan Kerja -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">5. Keterlibatan Kerja</span>
+                        <strong class="font-monospace text-teal" id="rinci_keterlibatan">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_keterlibatan" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 6. Interaksi Kolega -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">6. Interaksi Kolega</span>
+                        <strong class="font-monospace text-teal" id="rinci_interaksi">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_interaksi" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+
+                <!-- 7. Tindak Lanjut -->
+                <div class="p-2 px-3 rounded-2 border bg-white">
+                    <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:12.5px;">
+                        <span class="text-dark fw-medium">7. Tindak Lanjut</span>
+                        <strong class="font-monospace text-teal" id="rinci_tindaklanjut">0.00</strong>
+                    </div>
+                    <div class="progress" style="height:6px;">
+                        <div id="prog_tindaklanjut" class="progress-bar bg-teal" style="width:0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rata-rata 7 Kriteria Box -->
+            <div class="d-flex justify-content-between align-items-center p-3 rounded-3 border" style="background:#f0fdfa; border-color:#99f6e4 !important;">
+                <div>
+                    <strong style="color:#0f766e; font-size:13px;" class="d-block">Rata-rata 7 Kriteria:</strong>
+                    <small class="text-muted" style="font-size:11px;">Akumulasi nilai sebelum pembobotan AHP</small>
+                </div>
+                <h3 class="mb-0 fw-bold font-monospace text-teal" id="rinci_rataRata">0.00</h3>
+            </div>
+        </div>
+        <div class="admin-modal-foot">
+            <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalRincian360')">
+                <i class="fas fa-xmark me-1"></i> Tutup
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dtRiwayatInstance = null;
+    var riwayatListCache = [];
+
+    function muatRiwayatEvaluasiSaya() {
+        var user = window.AuthSession ? window.AuthSession.getUser() : null;
+        if (!user) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        if (dtRiwayatInstance) {
+            dtRiwayatInstance.destroy();
+            dtRiwayatInstance = null;
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/penilaian360/my-evaluations?penilaiId=' + user.id,
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tabelRiwayatEvaluasiBody').html('<tr><td colspan="9" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1 text-teal"></i> Memuat riwayat kuesioner Anda...</td></tr>');
+            },
+            success: function (data) {
+                var raw = data || [];
+                // Sesuai requirement: Hanya tampilkan formulir yang sudah berstatus 'Selesai' di menu History Penilaian
+                riwayatListCache = raw.filter(function (x) { return x.statusPengisian === 'Selesai'; });
+
+                // Update summary stat cards
+                var total = riwayatListCache.length;
+                var countPeer = 0;
+                var countSelf = 0;
+
+                for (var j = 0; j < riwayatListCache.length; j++) {
+                    if (riwayatListCache[j].tipePenilai === 'Self') {
+                        countSelf++;
+                    } else {
+                        countPeer++;
+                    }
+                }
+
+                $('#statHistoryTotal').text(total);
+                $('#statHistoryPeer').text(countPeer);
+                $('#statHistorySelf').text(countSelf);
+
+                var html = '';
+
+                if (riwayatListCache.length > 0) {
+                    for (var i = 0; i < riwayatListCache.length; i++) {
+                        var e = riwayatListCache[i];
+                        var sum = (Number(e.kerjasama_tim) || 0) + 
+                                  (Number(e.ketepatan_waktu) || 0) + 
+                                  (Number(e.tanggung_jawab) || 0) + 
+                                  (Number(e.inisiatif) || 0) + 
+                                  (Number(e.keterlibatan_kerja) || 0) + 
+                                  (Number(e.interaksi_kolega) || 0) + 
+                                  (Number(e.tindak_lanjut) || 0);
+                        var avgScore = (sum / 7.0).toFixed(2);
+
+                        var badgeTipe = '<span class="status-pill pill-role">' + escHtml(e.tipePenilai) + '</span>';
+                        if (e.tipePenilai === 'Self') {
+                            badgeTipe = '<span class="status-pill pill-active"><span class="dot-indicator"></span>Self</span>';
+                        }
+
+                        var bobotText = (e.bobotPersen != null ? Number(e.bobotPersen).toFixed(0) : '0') + '%';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted">' + (i + 1) + '</td>' +
+                            '<td style="color:#64748b;" class="text-nowrap">' + escHtml(e.tanggalPenilaian || '-') + '</td>' +
+                            '<td><span class="code-tag">' + escHtml(e.kodePenilaian) + '</span></td>' +
+                            '<td><strong style="color:#0f172a;">' + escHtml(e.namaKaryawanDinilai) + '</strong> <small class="text-muted">(' + escHtml(e.kodeKaryawanDinilai) + ')</small></td>' +
+                            '<td class="text-center">' + badgeTipe + '</td>' +
+                            '<td class="text-center font-monospace">' + bobotText + '</td>' +
+                            '<td class="text-center font-monospace fw-bold text-teal">' + avgScore + '</td>' +
+                            '<td class="text-center"><span class="status-pill pill-active"><span class="dot-indicator"></span>' + escHtml(e.statusPengisian) + '</span></td>' +
+                            '<td class="text-end">' +
+                                '<div class="table-btn-group justify-content-end">' +
+                                    '<button type="button" class="btn-action-view" title="Lihat Rincian Nilai" onclick="bukaModalRincian(' + i + ')">' +
+                                        '<i class="fas fa-eye"></i>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                } else {
+                    html = '<tr><td colspan="9" class="text-center py-5 text-muted">' +
+                           '<div class="mb-2"><i class="fas fa-folder-open text-muted" style="font-size:32px;"></i></div>' +
+                           '<p class="mb-2 fw-medium text-dark" style="font-size:13px;">Belum Ada Riwayat Penilaian Kinerja</p>' +
+                           '<span style="font-size:12px;">Anda belum menyelesaikan formulir kuesioner penilaian kinerja. Silakan buka menu <strong>Penilaian Kinerja</strong> untuk mengisi penugasan yang tersedia.</span><br/>' +
+                           '<a href="/Karyawan/PenilaianKinerja" class="btn-primary-admin d-inline-flex align-items-center mt-3 text-decoration-none" style="font-size:12px;">' +
+                               '<i class="fas fa-pen-to-square me-1"></i> Buka Penilaian Kinerja' +
+                           '</a>' +
+                           '</td></tr>';
+                }
+
+                $('#tabelRiwayatEvaluasiBody').html(html);
+
+                if (riwayatListCache.length > 0) {
+                    dtRiwayatInstance = $('#tabelRiwayatEvaluasi').DataTable({
+                        pageLength: 10,
+                        lengthMenu: window.dtLengthMenuConfig,
+                        language: window.dtLanguageConfig,
+                        order: [[1, 'desc']],
+                        destroy: true
+                    });
+                }
+            },
+            error: function () {
+                $('#tabelRiwayatEvaluasiBody').html('<tr><td colspan="9" class="text-center py-4 text-danger"><i class="fas fa-triangle-exclamation me-1"></i> Gagal memuat data riwayat formulir. Silakan coba beberapa saat lagi.</td></tr>');
+            }
+        });
+    }
+
+    function bukaModalRincian(index) {
+        var item = riwayatListCache[index];
+        if (!item) return;
+
+        $('#rincianNamaKaryawan').text(item.namaKaryawanDinilai + ' (' + item.kodeKaryawanDinilai + ')');
+        $('#rincianKode').text(item.kodePenilaian);
+        $('#rincianTipe').text(item.tipePenilai + ' (Bobot ' + (item.bobotPersen != null ? Number(item.bobotPersen).toFixed(0) : 0) + '%)');
+        $('#rincianTanggal').text(item.tanggalPenilaian || '-');
+
+        var k1 = Number(item.kerjasama_tim) || 0;
+        var k2 = Number(item.ketepatan_waktu) || 0;
+        var k3 = Number(item.tanggung_jawab) || 0;
+        var k4 = Number(item.inisiatif) || 0;
+        var k5 = Number(item.keterlibatan_kerja) || 0;
+        var k6 = Number(item.interaksi_kolega) || 0;
+        var k7 = Number(item.tindak_lanjut) || 0;
+
+        $('#rinci_kerjasama').text(k1.toFixed(2));
+        $('#rinci_waktu').text(k2.toFixed(2));
+        $('#rinci_tanggung').text(k3.toFixed(2));
+        $('#rinci_inisiatif').text(k4.toFixed(2));
+        $('#rinci_keterlibatan').text(k5.toFixed(2));
+        $('#rinci_interaksi').text(k6.toFixed(2));
+        $('#rinci_tindaklanjut').text(k7.toFixed(2));
+
+        $('#prog_kerjasama').css('width', Math.min(100, Math.max(0, k1)) + '%');
+        $('#prog_waktu').css('width', Math.min(100, Math.max(0, k2)) + '%');
+        $('#prog_tanggung').css('width', Math.min(100, Math.max(0, k3)) + '%');
+        $('#prog_inisiatif').css('width', Math.min(100, Math.max(0, k4)) + '%');
+        $('#prog_keterlibatan').css('width', Math.min(100, Math.max(0, k5)) + '%');
+        $('#prog_interaksi').css('width', Math.min(100, Math.max(0, k6)) + '%');
+        $('#prog_tindaklanjut').css('width', Math.min(100, Math.max(0, k7)) + '%');
+
+        var avg = ((k1 + k2 + k3 + k4 + k5 + k6 + k7) / 7.0).toFixed(2);
+        $('#rinci_rataRata').text(avg);
+
+        AdminModal.open('modalRincian360');
+    }
+
+    $(function () {
+        muatRiwayatEvaluasiSaya();
+    });
+</script>
+}

@@ -1,0 +1,319 @@
+@{
+    ViewData["Title"] = "Kriteria Penilaian";
+}
+
+<style>
+    .dashboard-stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .dashboard-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .dashboard-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin: 0;
+    }
+    .dashboard-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .dashboard-stat-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.15;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+    .dashboard-stat-subtext {
+        font-size: 0.73rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Kriteria Penilaian</span>
+            </div>
+        </div>
+
+        <!-- Admin Table Card -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-2.5 px-3 px-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                    <div>
+                        <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Kriteria Penilaian</h3>
+                        <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Daftar aspek dan indikator kompetensi kerja yang digunakan dalam evaluasi kinerja karyawan</p>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn-primary-admin" onclick="openCreateKriteriaModal()">
+                            <i class="fas fa-plus me-1"></i> Tambah Kriteria
+                        </button>
+                        <button type="button" class="btn-secondary-admin" onclick="loadKriteriaTable()">
+                            <i class="fas fa-sync-alt me-1"></i> Segarkan
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tableKriteria">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px; text-align:center;">NO</th>
+                            <th>KODE</th>
+                            <th>NAMA KRITERIA</th>
+                            <th>DESKRIPSI INDIKATOR / KOMPETENSI</th>
+                            <th class="text-center">STATUS</th>
+                            <th style="text-align: right; width: 110px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableKriteriaBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- Modal Kriteria (Identik Project 7 AdminModal) -->
+<div class="admin-modal-backdrop" id="modalKriteria">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title" id="modalKriteriaTitle">Tambah Kriteria Penilaian</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalKriteria')">&times;</button>
+        </div>
+        <form id="formKriteria" onsubmit="event.preventDefault(); submitKriteria();">
+            <input type="hidden" id="kriteriaId" />
+            <div class="admin-modal-content">
+                <div class="form-field-group">
+                    <label class="form-field-label">Kode Kriteria <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="kriteriaKode" class="form-field-input" placeholder="Contoh: C1, C2, atau KRT-08" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Nama Kriteria Kompetensi <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="kriteriaNama" class="form-field-input" placeholder="Contoh: Kerjasama Tim, Inovasi, Kepemimpinan" required />
+                </div>
+                <div class="form-field-group">
+                    <label class="form-field-label">Deskripsi Indikator / Panduan Penilaian</label>
+                    <textarea id="kriteriaDeskripsi" class="form-field-textarea" rows="3" placeholder="Jelaskan aspek perilaku atau indikator yang dinilai pada kriteria ini..."></textarea>
+                </div>
+                <div class="form-field-group" style="margin-top:12px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem; font-weight:600;">
+                        <input type="checkbox" id="kriteriaIsActive" style="width:16px; height:16px;" checked />
+                        <span>Status Kriteria Aktif</span>
+                    </label>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalKriteria')">Batal</button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveKriteria">Simpan Kriteria</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dtKriteria = null;
+    var allKriteriaList = [];
+
+    function loadKriteriaTable() {
+        if (dtKriteria) {
+            dtKriteria.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkriteria',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableKriteriaBody').html('<tr><td colspan="6" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat master kriteria...</td></tr>');
+            },
+            success: function (data) {
+                allKriteriaList = data || [];
+
+                var totalK = allKriteriaList.length;
+                var aktifK = allKriteriaList.filter(function (k) { return k.isActive; }).length;
+                var nonaktifK = totalK - aktifK;
+
+                $('#statKriteriaTotal').text(totalK + ' Kriteria');
+                $('#statKriteriaAktif').text(aktifK + ' Kriteria');
+                $('#statKriteriaNonaktif').text(nonaktifK + ' Kriteria');
+
+                var html = '';
+                if (allKriteriaList.length > 0) {
+                    for (var i = 0; i < allKriteriaList.length; i++) {
+                        var k = allKriteriaList[i];
+                        var statusClass = k.isActive ? 'pill-active' : 'pill-inactive';
+                        var statusLabel = k.isActive ? 'Aktif' : 'Nonaktif';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td><span class="code-tag fw-bold" style="font-size:12px;">' + escHtml(k.kodeKriteria) + '</span></td>' +
+                            '<td><strong style="color:#0f172a; font-size:13px;">' + escHtml(k.namaKriteria) + '</strong></td>' +
+                            '<td><span style="color:#475569; font-size:12px;">' + escHtml(k.deskripsi || '-') + '</span></td>' +
+                            '<td class="text-center"><span class="status-pill ' + statusClass + '"><span class="dot-indicator"></span>' + statusLabel + '</span></td>' +
+                            '<td class="text-end">' +
+                                '<div class="table-btn-group justify-content-end">' +
+                                    '<button type="button" class="btn-action-edit" title="Edit Kriteria" onclick="openEditKriteriaModal(' + i + ')"><i class="fas fa-pen"></i></button>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Kriteria" onclick="confirmDeleteKriteria(' + k.id + ', \'' + escHtml(k.namaKriteria).replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                } else {
+                    html = '<tr><td colspan="6" class="text-center py-4 text-muted">Belum ada kriteria penilaian terdaftar.</td></tr>';
+                }
+
+                $('#tableKriteriaBody').html(html);
+
+                dtKriteria = $('#tableKriteria').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+            },
+            error: function () {
+                $('#tableKriteriaBody').html('<tr><td colspan="6" class="text-center py-4 text-danger">Gagal memuat master kriteria.</td></tr>');
+            }
+        });
+    }
+
+    function openCreateKriteriaModal() {
+        $('#kriteriaId').val('');
+        $('#kriteriaKode').val('');
+        $('#kriteriaNama').val('');
+        $('#kriteriaDeskripsi').val('');
+        $('#kriteriaIsActive').prop('checked', true);
+        $('#modalKriteriaTitle').text('Tambah Kriteria Penilaian');
+        $('#btnSaveKriteria').text('Simpan Kriteria');
+        AdminModal.open('modalKriteria');
+    }
+
+    function openEditKriteriaModal(index) {
+        var k = allKriteriaList[index];
+        if (!k) return;
+
+        $('#kriteriaId').val(k.id);
+        $('#kriteriaKode').val(k.kodeKriteria);
+        $('#kriteriaNama').val(k.namaKriteria);
+        $('#kriteriaDeskripsi').val(k.deskripsi || '');
+        $('#kriteriaIsActive').prop('checked', !!k.isActive);
+        $('#modalKriteriaTitle').text('Ubah Kriteria Penilaian');
+        $('#btnSaveKriteria').text('Perbarui Kriteria');
+        AdminModal.open('modalKriteria');
+    }
+
+    function submitKriteria() {
+        var idVal = $('#kriteriaId').val();
+        var payload = {
+            id: idVal ? parseInt(idVal) : null,
+            kodeKriteria: $('#kriteriaKode').val().trim(),
+            namaKriteria: $('#kriteriaNama').val().trim(),
+            deskripsi: $('#kriteriaDeskripsi').val().trim(),
+            isActive: $('#kriteriaIsActive').is(':checked')
+        };
+
+        if (!payload.kodeKriteria || !payload.namaKriteria) {
+            Swal.fire('Peringatan', 'Kode dan Nama Kriteria wajib diisi.', 'warning');
+            return;
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterkriteria',
+            type: 'POST',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify(payload),
+            beforeSend: function () {
+                $('#btnSaveKriteria').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+            },
+            success: function (res) {
+                $('#btnSaveKriteria').prop('disabled', false).text('Simpan Kriteria');
+                AdminModal.close('modalKriteria');
+                AdminToast.success(res.message || 'Kriteria berhasil disimpan');
+                loadKriteriaTable();
+            },
+            error: function (xhr) {
+                $('#btnSaveKriteria').prop('disabled', false).text('Simpan Kriteria');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menyimpan kriteria.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    function confirmDeleteKriteria(id, nama) {
+        Swal.fire({
+            title: 'Hapus Kriteria Penilaian',
+            text: 'Apakah Anda yakin ingin menghapus kriteria "' + nama + '"? Kriteria yang telah digunakan pada penilaian aktif tidak dapat dihapus.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/masterkriteria/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (res) {
+                        if (res.success) {
+                            AdminToast.success('Kriteria berhasil dihapus');
+                            loadKriteriaTable();
+                        } else {
+                            Swal.fire('Gagal', res.message || 'Gagal menghapus.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus kriteria.';
+                        Swal.fire('Peringatan', msg, 'warning');
+                    }
+                });
+            }
+        });
+    }
+
+    $(function () {
+        loadKriteriaTable();
+    });
+</script>
+}

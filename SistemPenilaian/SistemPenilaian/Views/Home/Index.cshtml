@@ -1,0 +1,94 @@
+@{
+    ViewData["Title"] = "Beranda";
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav">
+                <span class="breadcrumb-parent">Sistem Informasi</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Beranda</span>
+            </div>
+        </div>
+
+        <div class="admin-card mb-4" style="background: linear-gradient(135deg, #090d16 0%, #0d1527 50%, #0f2425 100%); color: #ffffff; border: 1px solid rgba(255,255,255,0.08); padding: 2.25rem 2rem; border-radius: 1rem; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -40px; top: -40px; width: 220px; height: 220px; background: radial-gradient(circle, rgba(13, 148, 136, 0.25) 0%, transparent 70%); border-radius: 50%; pointer-events: none;"></div>
+            
+            <div style="position: relative; z-index: 2;">
+                <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(13, 148, 136, 0.18); border: 1px solid rgba(13, 148, 136, 0.35); padding: 4px 14px; border-radius: 9999px; font-size: 0.75rem; font-weight: 700; color: #5eead4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
+                    <i class="fas fa-check-circle"></i> Evaluasi Multi-Penilai &amp; Pembobotan Terukur
+                </div>
+                <h2 style="font-size: 1.85rem; font-weight: 800; color: #ffffff; margin-bottom: 0.6rem; letter-spacing: -0.02em;">
+                    Sistem Informasi Penilaian Kinerja
+                </h2>
+                <p style="color: #94a3b8; font-size: 0.95rem; max-width: 680px; line-height: 1.65; margin-bottom: 1.75rem;">
+                    Sistem informasi penilaian kinerja yang menyajikan hasil evaluasi karyawan secara komprehensif, objektif, dan transparan melalui penilaian multi-penilai dan pembobotan kriteria terukur untuk mendukung rekomendasi tindak lanjut yang tepat.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="/Admin/Dashboard" class="btn-primary-admin" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-gauge-high"></i> Dashboard Admin
+                    </a>
+                    <a href="/Karyawan/Dashboard" class="btn-secondary-admin" style="text-decoration: none; display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.08); color: #e2e8f0; border-color: rgba(255,255,255,0.15);">
+                        <i class="fas fa-user-check"></i> Halaman Karyawan
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="admin-card p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(13, 148, 136, 0.12); color: #0d9488; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            <i class="fas fa-arrows-split-up-and-left"></i>
+                        </div>
+                        <div>
+                            <h5 style="margin:0; font-size: 0.95rem; font-weight: 700; color: #0f172a;">Evaluasi Multi-Penilai</h5>
+                            <small style="color: #64748b;">Penilaian Menyeluruh</small>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #64748b; line-height: 1.5; margin: 0;">
+                        Evaluasi objektif yang menggabungkan sudut pandang atasan, rekan kerja, dan penilaian mandiri untuk gambaran kinerja yang seimbang.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="admin-card p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(59, 130, 246, 0.12); color: #3b82f6; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            <i class="fas fa-sliders"></i>
+                        </div>
+                        <div>
+                            <h5 style="margin:0; font-size: 0.95rem; font-weight: 700; color: #0f172a;">Pembobotan Terukur</h5>
+                            <small style="color: #64748b;">Analisis Kriteria Konsisten</small>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #64748b; line-height: 1.5; margin: 0;">
+                        Penentuan bobot kepentingan setiap kriteria penilaian secara sistematis dan teruji agar hasil evaluasi akurat.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-12 col-md-4">
+                <div class="admin-card p-3 h-100">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div style="width: 40px; height: 40px; border-radius: 10px; background: rgba(16, 185, 129, 0.12); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div>
+                            <h5 style="margin:0; font-size: 0.95rem; font-weight: 700; color: #0f172a;">Rekomendasi Tindak Lanjut</h5>
+                            <small style="color: #64748b;">Hasil Berdasarkan Kinerja</small>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #64748b; line-height: 1.5; margin: 0;">
+                        Pengelompokan hasil penilaian ke dalam kategori capaian kinerja untuk memberikan rekomendasi tindak lanjut yang tepat.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,0 +1,107 @@
+@{
+    ViewData["Title"] = "Template Form 1";
+}
+
+<!-- ATURAN 1: Tag pembungkus paling awal di file konten WAJIB diawali <div class="row ..."> -->
+<div class="row">
+    <div class="col-lg-8 col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-edit" style="color:#0f766e;margin-right:.45rem;"></i>Template Form 1 - Formulir Input Umum</h3>
+            </div>
+            <div class="card-body">
+                <div id="formAlertArea"></div>
+
+                <!-- ATURAN 2: Onsubmit di tag HTML memanggil fungsi JS -->
+                <form id="templateForm1" onsubmit="submitTemplateForm1(event)">
+                    <div class="mb-3">
+                        <label for="inputJudul" class="form-label">Judul / Nama Komponen</label>
+                        <input type="text" class="form-control" id="inputJudul" placeholder="Masukkan judul komponen" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="selectKategori" class="form-label">Kategori</label>
+                        <select class="form-select" id="selectKategori" required>
+                            <option value="">-- Pilih Kategori --</option>
+                            <option value="Operasional">Operasional</option>
+                            <option value="Jadwal Kerja">Jadwal Kerja</option>
+                            <option value="Data Karyawan">Data Karyawan</option>
+                            <option value="Laporan">Laporan</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="inputDeskripsi" class="form-label">Deskripsi &amp; Keterangan</label>
+                        <textarea class="form-control" id="inputDeskripsi" rows="3" placeholder="Tuliskan keterangan detail di sini..."></textarea>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                        <button type="button" class="btn btn-secondary-admin" onclick="resetTemplateForm1()">
+                            <i class="fas fa-undo"></i> Reset
+                        </button>
+                        <button type="submit" id="btnSubmitForm1" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Simpan Data
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4 col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-info-circle" style="color:#0f766e;margin-right:.45rem;"></i>Hasil Form 1</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted" style="font-size:.82rem;">Data yang diinputkan akan dimanipulasi 100% menggunakan jQuery:</p>
+                <div class="p-3" style="background:#f8fafc;border-radius:8px;border:1px dashed #cbd5e1;">
+                    <div style="font-size:.82rem;font-weight:600;color:#64748b;">Judul Terkirim:</div>
+                    <div id="previewJudul" style="font-size:.9rem;font-weight:600;color:#0f172a;margin-bottom:8px;">-</div>
+
+                    <div style="font-size:.82rem;font-weight:600;color:#64748b;">Kategori:</div>
+                    <div id="previewKategori" style="font-size:.9rem;font-weight:600;color:#0f172a;margin-bottom:8px;">-</div>
+
+                    <div style="font-size:.82rem;font-weight:600;color:#64748b;">Deskripsi:</div>
+                    <div id="previewDeskripsi" style="font-size:.85rem;color:#334155;">-</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ATURAN 2: Handler submit form dipanggil dari onsubmit di tag HTML
+        function submitTemplateForm1(e) {
+            e.preventDefault();
+
+            // Manipulasi DOM 100% menggunakan jQuery $('...')
+            var judul = $('#inputJudul').val().trim();
+            var kategori = $('#selectKategori').val();
+            var deskripsi = $('#inputDeskripsi').val().trim();
+
+            if (!judul || !kategori) {
+                $('#formAlertArea').html('<div class="alert alert-danger py-2" style="font-size:.85rem;"><i class="fas fa-exclamation-circle"></i> Mohon lengkapi judul dan kategori.</div>');
+                return;
+            }
+
+            // Update preview via jQuery
+            $('#previewJudul').text(judul);
+            $('#previewKategori').text(kategori);
+            $('#previewDeskripsi').text(deskripsi || '(Tidak ada deskripsi)');
+
+            $('#formAlertArea').html('<div class="alert alert-success py-2" style="font-size:.85rem;"><i class="fas fa-check-circle"></i> Data formulir berhasil diproses di sisi Frontend!</div>');
+        }
+
+        // ATURAN 2: Handler reset dipanggil dari onclick di tag HTML
+        function resetTemplateForm1() {
+            $('#templateForm1')[0].reset();
+            $('#previewJudul').text('-');
+            $('#previewKategori').text('-');
+            $('#previewDeskripsi').text('-');
+            $('#formAlertArea').empty();
+        }
+    </script>
+}

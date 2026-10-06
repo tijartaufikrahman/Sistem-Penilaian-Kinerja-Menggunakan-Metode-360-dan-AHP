@@ -1,0 +1,44 @@
+# ATURAN & PANDUAN STYLING (VIBE CODING)
+
+* CATATAN PENTING:
+Aturan di bawah ini adalah hal-hal yang WAJIB dan DILARANG sesuai yang disebutkan.
+Segala hal, teknik, penamaan, struktur komponen lain, atau desain yang TIDAK DISEBUTKAN dalam aturan ini berarti SEPENUHNYA BEBAS digunakan sesuai kebutuhan.
+
+1. Struktur Wajib Awal Halaman Utama:
+   - Tepat sesudah <body> WAJIB langsung dibungkus:
+     <div class="container-fluid overflow-hidden px-0 position-relative min-vh-100 ...">
+   - Seluruh konten halaman berada di dalam pembungkus ini.
+
+2. Aturan File Konten / Halaman Parsial (Kasus Layout & Sidebar):
+   - Jika layout menggunakan Sidebar dan area konten dipisah per file (komponen parsial / inject view):
+   - Tag pembungkus paling awal di SETIAP file konten tersebut WAJIB diawali dengan:
+     <div class="row ...">
+   - Di dalamnya langsung gunakan kolom (<div class="col-...">) atau custom layout biasa, JANGAN gunakan sistem Bootstrap CSS Grid (d-grid, .grid, g-col-*).
+
+3. LARANGAN: JANGAN Pakai Bootstrap CSS Grid!
+   - DILARANG menggunakan fitur Bootstrap CSS Grid (display: grid, class d-grid untuk layout, class .grid, atau g-col-*).
+   - Cukup gunakan pola standar Bootstrap klasik: pembungkus <div class="row"> dan kolom <div class="col-..."> atau custom flexbox / custom style bebas.
+
+4. Peran Bootstrap 5 HANYA untuk Dasar Struktur:
+   - Bootstrap 5 digunakan HANYA sebatas fondasi rangka dasar (container-fluid, row, col, card, spacing p/m/m-auto, breakpoint responsif).
+   - JANGAN terlalu fokus atau memaksakan Bootstrap untuk hal-hal di luar struktur!
+   - Apa yang bisa di-handle struktur dasarnya oleh Bootstrap, pakai Bootstrap.
+
+5. Desain, Style & Ketebalan Font (Bold) SELEBIHNYA BEBAS:
+   - Urusan tampilan visual, estetika, warna, tema, efek, dan kreativitas desain itu BEBAS SEBEBAS-BEBASNYA.
+   - Ketebalan font (bold / semi-bold / medium / normal) BEBAS diatur menggunakan CSS (misal `font-weight: 500`, `600`, `700`, atau `bold`).
+   - JANGAN mewajibkan atau memaksakan class Bootstrap (seperti `fw-bold`) untuk urusan bold, karena bawaan Bootstrap seringkali terlalu tebal, kaku, dan terlihat jelek. Gunakan CSS agar ketebalannya pas dan presisi.
+   - Tidak terikat aturan baku Bootstrap, jangan bikin desain terlihat kaku/monoton ala template default Bootstrap.
+
+6. Responsif & Pas Layar (Anti Scroll Kiri-Kanan):
+   - Wajib responsif di Mobile, Tablet, dan Desktop.
+   - Layar mobile harus pas 100% (tidak boleh ada scroll/geser ke kiri-kanan).
+   - Pastikan html, body { width: 100%; max-width: 100vw; overflow-x: hidden; }.
+
+7. Aturan Penulisan Custom Style (Inline vs Blok <style> di Atas File):
+   - Custom Sedikit / Unik Sekali Pakai (Minor):
+     -> Boleh langsung pakai inline CSS di tag HTML (style="...").
+   - Custom yang Dipakai Berulang / Banyak di File Tersebut:
+     -> DILARANG menulis style manual berulang-ulang di setiap tag HTML!
+     -> WAJIB buatkan class CSS di dalam blok <style>...</style> tepat di bagian ATAS file konten tersebut (di bawah ViewData/header file).
+     -> Dengan begitu, setiap file konten memiliki style tersendiri yang terisolasi, modular, rapi, dan mudah diatur jika kebutuhan tiap konten berbeda tanpa mencemari file CSS global utama.

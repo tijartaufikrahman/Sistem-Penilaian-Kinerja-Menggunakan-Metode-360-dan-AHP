@@ -1,0 +1,320 @@
+@{
+    ViewData["Title"] = "Beranda";
+}
+
+<style>
+    .beranda-card-portal {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        cursor: pointer;
+    }
+    .beranda-card-portal:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 16px 32px -8px rgba(15, 23, 42, 0.08), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+        border-color: #cbd5e1;
+    }
+    .beranda-card-portal:hover .portal-action-arrow {
+        transform: translateX(4px);
+    }
+    .portal-action-arrow {
+        transition: transform 0.2s ease;
+    }
+
+    /* Notice Alert Penilaian Aktif */
+    .notice-alert-box {
+        background: #fffbeb;
+        border: 1px solid #fde68a;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(245, 158, 11, 0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    .notice-alert-box::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 5px;
+        background: linear-gradient(180deg, #f59e0b, #d97706);
+    }
+    .notice-bell-icon {
+        width: 46px;
+        height: 46px;
+        border-radius: 13px;
+        background: #fef3c7;
+        color: #d97706;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+        box-shadow: 0 2px 6px rgba(217, 119, 6, 0.15);
+        animation: ringBellNotice 3s infinite ease-in-out;
+    }
+    @@keyframes ringBellNotice {
+        0%, 80%, 100% { transform: rotate(0); }
+        84% { transform: rotate(14deg); }
+        88% { transform: rotate(-12deg); }
+        92% { transform: rotate(8deg); }
+        96% { transform: rotate(-6deg); }
+    }
+    .btn-alert-action {
+        background: #d97706;
+        color: #ffffff !important;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 8px 16px;
+        transition: all 0.2s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-alert-action:hover {
+        background: #b45309;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(217, 119, 6, 0.25);
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to responsive guidelines -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Welcome Banner Modern & Elegan -->
+        <div class="admin-card p-4 p-md-5 mb-4 shadow-sm border" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius:18px;">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center gap-4">
+                <div id="berandaUserAvatar" style="width:68px; height:68px; border-radius:18px; background:linear-gradient(135deg, #0d9488, #14b8a6); color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:28px; flex-shrink:0; box-shadow:0 6px 16px rgba(13,148,136,0.22);">
+                    U
+                </div>
+                <div class="flex-grow-1">
+                    <span class="status-pill pill-active mb-2 d-inline-flex" style="font-size:11.5px; padding:3px 10px;">
+                        <span class="dot-indicator"></span> Beranda Karyawan
+                    </span>
+                    <h2 class="fw-bold mb-1 text-dark" id="karyawanWelcomeName">Halo, Karyawan</h2>
+                    <p class="text-muted mb-0" style="font-size:14px; max-width:850px; line-height:1.6;">
+                        Kelola pengisian penilaian rekan kerja serta pantau capaian laporan kinerja Anda.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert Notifikasi Tugas Penilaian (Hanya Muncul Jika Ada Penilaian Aktif yang Belum Diisi) -->
+        <div id="berandaPenilaianAlert" class="mb-4" style="display: none;">
+            <div class="notice-alert-box p-3 p-md-4">
+                <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between gap-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <div class="notice-bell-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                <span class="badge" style="background:#f59e0b; color:#fff; font-size:11px; font-weight:700; padding:3px 8px; border-radius:6px;">
+                                    <i class="fas fa-exclamation-circle me-1"></i>Tugas Penilaian Aktif
+                                </span>
+                                <span class="badge bg-white text-dark border" style="font-size:11px; font-weight:600;" id="alertPeriodeBadge">
+                                    Periode Aktif
+                                </span>
+                            </div>
+                            <h5 class="fw-bold text-dark mb-1" style="font-size:1.05rem;" id="alertTitleText">
+                                Ada Penilaian Kinerja yang Menunggu Pengisian Anda
+                            </h5>
+                            <p class="text-secondary mb-0" style="font-size:13px; line-height:1.5;" id="alertDescText">
+                                Anda memiliki penilaian rekan kerja yang belum diselesaikan. Mohon segera berikan evaluasi secara objektif.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0 align-self-stretch align-self-md-center text-end">
+                        <a id="alertActionBtn" href="/Karyawan/PenilaianKinerja" class="btn-alert-action w-100 justify-content-center">
+                            <span>Isi Penilaian Sekarang</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2 Pilihan Menu Utama yang Bersih & Interaktif -->
+        <div class="row g-4 mb-4">
+            <!-- Pilihan 1: Penilaian Rekan Kerja -->
+            <div class="col-12 col-md-6">
+                <a href="/Karyawan/PenilaianKinerja" class="beranda-card-portal p-4 d-block text-decoration-none h-100 shadow-sm">
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <div style="width:52px; height:52px; border-radius:14px; background:#f0fdfa; border:1px solid #99f6e4; color:#0d9488; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                                <h4 class="fw-bold text-dark mb-0" style="font-size:1.15rem;">Penilaian Rekan Kerja</h4>
+                                <span id="badgePendingCount" class="badge rounded-pill bg-danger" style="display:none; font-size:11px; font-weight:600;">
+                                    <i class="fas fa-exclamation-circle me-1"></i><span id="badgePendingCountVal">0</span> Perlu Diisi
+                                </span>
+                                <span id="badgeDoneCount" class="badge rounded-pill bg-success" style="display:none; font-size:11px; font-weight:600;">
+                                    <i class="fas fa-check-circle me-1"></i>Lengkap
+                                </span>
+                            </div>
+                            <span class="badge bg-light text-secondary border font-monospace" style="font-size:11px;">Evaluasi Multi-Penilai</span>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-3" style="font-size:13px; line-height:1.5;">
+                        Buka daftar rekan kerja yang perlu dievaluasi untuk memberikan penilaian kinerja secara objektif dan evaluasi mandiri.
+                    </p>
+                    <div id="boxTaskProgressBar" style="display:none;" class="mb-3 p-2 px-3 rounded-2 border bg-light">
+                        <div class="d-flex justify-content-between align-items-center mb-1" style="font-size:11.5px;">
+                            <span class="text-muted">Progres Pengisian:</span>
+                            <strong class="font-monospace text-teal" id="labelTaskProgress">0 / 0</strong>
+                        </div>
+                        <div class="progress" style="height:5px;">
+                            <div class="progress-bar bg-teal" id="barTaskProgress" role="progressbar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                        <span class="fw-bold" style="font-size:13px; color:#0d9488;">Mulai Penilaian</span>
+                        <div class="portal-action-arrow" style="width:34px; height:34px; border-radius:50%; background:#f0fdfa; color:#0d9488; display:flex; align-items:center; justify-content:center; font-size:12px;">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Pilihan 2: Rapor Kinerja Pribadi -->
+            <div class="col-12 col-md-6">
+                <a href="/Karyawan/KinerjaPribadi" class="beranda-card-portal p-4 d-block text-decoration-none h-100 shadow-sm">
+                    <div class="d-flex align-items-start gap-3 mb-3">
+                        <div style="width:52px; height:52px; border-radius:14px; background:#f0fdf4; border:1px solid #a7f3d0; color:#059669; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0;">
+                            <i class="fas fa-award"></i>
+                        </div>
+                        <div class="flex-grow-1">
+                            <h4 class="fw-bold text-dark mb-1" style="font-size:1.15rem;">Rapor Kinerja Pribadi</h4>
+                            <span class="badge bg-light text-secondary border font-monospace" style="font-size:11px;">Laporan Capaian Kinerja</span>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-4" style="font-size:13px; line-height:1.5;">
+                        Lihat rekapitulasi nilai kinerja resmi, kategori pencapaian, serta rincian nilai rata-rata per aspek kompetensi Anda.
+                    </p>
+                    <div class="d-flex align-items-center justify-content-between pt-3 border-top">
+                        <span class="fw-bold" style="font-size:13px; color:#059669;">Lihat Rapor Kinerja</span>
+                        <div class="portal-action-arrow" style="width:34px; height:34px; border-radius:50%; background:#f0fdf4; color:#059669; display:flex; align-items:center; justify-content:center; font-size:12px;">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    function escHtml(text) {
+        if (!text) return '';
+        return $('<div>').text(text).html();
+    }
+
+    function checkPendingPenilaian(userId) {
+        if (!userId) return;
+
+        // 1. Ambil periode yang sedang aktif
+        $.ajax({
+            url: API_BASE_URL + '/periode/active',
+            type: 'GET',
+            dataType: 'json',
+            success: function (activePeriode) {
+                if (!activePeriode || !activePeriode.id) {
+                    $('#berandaPenilaianAlert').hide();
+                    $('#badgePendingCount').hide();
+                    return;
+                }
+
+                var periodeId = activePeriode.id;
+                var namaPeriode = activePeriode.namaPeriode || activePeriode.kodePeriode || 'Periode Aktif';
+
+                // 2. Ambil tugas penilaian untuk karyawan ini pada periode aktif
+                $.ajax({
+                    url: API_BASE_URL + '/penilaian360/tugas-saya?penilaiId=' + userId + '&periodeId=' + periodeId,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function (tasks) {
+                        tasks = tasks || [];
+                        var pendingTasks = tasks.filter(function (t) {
+                            var status = (t.statusPengisian || t.StatusPengisian || '').trim();
+                            return status !== 'Selesai';
+                        });
+
+                        var totalTasks = tasks.length;
+                        var doneTasks = totalTasks - pendingTasks.length;
+                        var pctTask = totalTasks > 0 ? ((doneTasks / totalTasks) * 100) : 0;
+
+                        if (totalTasks > 0) {
+                            $('#labelTaskProgress').text(doneTasks + ' / ' + totalTasks + ' Selesai (' + pctTask.toFixed(0) + '%)');
+                            $('#barTaskProgress').css('width', pctTask + '%');
+                            $('#boxTaskProgressBar').show();
+                        } else {
+                            $('#boxTaskProgressBar').hide();
+                        }
+
+                        if (pendingTasks.length > 0) {
+                            var count = pendingTasks.length;
+                            $('#alertPeriodeBadge').text(namaPeriode);
+                            $('#alertDescText').html(
+                                'Terdapat <strong class="text-dark">' + count + ' kuesioner evaluasi rekan kerja</strong> pada periode <strong>' + escHtml(namaPeriode) + '</strong> yang perlu Anda isi. Mohon segera lengkapi penilaian.'
+                            );
+                            $('#alertActionBtn').attr('href', '/Karyawan/PenilaianKinerja?periodeId=' + periodeId);
+                            $('#berandaPenilaianAlert').slideDown(250);
+
+                            $('#badgePendingCountVal').text(count);
+                            $('#badgePendingCount').show();
+                            $('#badgeDoneCount').hide();
+                        } else if (totalTasks > 0) {
+                            // Semua tugas sudah selesai diisi
+                            $('#berandaPenilaianAlert').hide();
+                            $('#badgePendingCount').hide();
+                            $('#badgeDoneCount').show();
+                        } else {
+                            $('#berandaPenilaianAlert').hide();
+                            $('#badgePendingCount').hide();
+                            $('#badgeDoneCount').hide();
+                        }
+                    },
+                    error: function () {
+                        $('#berandaPenilaianAlert').hide();
+                        $('#badgePendingCount').hide();
+                    }
+                });
+            },
+            error: function () {
+                // Jika /periode/active tidak ditemukan atau belum diset
+                $('#berandaPenilaianAlert').hide();
+                $('#badgePendingCount').hide();
+            }
+        });
+    }
+
+    function loadKaryawanBerandaData() {
+        var user = window.AuthSession ? window.AuthSession.getUser() : null;
+        if (!user) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        var nama = user.namaLengkap || 'Karyawan';
+        var initial = (nama.trim().charAt(0) || 'U').toUpperCase();
+
+        $('#karyawanWelcomeName').text('Halo, ' + nama);
+        $('#berandaUserAvatar').text(initial);
+
+        // Periksa apakah ada kuesioner penilaian baru yang harus diisi
+        checkPendingPenilaian(user.id);
+    }
+
+    $(function () {
+        loadKaryawanBerandaData();
+    });
+</script>
+}

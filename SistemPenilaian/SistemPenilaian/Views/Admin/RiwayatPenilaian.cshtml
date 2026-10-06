@@ -1,0 +1,346 @@
+@{
+    ViewData["Title"] = "Riwayat Penilaian";
+}
+
+<!-- Outermost View Wrapper adhering to styling guidelines -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Riwayat Penilaian</span>
+            </div>
+        </div>
+
+        <!-- Metric Cards: Ringkasan Riwayat Penilaian -->
+        <div class="row g-3 mb-3">
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-clean">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="stat-clean-label">Total Arsip Penilaian</span>
+                            <h3 class="stat-clean-value" id="statTotalArsip">0</h3>
+                        </div>
+                        <div class="stat-clean-icon">
+                            <i class="fas fa-archive"></i>
+                        </div>
+                    </div>
+                    <div class="stat-clean-sub">Siklus evaluasi kinerja yang telah selesai</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-clean">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="stat-clean-label">Total Responden Terlibat</span>
+                            <h3 class="stat-clean-value text-teal" id="statTotalResponden">0</h3>
+                        </div>
+                        <div class="stat-clean-icon text-teal">
+                            <i class="fas fa-users-cog"></i>
+                        </div>
+                    </div>
+                    <div class="stat-clean-sub">Pengisian kuisioner evaluasi rekan</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-xl-4">
+                <div class="stat-card-clean">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <span class="stat-clean-label">Rata-rata Partisipasi</span>
+                            <h3 class="stat-clean-value" id="statAvgPartisipasi">0%</h3>
+                        </div>
+                        <div class="stat-clean-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                    </div>
+                    <div class="stat-clean-sub">Tingkat kelengkapan responden evaluasi</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Table Card -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-2.5 px-3 px-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                    <div>
+                        <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Riwayat Penilaian Kinerja</h3>
+                        <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Arsip pelaksanaan penilaian kinerja terdahulu yang telah selesai beserta laporan hasilnya</p>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tableRiwayatPeriode">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th style="width: 45px; text-align:center;">NO</th>
+                            <th class="text-nowrap">KODE</th>
+                            <th>NAMA PENILAIAN</th>
+                            <th>RENTANG WAKTU</th>
+                            <th>PEMBOBOTAN KRITERIA</th>
+                            <th>SKEMA REKOMENDASI</th>
+                            <th style="min-width: 170px;">PROGRES PENGISIAN</th>
+                            <th class="text-center">STATUS</th>
+                            <th class="text-end text-nowrap" style="width: 140px; min-width: 140px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableRiwayatPeriodeBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+@section Scripts {
+<script>
+    var dtRiwayatPeriode = null;
+    var allPeriodeList = [];
+    var allBobotList = [];
+    var allKategoriList = [];
+
+    function showBobotModalDetail(bobotId) {
+        var r = allBobotList.find(function (item) { return item.id === bobotId; });
+        if (!r || !r.details || r.details.length === 0) {
+            $.ajax({
+                url: API_BASE_URL + '/masterbobotahp/' + bobotId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    renderBobotModalDetail(res);
+                },
+                error: function () {
+                    Swal.fire('Informasi', 'Data aturan bobot AHP tidak dapat dimuat.', 'warning');
+                }
+            });
+            return;
+        }
+        renderBobotModalDetail(r);
+    }
+
+    function renderBobotModalDetail(r) {
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+        var details = r.details || [];
+        var tableRows = '';
+
+        if (details.length > 0) {
+            for (var i = 0; i < details.length; i++) {
+                var d = details[i];
+                var pct = (Number(d.bobotPrioritas || 0) * 100).toFixed(1) + '%';
+                tableRows += '<tr>' +
+                    '<td style="text-align:left; font-weight:600; color:#0f172a;">' + escHtml(d.namaKriteria) + '</td>' +
+                    '<td class="font-monospace fw-bold text-teal">' + Number(d.bobotPrioritas || 0).toFixed(4) + '</td>' +
+                    '<td class="font-monospace fw-bold" style="color:#0d9488;">' + pct + '</td>' +
+                    '</tr>';
+            }
+        } else {
+            tableRows = '<tr><td colspan="3" class="text-center py-2 text-muted">Belum ada rincian kriteria pada aturan bobot ini.</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(r.kodeAturan) + '</span> | <strong>CR:</strong> <span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>' + Number(crNum).toFixed(4) + '</span></p>' +
+            (r.keterangan ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(r.keterangan) + '</p>' : '') +
+            '<div class="table-responsive border rounded">' +
+            '<table class="table table-bordered table-sm text-center mb-0">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Kriteria</th><th>Bobot Vektor</th><th>Proporsi (%)</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        Swal.fire({
+            title: r.namaAturan,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '600px'
+        });
+    }
+
+    function showKategoriModalDetail(kategoriId) {
+        var k = allKategoriList.find(function (item) { return item.id === kategoriId; });
+        if (!k || !k.details || k.details.length === 0) {
+            $.ajax({
+                url: API_BASE_URL + '/masterkategori/' + kategoriId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    renderKategoriModalDetail(res);
+                },
+                error: function () {
+                    Swal.fire('Informasi', 'Data skema kategori tidak dapat dimuat.', 'warning');
+                }
+            });
+            return;
+        }
+        renderKategoriModalDetail(k);
+    }
+
+    function renderKategoriModalDetail(k) {
+        var tableRows = '';
+        if (k.details && k.details.length > 0) {
+            for (var i = 0; i < k.details.length; i++) {
+                var d = k.details[i];
+                tableRows += '<tr>' +
+                    '<td style="text-align:left; font-weight:600; color:#0f172a;">' + escHtml(d.namaGrade) + '</td>' +
+                    '<td class="font-monospace fw-bold text-teal">' + Number(d.nilaiMin).toFixed(2) + ' - ' + Number(d.nilaiMax).toFixed(2) + '</td>' +
+                    '<td style="text-align:left; font-size:11.5px;">' + escHtml(d.rekomendasi || '-') + '</td>' +
+                    '</tr>';
+            }
+        } else {
+            tableRows = '<tr><td colspan="3" class="text-center py-2 text-muted">Belum ada rincian grade pada skema kategori ini.</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(k.kodeKategori) + '</span> | <strong>Total:</strong> ' + (k.details ? k.details.length : (k.totalDetail || 0)) + ' Grade</p>' +
+            (k.deskripsi ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(k.deskripsi) + '</p>' : '') +
+            '<div class="table-responsive border rounded">' +
+            '<table class="table table-bordered table-sm text-center mb-0">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Nama Grade</th><th>Rentang Nilai</th><th style="text-align:left;">Rekomendasi</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        Swal.fire({
+            title: k.namaKategori,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '600px'
+        });
+    }
+
+    function loadRiwayatPeriodeTable() {
+        if (dtRiwayatPeriode) {
+            dtRiwayatPeriode.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/periode?status=Selesai',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableRiwayatPeriodeBody').html('<tr><td colspan="9" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat arsip riwayat penilaian kinerja...</td></tr>');
+            },
+            success: function (data) {
+                // Pastikan hanya memuat periode dengan status Selesai
+                allPeriodeList = (data || []).filter(function (p) {
+                    return p.status === 'Selesai';
+                });
+
+                var totalArsip = allPeriodeList.length;
+                var totalResponden = 0;
+                var sumPct = 0;
+                for (var rIdx = 0; rIdx < allPeriodeList.length; rIdx++) {
+                    var itm = allPeriodeList[rIdx];
+                    totalResponden += (itm.totalAkunMengisi || 0);
+                    sumPct += (itm.persentasePengisian !== undefined ? itm.persentasePengisian : 0);
+                }
+                var avgPct = totalArsip > 0 ? (sumPct / totalArsip) : 0;
+                $('#statTotalArsip').text(totalArsip);
+                $('#statTotalResponden').text(totalResponden);
+                $('#statAvgPartisipasi').text(avgPct.toFixed(0) + '%');
+
+                var html = '';
+
+                if (allPeriodeList.length > 0) {
+                    for (var i = 0; i < allPeriodeList.length; i++) {
+                        var p = allPeriodeList[i];
+                        var statusClass = 'pill-inactive'; // Selesai / Terkunci
+
+                        var dateRange = (p.tanggalMulai || '-') + ' s/d ' + (p.tanggalSelesai || '-');
+
+                        var totalAkun = p.totalAkunPenilai || 0;
+                        var akunSelesai = p.totalAkunMengisi || 0;
+                        var pct = p.persentasePengisian !== undefined ? p.persentasePengisian : 0;
+                        var barColor = pct >= 100 ? '#10b981' : (pct > 0 ? '#0d9488' : '#cbd5e1');
+
+                        var progressHtml = '' +
+                            '<div style="min-width:160px;">' +
+                                '<div class="d-flex justify-content-between align-items-center mb-1" style="font-size:11px;">' +
+                                    '<span style="color:#0f172a; font-weight:600;">' + akunSelesai + ' / ' + totalAkun + ' responden selesai mengisi</span>' +
+                                    '<span class="fw-bold font-monospace" style="color:' + barColor + ';">' + pct.toFixed(0) + '%</span>' +
+                                '</div>' +
+                                '<div class="progress" style="height:6px; background-color:#e2e8f0; border-radius:4px; overflow:hidden;">' +
+                                    '<div class="progress-bar" role="progressbar" style="width:' + pct + '%; background-color:' + barColor + ';" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"></div>' +
+                                '</div>' +
+                            '</div>';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td class="text-nowrap"><span class="code-tag">' + escHtml(p.kodePeriode) + '</span></td>' +
+                            '<td><strong style="color:#0f172a;">' + escHtml(p.namaPeriode) + '</strong></td>' +
+                            '<td><small style="color:#64748b;">' + dateRange + '</small></td>' +
+                            '<td><div class="d-flex align-items-center gap-1"><span class="status-pill pill-role">' + escHtml(p.namaAturanAHP || '-') + '</span><button type="button" class="btn-action-view" style="width:24px; height:24px; font-size:10px;" title="Lihat Bobot Kriteria Kebijakan Ini" onclick="showBobotModalDetail(' + p.bobotAHPId + ')"><i class="fas fa-eye"></i></button></div></td>' +
+                            '<td><div class="d-flex align-items-center gap-1"><span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>' + escHtml(p.namaKategori || '-') + '</span><button type="button" class="btn-action-view" style="width:24px; height:24px; font-size:10px;" title="Lihat Rincian Skema Kategori Ini" onclick="showKategoriModalDetail(' + p.kategoriId + ')"><i class="fas fa-eye"></i></button></div></td>' +
+                            '<td>' + progressHtml + '</td>' +
+                            '<td class="text-center text-nowrap"><span class="status-pill ' + statusClass + '"><span class="dot-indicator"></span>' + escHtml(p.status) + '</span></td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group">' +
+                                    '<a href="/Admin/HasilPenilaian?periodeId=' + p.id + '" class="btn-action-spk" title="Buka Hasil Penilaian & Kalkulasi SPK">' +
+                                        '<i class="fas fa-chart-line"></i><span>Hasil &amp; SPK</span>' +
+                                    '</a>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Arsip Penilaian Kinerja" onclick="confirmDeletePeriode(' + p.id + ', \'' + escHtml(p.namaPeriode).replace(/'/g, "\\'") + '\')">' +
+                                        '<i class="fas fa-trash"></i>' +
+                                    '</button>' +
+                                </div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                }
+
+                $('#tableRiwayatPeriodeBody').html(html);
+
+                dtRiwayatPeriode = $('#tableRiwayatPeriode').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+            },
+            error: function () {
+                $('#tableRiwayatPeriodeBody').html('<tr><td colspan="9" class="text-center py-4 text-danger">Gagal memuat arsip riwayat penilaian kinerja.</td></tr>');
+            }
+        });
+    }
+
+    function confirmDeletePeriode(id, name) {
+        Swal.fire({
+            title: 'Hapus Arsip Penilaian Kinerja?',
+            text: 'Apakah Anda yakin ingin menghapus data arsip penilaian kinerja "' + name + '"?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/periode/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (r) {
+                        if (r.success) {
+                            AdminToast.success('Arsip penilaian kinerja berhasil dihapus');
+                            loadRiwayatPeriodeTable();
+                        } else {
+                            Swal.fire('Gagal', r.message || 'Gagal menghapus penilaian kinerja.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Terjadi kesalahan sistem saat menghapus data.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadRiwayatPeriodeTable();
+    });
+</script>
+}

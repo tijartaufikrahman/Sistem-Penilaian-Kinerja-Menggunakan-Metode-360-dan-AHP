@@ -1,0 +1,863 @@
+@{
+    ViewData["Title"] = "Hasil Evaluasi Kinerja";
+}
+
+<style>
+    @@media print {
+        .no-print, .sidebar, .topbar, .btn, .content-breadcrumb-bar, .content-action-bar {
+            display: none !important;
+        }
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .admin-card {
+            box-shadow: none !important;
+            border: none !important;
+        }
+    }
+    .btn-responden-pill {
+        border: 1px solid transparent;
+        cursor: pointer;
+        outline: none;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-responden-pill:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        filter: brightness(0.97);
+    }
+    .dashboard-stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .dashboard-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .dashboard-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin: 0;
+    }
+    .dashboard-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .dashboard-stat-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.15;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+    .dashboard-stat-subtext {
+        font-size: 0.73rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2 no-print">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent"><a href="/Admin/Periode" style="color:inherit; text-decoration:none;">Penilaian Kinerja</a></span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Hasil Evaluasi Kinerja</span>
+            </div>
+        </div>
+
+        <!-- Card Identitas Periode & Progres Responden -->
+        <div class="admin-card mb-4" id="cardInfoPeriodeAHP">
+            <div class="p-3 mx-2 mx-md-3" id="bannerStatusEvaluasi360"></div>
+        </div>
+
+        <!-- Admin Table Card: Hasil Evaluasi -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-2.5 px-3 px-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                    <div>
+                        <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Laporan Hasil Evaluasi Kinerja Karyawan</h3>
+                        <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Rekapitulasi perolehan nilai akhir, peringkat performa, dan rekomendasi tindak lanjut bagi karyawan</p>
+                    </div>
+                    <div class="col-12 col-lg-auto ms-lg-auto p-0 d-flex flex-wrap gap-2 no-print">
+                        <button type="button" class="btn-secondary-admin py-1.5 px-3" onclick="window.print()" title="Cetak Laporan">
+                            <i class="fas fa-print text-teal me-1.5"></i> Cetak Laporan
+                        </button>
+                        <button type="button" class="btn-primary-admin w-100 w-lg-auto" id="btnSimpanHasil" onclick="simpanHasilPenilaianKinerja()">
+                            <i class="fas fa-save me-1"></i> Simpan Hasil Evaluasi
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tabelHasilSPK" style="font-size:12px;">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th class="text-center" style="width:50px;">PERINGKAT</th>
+                            <th class="text-nowrap" style="white-space:nowrap;">KODE</th>
+                            <th>NAMA KARYAWAN</th>
+                            <th class="text-center text-nowrap" style="min-width:100px;">RESPONDEN</th>
+                            <th class="text-center fw-bold text-teal" style="font-size:13px;">NILAI AKHIR</th>
+                            <th class="text-center">KATEGORI</th>
+                            <th>REKOMENDASI TINDAK LANJUT</th>
+                            <th class="text-end text-nowrap" style="width:100px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabelHasilSPKBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- Modal Catatan HRD (Identik Project 7 AdminModal) -->
+<div class="admin-modal-backdrop" id="modalCatatanHRD">
+    <div class="admin-modal-card">
+        <div class="admin-modal-head">
+            <h4 class="admin-modal-title">Memo &amp; Catatan Khusus HRD</h4>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalCatatanHRD')">&times;</button>
+        </div>
+        <div class="admin-modal-content">
+            <input type="hidden" id="catatanHasilId" />
+            <p class="text-muted mb-2" style="font-size:12.5px;">Tambahkan catatan evaluasi atau alasan rekomendasi khusus untuk karyawan <strong id="catatanNamaKaryawan" style="color:#0f172a;"></strong>:</p>
+            <div class="form-field-group">
+                <textarea class="form-field-input" id="inputCatatanHRD" rows="4" placeholder="Contoh: Sangat baik dalam kepemimpinan dan penyelesaian tugas..."></textarea>
+            </div>
+        </div>
+        <div class="admin-modal-foot">
+            <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalCatatanHRD')">Batal</button>
+            <button type="button" class="btn-primary-admin" onclick="simpanCatatanHRD()">
+                <i class="fas fa-save me-1"></i> Simpan Catatan
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    var dtHasilInstance = null;
+    var currentHasilList = [];
+    var currentTargetPeriodeId = 0;
+
+    function initHalamanHasil() {
+        var urlParams = new URLSearchParams(window.location.search);
+        currentTargetPeriodeId = parseInt(urlParams.get('periodeId')) || 0;
+
+        if (currentTargetPeriodeId > 0) {
+            // Ambil info detail periode langsung berdasarkan ID
+            $.ajax({
+                url: API_BASE_URL + '/periode/' + currentTargetPeriodeId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (p) {
+                    if (p) {
+                        $('#bannerNamaPeriode').text(p.namaPeriode);
+                        $('#bannerNamaAHP').html('<span class="dot-indicator"></span>' + escHtml(p.namaAturanAHP || 'Bobot Default'));
+                    }
+                },
+                error: function () {
+                    $('#bannerNamaPeriode').text('Periode #' + currentTargetPeriodeId);
+                }
+            });
+
+            loadHasilPenilaianByPeriode(currentTargetPeriodeId);
+        } else {
+            // Jika tidak ada parameter periodeId di URL, ambil periode aktif default
+            $.ajax({
+                url: API_BASE_URL + '/periode/active',
+                type: 'GET',
+                dataType: 'json',
+                success: function (p) {
+                    if (p && p.id) {
+                        currentTargetPeriodeId = p.id;
+                        $('#bannerNamaPeriode').text(p.namaPeriode);
+                        $('#bannerNamaAHP').html('<span class="dot-indicator"></span>' + escHtml(p.namaAturanAHP || 'Bobot Default'));
+                        loadHasilPenilaianByPeriode(currentTargetPeriodeId);
+                    } else {
+                        $('#bannerNamaPeriode').text('Tidak ada periode aktif');
+                        $('#tabelHasilSPKBody').html('<tr><td colspan="14" class="text-center py-4 text-muted">Silakan pilih penilaian kinerja terlebih dahulu dari halaman <a href="/Admin/Periode">Penilaian Kinerja</a>.</td></tr>');
+                    }
+                },
+                error: function () {
+                    $('#bannerNamaPeriode').text('Tidak dapat memuat penilaian');
+                }
+            });
+        }
+    }
+
+    function renderStatusRespondenCard(totalResponden, respondenMengisi, totalTugas, tugasSelesai, persentase) {
+        var pctPengisian = persentase !== undefined && persentase !== null 
+            ? persentase 
+            : (totalTugas > 0 ? ((tugasSelesai / totalTugas) * 100) : 0);
+
+        var progressBarColor = pctPengisian >= 100 ? '#0d9488' : (pctPengisian >= 50 ? '#0284c7' : (pctPengisian > 0 ? '#0d9488' : '#cbd5e1'));
+
+        var htmlStatus = '<div class="row align-items-center g-2 mb-2">' +
+                '<div class="col-12">' +
+                    '<span style="font-size:13px; font-weight:600; color:#0f172a;">Kesiapan Responden Multi-Penilai</span>' +
+                '</div>' +
+            '</div>' +
+            '<div class="progress my-2" style="height: 10px; background-color: #f1f5f9; border-radius: 6px; overflow: hidden;">' +
+                '<div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" ' +
+                     'style="width: ' + pctPengisian + '%; background-color: ' + progressBarColor + ';" ' +
+                     'aria-valuenow="' + pctPengisian + '" aria-valuemin="0" aria-valuemax="100"></div>' +
+            '</div>' +
+            '<div class="d-flex justify-content-between align-items-center text-muted" style="font-size:11.5px;">' +
+                '<span>Total Kuesioner Masuk: <span class="fw-bold font-monospace" style="color:' + progressBarColor + ';">' + pctPengisian.toFixed(1) + '%</span></span>' +
+                '<span>Status: <strong style="color:' + (pctPengisian >= 100 ? '#059669' : '#0d9488') + ';">' + (pctPengisian >= 100 ? 'Lengkap &amp; Siap Disahkan' : 'Sedang Pengisian Responden') + '</strong></span>' +
+            '</div>';
+
+        $('#bannerStatusEvaluasi360').html(htmlStatus);
+        $('#statHasilPartisipasi').text(pctPengisian.toFixed(1) + '%');
+    }
+
+    function showPeriodeModalDetail(periodeId) {
+        if (!periodeId || periodeId <= 0) {
+            Swal.fire('Informasi', 'Periode penilaian belum dipilih.', 'info');
+            return;
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/periode/' + periodeId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (p) {
+                if (p) {
+                    renderPeriodeModalDetail(p);
+                } else {
+                    Swal.fire('Informasi', 'Data penilaian kinerja tidak ditemukan.', 'warning');
+                }
+            },
+            error: function () {
+                Swal.fire('Error', 'Gagal memuat rincian penilaian kinerja.', 'error');
+            }
+        });
+    }
+
+    function renderPeriodeModalDetail(p) {
+        var statusBadge = p.status === 'Berjalan'
+            ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Berjalan</span>'
+            : '<span class="status-pill pill-inactive"><span class="dot-indicator"></span>' + escHtml(p.status) + '</span>';
+
+        var dateRange = (p.tanggalMulai || '-') + ' s/d ' + (p.tanggalSelesai || '-');
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<div class="mb-3 p-2 rounded bg-light border">' +
+                '<div class="row g-2">' +
+                    '<div class="col-6"><strong>Kode Periode:</strong> <span class="code-tag">' + escHtml(p.kodePeriode) + '</span></div>' +
+                    '<div class="col-6"><strong>Status:</strong> ' + statusBadge + '</div>' +
+                    '<div class="col-12 mt-1"><strong>Rentang Waktu:</strong> ' + dateRange + '</div>' +
+                    '<div class="col-12"><strong>Skema Kategori:</strong> <span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>' + escHtml(p.namaKategori || '-') + '</span></div>' +
+                    '<div class="col-12"><strong>Aturan Bobot AHP:</strong> <span class="status-pill pill-role" style="font-size:11px;">' + escHtml(p.namaAturanAHP || '-') + '</span></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="p-2 border rounded" style="background:#ffffff;">' +
+                '<h6 class="fw-bold mb-1" style="font-size:12px; color:#0f172a;"><i class="fas fa-chart-pie text-teal me-1"></i> Progres Evaluasi 360°</h6>' +
+                '<div class="d-flex justify-content-between mb-1" style="font-size:11.5px;">' +
+                    '<span>Kesiapan Responden Selesai:</span>' +
+                    '<strong>' + (p.totalAkunMengisi || 0) + ' / ' + (p.totalAkunPenilai || 0) + ' responden</strong>' +
+                '</div>' +
+                '<div class="d-flex justify-content-between mb-1" style="font-size:11.5px;">' +
+                    '<span>Total Tugas Evaluasi:</span>' +
+                    '<strong>' + (p.totalTugasSelesai || 0) + ' / ' + (p.totalTugas || 0) + ' tugas (' + (p.persentasePengisian || 0).toFixed(1) + '%)</strong>' +
+                '</div>' +
+            '</div>' +
+        '</div>';
+
+        Swal.fire({
+            title: p.namaPeriode,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '550px'
+        });
+    }
+
+    function showBobotModalDetail(bobotId) {
+        if (!bobotId || bobotId <= 0) {
+            Swal.fire('Informasi', 'Master bobot AHP tidak ditemukan.', 'info');
+            return;
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp/' + bobotId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (res) {
+                renderBobotModalDetail(res);
+            },
+            error: function () {
+                Swal.fire('Informasi', 'Data bobot AHP tidak dapat dimuat.', 'warning');
+            }
+        });
+    }
+
+    function renderBobotModalDetail(r) {
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+        var tableRows = '';
+        if (r.kriteriaDetails && r.kriteriaDetails.length > 0) {
+            for (var i = 0; i < r.kriteriaDetails.length; i++) {
+                var kd = r.kriteriaDetails[i];
+                tableRows += '<tr><td style="text-align:left;">' + escHtml(kd.namaKriteria) + '</td><td class="font-monospace fw-bold text-teal">' + (kd.bobot * 100).toFixed(1) + '%</td></tr>';
+            }
+        } else {
+            tableRows += '<tr><td style="text-align:left;">Kerjasama Tim</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KerjasamaTim * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Ketepatan Waktu</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KetepatanWaktu * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tanggung Jawab</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TanggungJawab * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Inisiatif</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_Inisiatif * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Keterlibatan Kerja</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KeterlibatanKerja * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Interaksi Kolega</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_InteraksiKolega * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tindak Lanjut</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TindakLanjut * 100).toFixed(1) + '%</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(r.kodeAturan) + '</span> | <strong>CR:</strong> ' + Number(crNum).toFixed(4) + '</p>' +
+            (r.keterangan ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(r.keterangan) + '</p>' : '') +
+            '<table class="table table-bordered table-sm text-center">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Kriteria</th><th>Bobot Ilmiah</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>';
+
+        Swal.fire({
+            title: r.namaAturan,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488'
+        });
+    }
+
+    function loadHasilPenilaianByPeriode(periodeId) {
+        // Ambil info detail periode & bobot yang terikat pada periode ini untuk banner
+        $.ajax({
+            url: API_BASE_URL + '/periode/' + periodeId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (p) {
+                if (p) {
+                    $('#bannerNamaPeriode').text(p.namaPeriode);
+                    $('#bannerNamaAHP').html('<span class="dot-indicator"></span>' + escHtml(p.namaAturanAHP || 'Bobot Default'));
+
+                    $('#btnLihatPeriodeDetail').attr('onclick', 'showPeriodeModalDetail(' + p.id + ')');
+                    $('#btnLihatBobotDetail').attr('onclick', 'showBobotModalDetail(' + (p.bobotAHPId || (p.bobotAHP ? p.bobotAHP.id : 0)) + ')');
+
+                    // Render progress responden menggunakan data periode
+                    var totalResponden = p.totalAkunPenilai || 0;
+                    var respondenMengisi = p.totalAkunMengisi || 0;
+                    var totalTugas = p.totalTugas || 0;
+                    var tugasSelesai = p.totalTugasSelesai || 0;
+                    var pct = p.persentasePengisian !== undefined ? p.persentasePengisian : 0;
+                    renderStatusRespondenCard(totalResponden, respondenMengisi, totalTugas, tugasSelesai, pct);
+                }
+            }
+        });
+
+        // Ambil status progres 360° periode ini (jika ada update real-time)
+        $.ajax({
+            url: API_BASE_URL + '/penilaian360/monitoring-progres/' + periodeId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (stat) {
+                if (stat) {
+                    var totalResponden = stat.totalAkunPenilai || 0;
+                    var respondenMengisi = stat.totalAkunMengisi || 0;
+                    var totalTugas = stat.totalTugasEvaluasi || 0;
+                    var tugasSelesai = stat.totalSelesai || 0;
+                    var pct = stat.persentaseSelesai !== undefined ? stat.persentaseSelesai : 0;
+                    renderStatusRespondenCard(totalResponden, respondenMengisi, totalTugas, tugasSelesai, pct);
+                }
+            }
+        });
+
+        if (dtHasilInstance) {
+            dtHasilInstance.destroy();
+            dtHasilInstance = null;
+        }
+        $('#tabelHasilSPK').empty();
+
+        // Ambil hasil tersimpan atau hasil kalkulasi simulasi realtime (tanpa menyimpan ke DB dulu)
+        $.ajax({
+            url: API_BASE_URL + '/hasilpenilaiansistem/preview/' + periodeId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                currentHasilList = list || [];
+
+                // Cek apakah data ini sudah tersimpan permanen di DB atau masih draft kalkulasi realtime
+                var isSaved = currentHasilList.length > 0 && currentHasilList.some(function(item) { return item.id > 0; });
+                if (isSaved) {
+                    $('#btnSimpanHasil')
+                        .html('<i class="fas fa-check-circle"></i> Penilaian Kinerja Tersimpan')
+                        .removeClass('btn-primary-admin')
+                        .addClass('btn-secondary-admin');
+                } else {
+                    $('#btnSimpanHasil')
+                        .html('<i class="fas fa-save"></i> Simpan Penilaian Kinerja')
+                        .removeClass('btn-secondary-admin')
+                        .addClass('btn-primary-admin');
+                }
+
+                // Hitung ringkasan statistik eksekutif
+                var totalKaryawan = currentHasilList.length;
+                var sumSkor = 0;
+                var countSudah = 0;
+                var topPerformerName = '-';
+                var maxSkor = -1;
+
+                for (var idx = 0; idx < currentHasilList.length; idx++) {
+                    var item = currentHasilList[idx];
+                    var isSudah = (item.sudahAdaPenilaian !== undefined) ? item.sudahAdaPenilaian : (item.skorAkhirAHP > 0 || (item.totalEvaluasiMasuk && item.totalEvaluasiMasuk > 0));
+                    if (isSudah) {
+                        countSudah++;
+                        sumSkor += (item.skorAkhirAHP || 0);
+                        if (item.skorAkhirAHP > maxSkor) {
+                            maxSkor = item.skorAkhirAHP;
+                            topPerformerName = item.namaKaryawan;
+                        }
+                    }
+                }
+
+                var avgSkor = countSudah > 0 ? (sumSkor / countSudah).toFixed(2) : '0.00';
+                $('#statHasilTotalKaryawan').text(totalKaryawan + ' Karyawan');
+                $('#statHasilRataRata').text(avgSkor);
+                $('#statHasilTopPerformer').text(topPerformerName).attr('title', topPerformerName);
+
+                if (currentHasilList.length === 0) {
+                    var emptyThead = '<thead class="table-light text-nowrap"><tr>' +
+                        '<th class="text-center" style="width:50px;">RANK</th>' +
+                        '<th class="text-nowrap" style="white-space:nowrap;">KODE</th>' +
+                        '<th>NAMA KARYAWAN</th>' +
+                        '<th class="text-center text-nowrap" style="min-width:100px;">RESPONDEN</th>' +
+                        '<th class="text-center fw-bold text-teal" style="font-size:13px;">SKOR AHP</th>' +
+                        '<th class="text-center">KATEGORI</th>' +
+                        '<th>REKOMENDASI TINDAK LANJUT</th>' +
+                        '<th class="text-end text-nowrap" style="width:100px;">AKSI</th>' +
+                        '</tr></thead>';
+                    var emptyTbody = '<tbody><tr><td colspan="8" class="text-center py-4 text-muted">Belum ada data evaluasi untuk periode ini.</td></tr></tbody>';
+                    $('#tabelHasilSPK').html(emptyThead + emptyTbody);
+                    return;
+                }
+
+                var activeKriteria = [];
+                if (currentHasilList[0].kriteriaNilai && currentHasilList[0].kriteriaNilai.length > 0) {
+                    activeKriteria = currentHasilList[0].kriteriaNilai;
+                }
+
+                var theadHtml = '<thead class="table-light text-nowrap"><tr>' +
+                    '<th class="text-center" style="width:50px;">RANK</th>' +
+                    '<th class="text-nowrap" style="white-space:nowrap;">KODE</th>' +
+                    '<th>NAMA KARYAWAN</th>' +
+                    '<th class="text-center text-nowrap" style="min-width:100px;">RESPONDEN</th>';
+
+                if (activeKriteria.length > 0) {
+                    for (var k = 0; k < activeKriteria.length; k++) {
+                        var ak = activeKriteria[k];
+                        var pct = (ak.bobot * 100).toFixed(1);
+                        theadHtml += '<th class="text-center" title="' + escHtml(ak.namaKriteria) + '">' +
+                            escHtml(ak.namaKriteria.toUpperCase()) +
+                            '<div style="font-size:10px; font-weight:normal; opacity:0.85; color:#0d9488;">' + pct + '%</div></th>';
+                    }
+                } else {
+                    theadHtml += '<th class="text-center">KERJASAMA</th>' +
+                        '<th class="text-center">WAKTU</th>' +
+                        '<th class="text-center">TANGGUNG JWB</th>' +
+                        '<th class="text-center">INISIATIF</th>' +
+                        '<th class="text-center">KETERLIBATAN</th>' +
+                        '<th class="text-center">INTERAKSI</th>' +
+                        '<th class="text-center">TINDAK LANJUT</th>';
+                }
+
+                theadHtml += '<th class="text-center fw-bold text-teal" style="font-size:13px;">SKOR AHP</th>' +
+                    '<th class="text-center">KATEGORI</th>' +
+                    '<th>REKOMENDASI TINDAK LANJUT</th>' +
+                    '<th class="text-end text-nowrap" style="width:100px;">AKSI</th>' +
+                    '</tr></thead>';
+
+                var tbodyHtml = '<tbody id="tabelHasilSPKBody">';
+                for (var i = 0; i < currentHasilList.length; i++) {
+                    var h = currentHasilList[i];
+                    var isSudahDinilai = (h.sudahAdaPenilaian !== undefined) ? h.sudahAdaPenilaian : (h.skorAkhirAHP > 0 || (h.totalEvaluasiMasuk && h.totalEvaluasiMasuk > 0));
+                    var statusClass = 'pill-role';
+                    var kat = (h.namaKategori || '').toLowerCase();
+
+                    if (!isSudahDinilai || kat === 'belum dinilai') {
+                        statusClass = 'pill-inactive';
+                    } else if (kat.indexOf('sangat baik') !== -1 || kat.indexOf('istimewa') !== -1) {
+                        statusClass = 'pill-active';
+                    } else if (kat.indexOf('baik') !== -1) {
+                        statusClass = 'pill-active';
+                    } else if (kat.indexOf('cukup') !== -1) {
+                        statusClass = 'pill-role';
+                    } else if (kat.indexOf('kurang') !== -1 || kat.indexOf('buruk') !== -1) {
+                        statusClass = 'pill-inactive';
+                    }
+
+                    var rankBadge = isSudahDinilai
+                        ? '<span class="status-pill ' + (h.ranking === 1 ? 'pill-active' : 'pill-role') + '" style="font-size:11px;">' + h.ranking + '</span>'
+                        : '<span class="text-muted" style="font-size:11px;">-</span>';
+
+                    var rekomendasiHtml = isSudahDinilai
+                        ? '<strong style="color:#0f172a; font-size:12px;">' + escHtml(h.rekomendasi) + '</strong>'
+                        : '<span class="text-muted" style="font-size:11.5px; font-style:italic;"><i class="fas fa-clock me-1"></i>Menunggu Penilaian</span>';
+
+                    var skorDisplay = isSudahDinilai
+                        ? h.skorAkhirAHP.toFixed(2)
+                        : '<span class="text-muted" style="font-weight:normal; font-size:12px;">0.00</span>';
+
+                    var rowKriteriaHtml = '';
+                    if (activeKriteria.length > 0) {
+                        for (var k = 0; k < activeKriteria.length; k++) {
+                            var targetKid = activeKriteria[k].kriteriaId;
+                            var kn = (h.kriteriaNilai && h.kriteriaNilai.find(function(x) { return x.kriteriaId === targetKid; })) || null;
+                            var rawVal = kn ? kn.nilaiRataRata : 0;
+                            var bobotVal = activeKriteria[k].bobot || 0;
+                            var tertimbangVal = kn && kn.nilaiTertimbang !== undefined ? kn.nilaiTertimbang : (rawVal * bobotVal);
+
+                            rowKriteriaHtml += '<td class="text-center font-monospace" title="Nilai 360°: ' + rawVal.toFixed(2) + ' × Bobot ' + (bobotVal * 100).toFixed(1) + '%">' +
+                                (isSudahDinilai ? tertimbangVal.toFixed(2) : '<span class="text-muted">0.00</span>') +
+                                '</td>';
+                        }
+                    } else {
+                        var c1 = (h.rata2_KerjasamaTim * 0.15).toFixed(2);
+                        var c2 = (h.rata2_KetepatanWaktu * 0.20).toFixed(2);
+                        var c3 = (h.rata2_TanggungJawab * 0.25).toFixed(2);
+                        var c4 = (h.rata2_Inisiatif * 0.10).toFixed(2);
+                        var c5 = (h.rata2_KeterlibatanKerja * 0.10).toFixed(2);
+                        var c6 = (h.rata2_InteraksiKolega * 0.05).toFixed(2);
+                        var c7 = (h.rata2_TindakLanjut * 0.15).toFixed(2);
+
+                        rowKriteriaHtml += '<td class="text-center font-monospace">' + (isSudahDinilai ? c1 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c2 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c3 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c4 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c5 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c6 : '-') + '</td>' +
+                            '<td class="text-center font-monospace">' + (isSudahDinilai ? c7 : '-') + '</td>';
+                    }
+
+                    var masuk = h.totalEvaluasiMasuk || 0;
+                    var diharapkan = h.totalEvaluasiDiharapkan || 0;
+                    var respondenBadge = '';
+
+                    if (diharapkan > 0) {
+                        if (masuk >= diharapkan) {
+                            respondenBadge = '<button type="button" class="btn-responden-pill" style="background:#ecfdf5; color:#047857; border:1px solid #a7f3d0; font-size:11.5px; font-weight:600; padding:2px 10px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;" onclick="bukaModalRincianPenilai(' + h.userId + ', \'' + escHtml(h.namaKaryawan).replace(/'/g, "\\'") + '\', \'' + escHtml(h.kodeKaryawan).replace(/'/g, "\\'") + '\', ' + (h.periodeId || currentTargetPeriodeId) + ')" title="Klik untuk melihat rincian responden">' +
+                                masuk + ' / ' + diharapkan +
+                                '</button>';
+                        } else if (masuk > 0) {
+                            respondenBadge = '<button type="button" class="btn-responden-pill" style="background:#f0fdfa; color:#0f766e; border:1px solid #99f6e4; font-size:11.5px; font-weight:600; padding:2px 10px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;" onclick="bukaModalRincianPenilai(' + h.userId + ', \'' + escHtml(h.namaKaryawan).replace(/'/g, "\\'") + '\', \'' + escHtml(h.kodeKaryawan).replace(/'/g, "\\'") + '\', ' + (h.periodeId || currentTargetPeriodeId) + ')" title="Klik untuk melihat rincian responden">' +
+                                masuk + ' / ' + diharapkan +
+                                '</button>';
+                        } else {
+                            respondenBadge = '<button type="button" class="btn-responden-pill" style="background:#f8fafc; color:#64748b; border:1px solid #cbd5e1; font-size:11.5px; font-weight:600; padding:2px 10px; border-radius:20px; display:inline-flex; align-items:center; justify-content:center; text-decoration:none;" onclick="bukaModalRincianPenilai(' + h.userId + ', \'' + escHtml(h.namaKaryawan).replace(/'/g, "\\'") + '\', \'' + escHtml(h.kodeKaryawan).replace(/'/g, "\\'") + '\', ' + (h.periodeId || currentTargetPeriodeId) + ')" title="Klik untuk melihat rincian responden">' +
+                                '0 / ' + diharapkan +
+                                '</button>';
+                        }
+                    } else {
+                        respondenBadge = '<span class="text-muted" style="font-size:11px;">-</span>';
+                    }
+
+                    var aksiBtns = '<div class="table-btn-group justify-content-end">' +
+                        '<button type="button" class="btn-action-view" style="width:28px; height:28px; font-size:11px;" title="Rincian Nilai Kompetensi" onclick="bukaModalRincianKriteria(' + i + ')">' +
+                            '<i class="fas fa-list-check"></i>' +
+                        '</button>' +
+                        '<button type="button" class="btn-action-edit" style="width:28px; height:28px; font-size:11px;" title="Memo & Catatan Khusus HRD" onclick="bukaModalCatatan(' + i + ')">' +
+                            '<i class="fas fa-comment-dots"></i>' +
+                        '</button>' +
+                    '</div>';
+
+                    tbodyHtml += '<tr>' +
+                        '<td class="text-center">' + rankBadge + '</td>' +
+                        '<td class="text-nowrap" style="white-space:nowrap;"><span class="code-tag" style="white-space:nowrap;">' + escHtml(h.kodeKaryawan) + '</span></td>' +
+                        '<td><strong style="color:#0f172a;">' + escHtml(h.namaKaryawan) + '</strong></td>' +
+                        '<td class="text-center text-nowrap">' + respondenBadge + '</td>' +
+                        rowKriteriaHtml +
+                        '<td class="text-center font-monospace fw-bold text-teal" style="font-size:13.5px;">' + skorDisplay + '</td>' +
+                        '<td class="text-center"><span class="status-pill ' + statusClass + '">' + escHtml(h.namaKategori) + '</span></td>' +
+                        '<td>' + rekomendasiHtml + '</td>' +
+                        '<td class="text-end text-nowrap">' + aksiBtns + '</td>' +
+                        '</tr>';
+                }
+                tbodyHtml += '</tbody>';
+
+                $('#tabelHasilSPK').html(theadHtml + tbodyHtml);
+
+                dtHasilInstance = $('#tabelHasilSPK').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig,
+                    order: [[0, 'asc']]
+                });
+            },
+            error: function () {
+                var errThead = '<thead class="table-light"><tr><th>Pesan</th></tr></thead>';
+                var errTbody = '<tbody><tr><td class="text-center py-4 text-danger">Gagal memuat hasil evaluasi.</td></tr></tbody>';
+                $('#tabelHasilSPK').html(errThead + errTbody);
+            }
+        });
+    }
+
+    function simpanHasilPenilaianKinerja() {
+        var periodeId = currentTargetPeriodeId;
+        if (!periodeId) {
+            Swal.fire('Perhatian', 'Penilaian kinerja belum ditentukan.', 'warning');
+            return;
+        }
+
+        Swal.fire({
+            title: 'Simpan Penilaian Kinerja?',
+            text: 'Hasil kalkulasi SPK AHP & peringkat kinerja ini akan disimpan secara resmi ke dalam database.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d9488',
+            confirmButtonText: 'Ya, Simpan ke Database'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/hasilpenilaiansistem/save/' + periodeId,
+                    type: 'POST',
+                    dataType: 'json',
+                    beforeSend: function () {
+                        Swal.fire({
+                            title: 'Sedang Menyimpan...',
+                            text: 'Menyimpan hasil evaluasi dan perankingan resmi ke database',
+                            allowOutsideClick: false,
+                            didOpen: function () { Swal.showLoading(); }
+                        });
+                    },
+                    success: function (res) {
+                        Swal.close();
+                        if (res.success) {
+                            AdminToast.success('Hasil penilaian kinerja resmi berhasil disimpan');
+                            loadHasilPenilaianByPeriode(periodeId);
+                        } else {
+                            Swal.fire('Gagal', res.message || 'Penyimpanan gagal', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        Swal.close();
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Terjadi kesalahan sistem saat menyimpan hasil.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function bukaModalRincianKriteria(index) {
+        var h = currentHasilList[index];
+        if (!h) return;
+
+        var kriteriaRows = '';
+        if (h.kriteriaNilai && h.kriteriaNilai.length > 0) {
+            for (var k = 0; k < h.kriteriaNilai.length; k++) {
+                var item = h.kriteriaNilai[k];
+                var raw = item.nilaiRataRata || 0;
+                var bobotPct = ((item.bobot || 0) * 100).toFixed(1) + '%';
+                var tertimbang = (item.nilaiTertimbang !== undefined ? item.nilaiTertimbang : (raw * (item.bobot || 0))).toFixed(2);
+
+                kriteriaRows += '<tr>' +
+                    '<td class="text-start"><strong style="color:#0f172a; font-size:12.5px;">' + (k + 1) + '. ' + escHtml(item.namaKriteria) + '</strong></td>' +
+                    '<td class="font-monospace fw-bold text-teal">' + raw.toFixed(2) + '</td>' +
+                    '<td class="font-monospace text-muted" style="font-size:11.5px;">' + bobotPct + '</td>' +
+                    '<td class="font-monospace fw-bold text-dark">' + tertimbang + '</td>' +
+                '</tr>';
+            }
+        } else {
+            kriteriaRows += '<tr><td class="text-start">Kerjasama Tim</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_KerjasamaTim || 0).toFixed(2) + '</td><td class="font-monospace text-muted">15.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_KerjasamaTim || 0) * 0.15).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Ketepatan Waktu</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_KetepatanWaktu || 0).toFixed(2) + '</td><td class="font-monospace text-muted">20.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_KetepatanWaktu || 0) * 0.20).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Tanggung Jawab</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_TanggungJawab || 0).toFixed(2) + '</td><td class="font-monospace text-muted">25.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_TanggungJawab || 0) * 0.25).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Inisiatif</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_Inisiatif || 0).toFixed(2) + '</td><td class="font-monospace text-muted">10.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_Inisiatif || 0) * 0.10).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Keterlibatan Kerja</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_KeterlibatanKerja || 0).toFixed(2) + '</td><td class="font-monospace text-muted">10.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_KeterlibatanKerja || 0) * 0.10).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Interaksi Kolega</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_InteraksiKolega || 0).toFixed(2) + '</td><td class="font-monospace text-muted">5.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_InteraksiKolega || 0) * 0.05).toFixed(2) + '</td></tr>';
+            kriteriaRows += '<tr><td class="text-start">Tindak Lanjut</td><td class="font-monospace fw-bold text-teal">' + (h.rata2_TindakLanjut || 0).toFixed(2) + '</td><td class="font-monospace text-muted">15.0%</td><td class="font-monospace fw-bold text-dark">' + ((h.rata2_TindakLanjut || 0) * 0.15).toFixed(2) + '</td></tr>';
+        }
+
+        var skorNum = (h.skorAkhirAHP || 0).toFixed(2);
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<div class="p-2.5 px-3 rounded bg-light border mb-3">' +
+                '<div class="row g-2">' +
+                    '<div class="col-6"><strong>Karyawan:</strong> ' + escHtml(h.namaKaryawan) + '</div>' +
+                    '<div class="col-6"><strong>Kode:</strong> <span class="code-tag">' + escHtml(h.kodeKaryawan) + '</span></div>' +
+                    '<div class="col-6 mt-1"><strong>Nilai Akhir:</strong> <span class="fw-bold font-monospace text-teal">' + skorNum + '</span></div>' +
+                    '<div class="col-6 mt-1"><strong>Kategori:</strong> <span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>' + escHtml(h.namaKategori || '-') + '</span></div>' +
+                '</div>' +
+            '</div>' +
+            '<div class="table-responsive border rounded">' +
+                '<table class="table table-bordered table-sm align-middle text-center mb-0" style="font-size:12px;">' +
+                    '<thead class="table-light"><tr><th class="text-start">Kriteria Kompetensi</th><th>Rata-rata 360°</th><th>Bobot</th><th>Tertimbang</th></tr></thead>' +
+                    '<tbody>' + kriteriaRows + '</tbody>' +
+                '</table>' +
+            '</div>' +
+        '</div>';
+
+        Swal.fire({
+            title: '<div style="font-size:16px; font-weight:700;"><i class="fas fa-layer-group text-teal me-2"></i>Rincian Nilai Kompetensi</div>',
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '600px'
+        });
+    }
+
+    function bukaModalCatatan(index) {
+        var item = currentHasilList[index];
+        if (!item) return;
+
+        $('#catatanHasilId').val(item.id);
+        $('#catatanNamaKaryawan').text(item.namaKaryawan);
+        $('#inputCatatanHRD').val(item.catatanHRD || '');
+
+        AdminModal.open('modalCatatanHRD');
+    }
+
+    function simpanCatatanHRD() {
+        var id = $('#catatanHasilId').val();
+        var catatan = $('#inputCatatanHRD').val().trim();
+
+        $.ajax({
+            url: API_BASE_URL + '/hasilpenilaiansistem/catatan/' + id,
+            type: 'PUT',
+            contentType: 'application/json',
+            dataType: 'json',
+            data: JSON.stringify({ catatanHRD: catatan }),
+            success: function (res) {
+                if (res.success) {
+                    AdminModal.close('modalCatatanHRD');
+                    AdminToast.success('Catatan memo HRD berhasil disimpan');
+                    if (currentTargetPeriodeId > 0) {
+                        loadHasilPenilaianByPeriode(currentTargetPeriodeId);
+                    }
+                }
+            }
+        });
+    }
+
+    function bukaModalRincianPenilai(targetUserId, targetNama, targetKode, periodeId) {
+        if (!periodeId) periodeId = currentTargetPeriodeId;
+        if (!periodeId || !targetUserId) return;
+
+        Swal.fire({
+            title: 'Memuat Rincian Responden...',
+            text: 'Mengambil data evaluator untuk ' + targetNama,
+            allowOutsideClick: false,
+            didOpen: function () { Swal.showLoading(); }
+        });
+
+        $.ajax({
+            url: API_BASE_URL + '/penilaian360/by-periode/' + periodeId,
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                Swal.close();
+                var list = (data || []).filter(function (p) { return p.userId === targetUserId; });
+                renderModalRincianPenilai(targetNama, targetKode, list);
+            },
+            error: function () {
+                Swal.close();
+                Swal.fire('Error', 'Gagal memuat rincian responden penilai.', 'error');
+            }
+        });
+    }
+
+    function renderModalRincianPenilai(targetNama, targetKode, evaluators) {
+        var total = evaluators.length;
+        var selesai = evaluators.filter(function (e) { return e.statusPengisian === 'Selesai'; }).length;
+        var pct = total > 0 ? ((selesai / total) * 100).toFixed(0) : 0;
+
+        var headerSummary = '<div class="p-2 px-3 mb-3 rounded bg-light border text-start" style="font-size:12.5px;">' +
+            '<div class="mb-1"><strong>Kode:</strong> ' + escHtml(targetKode || '-') + '</div>' +
+            '<div><strong>Nama:</strong> ' + escHtml(targetNama) + '</div>' +
+        '</div>';
+
+        var rowsHtml = '';
+        if (evaluators.length === 0) {
+            rowsHtml = '<tr><td colspan="4" class="text-center py-3 text-muted">Belum ada penilai/responden yang ditugaskan untuk karyawan ini.</td></tr>';
+        } else {
+            evaluators.sort(function(a, b) {
+                if (a.statusPengisian === 'Selesai' && b.statusPengisian !== 'Selesai') return -1;
+                if (a.statusPengisian !== 'Selesai' && b.statusPengisian === 'Selesai') return 1;
+                return (a.namaPenilai || '').localeCompare(b.namaPenilai || '');
+            });
+
+            for (var i = 0; i < evaluators.length; i++) {
+                var ev = evaluators[i];
+                var isDone = ev.statusPengisian === 'Selesai';
+                var statusPill = isDone
+                    ? '<span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>Selesai</span>'
+                    : '<span class="status-pill pill-inactive" style="font-size:11px;"><span class="dot-indicator"></span>Belum Mengisi</span>';
+
+                var tgl = isDone && ev.tanggalPenilaian ? ev.tanggalPenilaian : '-';
+
+                rowsHtml += '<tr>' +
+                    '<td class="text-center" style="font-size:11.5px;">' + (i + 1) + '</td>' +
+                    '<td class="text-start"><strong style="color:#0f172a; font-size:12px;">' + escHtml(ev.namaPenilai || 'Responden #' + ev.penilaiUserId) + '</strong></td>' +
+                    '<td class="text-center">' + statusPill + '</td>' +
+                    '<td class="text-center text-muted" style="font-size:11px;">' + tgl + '</td>' +
+                '</tr>';
+            }
+        }
+
+        var tableHtml = '<div class="table-responsive" style="max-height:360px; overflow-y:auto;">' +
+            '<table class="table table-bordered table-sm align-middle text-center mb-0" style="font-size:12px;">' +
+                '<thead class="table-light text-nowrap">' +
+                    '<tr>' +
+                        '<th style="width:35px;">NO</th>' +
+                        '<th class="text-start">NAMA PENILAI</th>' +
+                        '<th>STATUS</th>' +
+                        '<th>TGL EVALUASI</th>' +
+                    '</tr>' +
+                '</thead>' +
+                '<tbody>' + rowsHtml + '</tbody>' +
+            '</table>' +
+        '</div>';
+
+        Swal.fire({
+            title: '<div style="font-size:16px; font-weight:700;"><i class="fas fa-users-viewfinder text-teal me-2"></i>Rincian Responden Penilai</div>',
+            html: headerSummary + tableHtml,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '560px'
+        });
+    }
+
+    $(function () {
+        initHalamanHasil();
+    });
+</script>
+}

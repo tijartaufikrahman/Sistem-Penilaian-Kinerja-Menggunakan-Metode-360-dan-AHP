@@ -1,0 +1,163 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = SistemPenilaian
+build_property.RootNamespace = SistemPenilaian
+build_property.ProjectDir = C:\Programing\Project 9\SistemPenilaian\SistemPenilaian\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = true
+build_property.MSBuildProjectDirectory = C:\Programing\Project 9\SistemPenilaian\SistemPenilaian
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Account/ForgotPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Account/ForgotPasswordConfirmation.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxGb3Jnb3RQYXNzd29yZENvbmZpcm1hdGlvbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Account/Login.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxMb2dpbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Account/ResetPassword.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxSZXNldFBhc3N3b3JkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Account/VerifyOtp.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWNjb3VudFxWZXJpZnlPdHAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/Database.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cRGF0YWJhc2UuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/HasilPenilaian.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSGFzaWxQZW5pbGFpYW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/HistoryPenilaian.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cSGlzdG9yeVBlbmlsYWlhbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/Karyawan.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cS2FyeWF3YW4uY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/MasterBobotAHP.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFzdGVyQm9ib3RBSFAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/MasterKategori.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFzdGVyS2F0ZWdvcmkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/MasterKriteria.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cTWFzdGVyS3JpdGVyaWEuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/Periode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUGVyaW9kZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/RiwayatPenilaian.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cUml3YXlhdFBlbmlsYWlhbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Admin/TambahPeriode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcQWRtaW5cVGFtYmFoUGVyaW9kZS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Home/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxJbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxQcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/Dashboard.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cRGFzaGJvYXJkLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/Evaluasi360.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cRXZhbHVhc2kzNjAuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/HistoryPenilaian.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cSGlzdG9yeVBlbmlsYWlhbi5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/KinerjaPribadi.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cS2luZXJqYVByaWJhZGkuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/PenilaianKinerja.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cUGVuaWxhaWFuS2luZXJqYS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/RaporKinerja.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cUmFwb3JLaW5lcmphLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Karyawan/RiwayatEvaluasi.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcS2FyeWF3YW5cUml3YXlhdEV2YWx1YXNpLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXEVycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Alert.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcQWxlcnQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Card.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcQ2FyZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcRm9ybS5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Form2.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcRm9ybTIuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Modal.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcTW9kYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Template/Table.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcVGVtcGxhdGVcVGFibGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/_ViewImports.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcX1ZpZXdTdGFydC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Programing/Project 9/SistemPenilaian/SistemPenilaian/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcU2hhcmVkXF9MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-6he564vc0d

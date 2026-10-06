@@ -1,0 +1,115 @@
+@{
+    ViewData["Title"] = "Template Modal";
+}
+
+<!-- ATURAN 1: Tag pembungkus paling awal di file konten wajib diawali <div class="row ..."> -->
+<div class="row">
+    <div class="col-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-window-restore" style="color:#0f766e;margin-right:.45rem;"></i>Template Modal Dialog</h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted" style="font-size:.85rem;margin-bottom:1.5rem;">
+                    Contoh modal dialog interaktif dengan manipulasi DOM dan kontrol event 100% menggunakan jQuery.
+                </p>
+
+                <div class="d-flex flex-wrap gap-2 mb-3">
+                    <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                    <button type="button" class="btn btn-primary" style="background:#0d9488;border-color:#0d9488;" onclick="bukaModalStandar()">
+                        <i class="fas fa-external-link-alt"></i> Buka Modal Standar
+                    </button>
+                    <button type="button" class="btn btn-danger" onclick="bukaModalKonfirmasi()">
+                        <i class="fas fa-trash"></i> Buka Modal Konfirmasi
+                    </button>
+                </div>
+
+                <div id="modalStatusArea" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Standar -->
+<div class="modal fade" id="modalStandar" tabindex="-1" aria-labelledby="modalStandarTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px;overflow:hidden;border:none;box-shadow:0 10px 30px rgba(0,0,0,.15);">
+            <div class="modal-header" style="background:#f8fafc;border-bottom:1px solid #e2e8f0;">
+                <h5 class="modal-title" id="modalStandarTitle" style="font-size:1rem;font-weight:600;color:#0f172a;">
+                    <i class="fas fa-info-circle text-teal" style="color:#0d9488;"></i> Informasi Komponen
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:.9rem;color:#475569;">
+                    Ini adalah template modal standar Bootstrap 5 yang dipicu dan dikendalikan secara rapi menggunakan event handler dan jQuery.
+                </p>
+                <div class="mb-3">
+                    <label for="inputCatatanModal" class="form-label" style="font-size:.85rem;font-weight:600;">Catatan Singkat</label>
+                    <input type="text" class="form-control" id="inputCatatanModal" placeholder="Ketik sesuatu..." />
+                </div>
+            </div>
+            <div class="modal-footer" style="background:#f8fafc;border-top:1px solid #e2e8f0;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                <button type="button" class="btn btn-primary" style="background:#0d9488;border-color:#0d9488;" onclick="simpanCatatanModal()">
+                    <i class="fas fa-check"></i> Simpan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Konfirmasi -->
+<div class="modal fade" id="modalKonfirmasi" tabindex="-1" aria-labelledby="modalKonfirmasiTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:14px;overflow:hidden;border:none;box-shadow:0 10px 30px rgba(0,0,0,.15);">
+            <div class="modal-header" style="background:#fef2f2;border-bottom:1px solid #fee2e2;">
+                <h5 class="modal-title text-danger" id="modalKonfirmasiTitle" style="font-size:1rem;font-weight:600;">
+                    <i class="fas fa-exclamation-triangle"></i> Konfirmasi Aksi
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size:.9rem;color:#475569;margin:0;">
+                    Apakah Anda yakin ingin memproses aksi ini di frontend?
+                </p>
+            </div>
+            <div class="modal-footer" style="background:#fafafa;border-top:1px solid #e2e8f0;">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" onclick="prosesKonfirmasiAksi()">
+                    <i class="fas fa-check"></i> Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ATURAN 2: Handler fungsi dipanggil via onclick pada tag HTML
+        function bukaModalStandar() {
+            $('#inputCatatanModal').val('');
+            $('#modalStandar').modal('show');
+        }
+
+        function bukaModalKonfirmasi() {
+            $('#modalKonfirmasi').modal('show');
+        }
+
+        function simpanCatatanModal() {
+            var catatan = $('#inputCatatanModal').val().trim();
+            $('#modalStandar').modal('hide');
+            if (catatan) {
+                $('#modalStatusArea').html('<div class="alert alert-success py-2" style="font-size:.85rem;"><i class="fas fa-check-circle"></i> Catatan tersimpan: <strong>' + catatan + '</strong></div>');
+            } else {
+                $('#modalStatusArea').html('<div class="alert alert-info py-2" style="font-size:.85rem;"><i class="fas fa-info-circle"></i> Modal ditutup tanpa catatan.</div>');
+            }
+        }
+
+        function prosesKonfirmasiAksi() {
+            $('#modalKonfirmasi').modal('hide');
+            $('#modalStatusArea').html('<div class="alert alert-danger py-2" style="font-size:.85rem;"><i class="fas fa-check-circle"></i> Aksi konfirmasi berhasil dieksekusi di sisi Frontend!</div>');
+        }
+    </script>
+}

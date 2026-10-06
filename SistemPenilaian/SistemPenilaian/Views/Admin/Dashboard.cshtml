@@ -1,0 +1,347 @@
+@{
+    ViewData["Title"] = "Dashboard HRD";
+}
+
+<style>
+    /* Styling khusus metric stat cards Dashboard agar presisi, rapi, dan proporsional */
+    .dashboard-stat-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 14px 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        height: 100%;
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .dashboard-stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+    }
+    .dashboard-stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 6px;
+    }
+    .dashboard-stat-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: #64748b;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        margin: 0;
+    }
+    .dashboard-stat-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        flex-shrink: 0;
+    }
+    .dashboard-stat-value {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.15;
+        margin-bottom: 6px;
+        letter-spacing: -0.3px;
+    }
+    .dashboard-stat-subtext {
+        font-size: 0.73rem;
+        color: #64748b;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- 4 Key Stat Metric Cards: Informasi Kepegawaian & Evaluasi SDM -->
+        <div class="row g-3 mb-4">
+            <!-- Card 1: Total Karyawan Aktif -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Total Karyawan</span>
+                        <div class="dashboard-stat-icon stat-icon-teal">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statTotalKaryawan">0 Orang</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;"><span class="dot-indicator"></span>Aktif</span>
+                            <span>SDM terdaftar</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2: Standar Kriteria Penilaian -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Kriteria Penilaian</span>
+                        <div class="dashboard-stat-icon stat-icon-blue">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statTotalKriteria">0 Kriteria</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-role" style="padding:1px 6px; font-size:10px;">Standar Acuan</span>
+                            <span>Aspek kompetensi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Kategori Rekomendasi HRD -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Kategori &amp; Rekomendasi</span>
+                        <div class="dashboard-stat-icon stat-icon-purple">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statTotalKategori">0 Kategori</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;">Standar Hasil</span>
+                            <span>Skema tindak lanjut</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 4: Kebijakan Bobot AHP -->
+            <div class="col-12 col-sm-6 col-xl-3">
+                <div class="dashboard-stat-card">
+                    <div class="dashboard-stat-header">
+                        <span class="dashboard-stat-label">Pembobotan Kriteria</span>
+                        <div class="dashboard-stat-icon stat-icon-amber">
+                            <i class="fas fa-scale-balanced"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="dashboard-stat-value" id="statTotalBobot">0 Aturan</div>
+                        <div class="dashboard-stat-subtext">
+                            <span class="status-pill pill-active" style="padding:1px 6px; font-size:10px;" id="statBobotBadge"><span class="dot-indicator"></span>Aktif</span>
+                            <span id="statBobotDetail">Standar pembobotan</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Konten Utama: Indikator Standar Kompetensi (Kiri) & Informasi Sistem (Kanan) -->
+        <div class="row g-3 mb-4">
+            <!-- Sisi Kiri: Indikator Standar Kompetensi Kinerja -->
+            <div class="col-12 col-lg-8">
+                <div class="admin-card h-100 mb-0">
+                    <div class="admin-card-header">
+                        <div class="row align-items-center g-3 w-100 m-0">
+                            <div class="col-12 col-md p-0">
+                                <h3 class="admin-card-title">Kriteria Penilaian Kinerja</h3>
+                                <p class="admin-card-desc mb-0">Daftar aspek dan indikator kompetensi kerja yang menjadi dasar evaluasi kinerja karyawan</p>
+                            </div>
+                            <div class="col-12 col-md-auto ms-md-auto p-0 text-md-end">
+                                <a href="/Admin/MasterKriteria" class="btn-secondary-admin text-decoration-none w-100 w-md-auto d-inline-flex align-items-center justify-content-center">
+                                    <i class="fas fa-layer-group me-1.5 text-teal"></i> Kelola Kriteria <i class="fas fa-arrow-right ms-2 text-teal" style="font-size:11px;"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle w-100" id="tableDashboardKriteria">
+                            <thead class="table-light text-nowrap">
+                                <tr>
+                                    <th style="width: 45px; text-align:center;">NO</th>
+                                    <th style="width: 90px;">KODE</th>
+                                    <th>NAMA KOMPETENSI</th>
+                                    <th>DESKRIPSI INDIKATOR PERILAKU</th>
+                                    <th class="text-center" style="width: 95px;">STATUS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="containerListKriteria">
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">
+                                        <i class="fas fa-spinner fa-spin me-1"></i> Memuat indikator kompetensi...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sisi Kanan: Metode & Standar Penilaian -->
+            <div class="col-12 col-lg-4">
+                <div class="admin-card h-100 mb-0 d-flex flex-column">
+                    <div class="admin-card-header">
+                        <div class="row align-items-center g-3 w-100 m-0">
+                            <div class="col-12 p-0">
+                                <h3 class="admin-card-title">Standar Penilaian Kinerja</h3>
+                                <p class="admin-card-desc mb-0">Ringkasan mekanisme evaluasi dan penetapan bobot</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="table-responsive flex-grow-1 d-flex flex-column justify-content-between">
+                        <div class="d-flex flex-column gap-2 mb-3">
+                            <div class="d-flex justify-content-between align-items-center py-2 px-1 border-bottom">
+                                <span class="text-muted" style="font-size:12.5px;">
+                                    <i class="fas fa-users-cog text-teal me-2" style="font-size:13px;"></i>Mekanisme Evaluasi
+                                </span>
+                                <strong style="font-size:12.5px; color:#0f172a;">Multi-Penilai (360°)</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 px-1 border-bottom">
+                                <span class="text-muted" style="font-size:12.5px;">
+                                    <i class="fas fa-scale-balanced text-blue me-2" style="font-size:13px;"></i>Metode Pembobotan
+                                </span>
+                                <strong style="font-size:12.5px; color:#0f172a;">Perbandingan Terukur (AHP)</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 px-1 border-bottom">
+                                <span class="text-muted" style="font-size:12.5px;">
+                                    <i class="fas fa-user-check text-emerald me-2" style="font-size:13px;"></i>Pihak Penilai
+                                </span>
+                                <span class="status-pill pill-active" style="padding:2px 8px; font-size:11px;"><span class="dot-indicator"></span>Atasan, Rekan, &amp; Mandiri</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 px-1 border-bottom">
+                                <span class="text-muted" style="font-size:12.5px;">
+                                    <i class="fas fa-chart-line text-purple me-2" style="font-size:13px;"></i>Dasar Keputusan
+                                </span>
+                                <strong style="font-size:12.5px; color:#0f172a;">Skor Akhir &amp; Kategori</strong>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center py-2 px-1">
+                                <span class="text-muted" style="font-size:12.5px;">
+                                    <i class="fas fa-calendar-check text-amber me-2" style="font-size:13px;"></i>Jadwal Pelaksanaan
+                                </span>
+                                <span class="status-pill pill-role" style="padding:2px 8px; font-size:11px;">Berkala per Periode</span>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 px-3 rounded-2 border d-flex justify-content-between align-items-center mt-auto" style="background:#f8fafc; border-color:#cbd5e1;">
+                            <div class="d-flex align-items-center gap-2" style="font-size:12px;">
+                                <span class="dot-indicator" style="background:#0d9488; width:8px; height:8px; border-radius:50%; display:inline-block;"></span>
+                                <span class="text-muted">Status Sistem:</span>
+                                <strong style="color:#0f766e;">Siap Digunakan</strong>
+                            </div>
+                            <span class="badge bg-white text-secondary border font-monospace px-2 py-1" style="font-size:11px;">Aktif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+@section Scripts {
+<script>
+    function loadDashboardMetrics() {
+        // 1. Ambil jumlah user karyawan
+        $.ajax({
+            url: API_BASE_URL + '/users/karyawan',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var count = data ? data.length : 0;
+                $('#statTotalKaryawan').text(count + ' Orang');
+            }
+        });
+
+        // 2. Ambil master kriteria
+        $.ajax({
+            url: API_BASE_URL + '/masterkriteria',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var list = data || [];
+                $('#statTotalKriteria').text(list.length + ' Kriteria');
+                renderKriteriaList(list);
+            }
+        });
+
+        // 3. Ambil master kategori
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var list = data || [];
+                $('#statTotalKategori').text(list.length + ' Kategori');
+            }
+        });
+
+        // 4. Ambil master bobot AHP
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                var list = data || [];
+                $('#statTotalBobot').text(list.length + ' Aturan');
+                var activeCount = 0;
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].isActive) activeCount++;
+                }
+                if (activeCount > 0) {
+                    $('#statBobotBadge').attr('class', 'status-pill pill-active').html('<span class="dot-indicator"></span>' + activeCount + ' Aktif');
+                } else {
+                    $('#statBobotBadge').attr('class', 'status-pill pill-inactive').html('<span class="dot-indicator"></span>Belum Ada');
+                }
+                $('#statBobotDetail').text('Standar pembobotan');
+            },
+            error: function () {
+                $('#statTotalBobot').text('0 Aturan');
+            }
+        });
+    }
+
+    var dtDashboardKriteria = null;
+
+    function renderKriteriaList(list) {
+        if (dtDashboardKriteria) {
+            dtDashboardKriteria.destroy();
+        }
+
+        var html = '';
+        if (list && list.length > 0) {
+            for (var i = 0; i < list.length; i++) {
+                var c = list[i];
+                html += '<tr>' +
+                    '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                    '<td><span class="code-tag fw-bold" style="font-size:11px;">' + escHtml(c.kodeKriteria) + '</span></td>' +
+                    '<td><strong style="font-size:12.5px; color:#0f172a;">' + escHtml(c.namaKriteria) + '</strong></td>' +
+                    '<td><small style="color:#64748b; font-size:11.5px;">' + escHtml(c.deskripsi || '-') + '</small></td>' +
+                    '<td class="text-center"><span class="status-pill pill-active" style="padding:1px 6px; font-size:9.5px;"><span class="dot-indicator"></span>Aktif</span></td>' +
+                    '</tr>';
+            }
+        } else {
+            html = '<tr><td colspan="5" class="text-center text-muted py-4" style="font-size:12px;">Belum ada kriteria terdaftar.</td></tr>';
+        }
+        $('#containerListKriteria').html(html);
+
+        dtDashboardKriteria = $('#tableDashboardKriteria').DataTable({
+            pageLength: 5,
+            lengthMenu: [[5, 10, 25, -1], [5, 10, 25, "Semua"]],
+            language: window.dtLanguageConfig
+        });
+    }
+
+    $(function () {
+        loadDashboardMetrics();
+    });
+</script>
+}

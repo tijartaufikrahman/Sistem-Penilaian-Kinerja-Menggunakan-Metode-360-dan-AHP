@@ -1,0 +1,687 @@
+@{
+    ViewData["Title"] = "Penilaian Rekan Kerja";
+}
+
+<style>
+    .task-card-item {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem 1.15rem;
+        margin-bottom: 0.75rem;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .task-card-item:hover {
+        border-color: #0d9488;
+        box-shadow: 0 3px 10px rgba(13, 148, 136, 0.08);
+    }
+    .task-card-item.active-selected {
+        border-color: #0d9488;
+        background: #f0fdfa;
+        box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.2);
+    }
+    .criterion-item-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1.15rem 1.25rem;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+    .criterion-item-box:hover {
+        border-color: #0d9488;
+        box-shadow: 0 2px 8px rgba(13, 148, 136, 0.08);
+    }
+    .criterion-badge-num {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: #0d9488;
+        color: #ffffff;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 12px;
+        margin-right: 8px;
+    }
+    @@media (min-width: 992px) {
+        .live-score-sticky-card {
+            position: sticky;
+            top: 80px;
+        }
+    }
+    .progress-bar-custom {
+        height: 8px;
+        border-radius: 4px;
+        background-color: #e2e8f0;
+        overflow: hidden;
+    }
+    .progress-fill-custom {
+        height: 100%;
+        background: linear-gradient(90deg, #0d9488, #2dd4bf);
+        transition: width 0.4s ease;
+    }
+    .avatar-initial-box {
+        width: 38px;
+        height: 38px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #0f766e 0%, #0d9488 100%);
+        color: #ffffff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        flex-shrink: 0;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to styling guidelines -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Informasi</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Penilaian Rekan Kerja</span>
+            </div>
+        </div>
+
+        <!-- Campaign / Period Banner Widget -->
+        <div class="p-3 p-md-4 rounded-3 mb-4 text-white shadow-sm" style="background: linear-gradient(135deg, #0a101d 0%, #1e293b 60%, #0f766e 100%);">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
+                <div>
+                    <span class="status-pill pill-active mb-2 d-inline-flex" style="background:rgba(13,148,136,0.2); border-color:#2dd4bf; color:#5eead4;">
+                        <span class="dot-indicator"></span> Penilaian Kinerja Karyawan
+                    </span>
+                    <h3 class="fw-bold mb-1" id="bannerCampaignTitle">Memuat Periode Aktif...</h3>
+                    <p class="mb-0" style="color:#cbd5e1; font-size:12.5px; max-width:650px;">
+                        Silakan berikan penilaian untuk rekan kerja dan evaluasi mandiri di bawah ini secara objektif dan profesional.
+                    </p>
+                </div>
+                <div class="d-flex flex-column align-items-start align-items-md-end gap-2">
+                    <div class="d-flex align-items-center gap-2">
+                        <span style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700;">Periode Penilaian:</span>
+                        <select class="form-field-input" id="selectPeriodeTugas" style="max-width:220px; height:34px; padding:4px 10px; font-size:12px; background:#ffffff; color:#0f172a;" onchange="onPeriodeTugasChanged()"></select>
+                    </div>
+                    <div class="text-md-end" style="min-width:200px;">
+                        <div class="d-flex justify-content-between mb-1" style="font-size:11.5px;">
+                            <span style="color:#94a3b8;">Progres Penilaian:</span>
+                            <strong class="text-white" id="bannerProgressRatio">0 / 0 Selesai</strong>
+                        </div>
+                        <div class="progress-bar-custom" style="background:rgba(255,255,255,0.2);">
+                            <div class="progress-fill-custom" id="bannerProgressBar" style="width:0%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 1: Daftar Penugasan Kuesioner Penilaian Kinerja -->
+        <div class="admin-card mb-4" id="sectionDaftarTugas">
+            <div class="admin-card-header d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-2">
+                <div>
+                    <h3 class="admin-card-title">Daftar Karyawan yang Perlu Dinilai</h3>
+                    <p class="admin-card-desc mb-0">Pilih salah satu karyawan di bawah ini untuk membuka dan mengisi formulir penilaian kinerja</p>
+                </div>
+                <button type="button" class="btn-secondary-admin btn-sm" onclick="loadTugasSaya()">
+                    <i class="fas fa-sync-alt me-1"></i> Muat Ulang
+                </button>
+            </div>
+            <div class="p-3 p-md-4" id="containerDaftarTugas">
+                <div class="text-center py-4 text-muted">
+                    <i class="fas fa-spinner fa-spin me-2"></i> Memuat daftar tugas penilaian...
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Form Pengisian 7 Kriteria Kompetensi -->
+        <div class="row g-3 mb-4" id="sectionFormEvaluasi">
+            <!-- Left Column: Form Kuesioner 360 -->
+            <div class="col-12 col-lg-8">
+                <div class="admin-card">
+                    <div class="admin-card-header d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-pill pill-active mb-1" id="badgeFormStatus"><span class="dot-indicator"></span>Formulir Siap Diisi</span>
+                            <h3 class="admin-card-title" id="formEvaluasiTitle">Formulir Penilaian Karyawan</h3>
+                            <p class="admin-card-desc mb-0">Berikan penilaian secara objektif pada rentang nilai 1 hingga 100 untuk setiap kriteria berikut</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3 p-md-4">
+                        <form id="formPenilaian360" onsubmit="return false;">
+                            <input type="hidden" id="evaluasiTaskId" value="" />
+                            <input type="hidden" id="evaluasiPeriodeId" value="" />
+                            <input type="hidden" id="evaluasiTargetUserId" value="" />
+                            <input type="hidden" id="evaluasiTipePenilai" value="Rekan" />
+                            <input type="hidden" id="evaluasiBobotPersen" value="30" />
+
+                            <!-- Active Target Employee Banner -->
+                            <div class="p-3 rounded-3 mb-4 border d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3" style="background:#f8fafc;" id="boxTargetInfo">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="avatar-initial-box" id="targetAvatarInitial">?</div>
+                                    <div>
+                                        <span class="text-muted" style="font-size:11px; text-transform:uppercase; font-weight:700;">Karyawan yang Dinilai:</span>
+                                        <h5 class="fw-bold mb-0 text-dark" id="targetFullNameText">Silakan Pilih Karyawan di Atas</h5>
+                                        <small class="text-muted" id="targetCodeText">-</small>
+                                    </div>
+                                </div>
+                                <div>
+                                    <span class="status-pill pill-role" id="targetRelationBadge" style="font-size:11.5px;">-</span>
+                                </div>
+                            </div>
+
+                            <h6 class="fw-bold text-dark mb-3" style="font-size:13.5px;">
+                                <i class="fas fa-sliders text-teal me-1"></i> Kriteria Penilaian Kinerja
+                            </h6>
+
+                            <!-- 1. Kerjasama Tim -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">1</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Kerjasama Tim</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Kemampuan koordinasi, komunikasi efektif dalam kelompok, toleransi pendapat, dan kontribusi aktif tim.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_kerjasama">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_kerjasama" min="1" max="100" value="80" oninput="syncScoreInput('kerjasama', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_kerjasama" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('kerjasama', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 2. Ketepatan Waktu -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">2</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Ketepatan Waktu</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Disiplin jam kerja, kepatuhan batas waktu pengiriman tugas, dan efisiensi waktu kerja.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_ketepatan">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_ketepatan" min="1" max="100" value="80" oninput="syncScoreInput('ketepatan', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_ketepatan" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('ketepatan', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 3. Tanggung Jawab -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">3</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Tanggung Jawab</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Komitmen pada kewajiban tugas, integritas hasil, kejujuran kerja, dan dedikasi tugas.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_tanggung">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_tanggung" min="1" max="100" value="80" oninput="syncScoreInput('tanggung', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_tanggung" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('tanggung', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 4. Inisiatif -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">4</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Inisiatif</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Keberanian memberi ide pemecahan masalah, bergerak proaktif tanpa harus selalu menunggu instruksi.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_inisiatif">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_inisiatif" min="1" max="100" value="80" oninput="syncScoreInput('inisiatif', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_inisiatif" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('inisiatif', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 5. Keterlibatan Kerja -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">5</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Keterlibatan Kerja</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Konsentrasi penuh saat bertugas, loyalitas kerja, dan antusiasme aktif dalam pekerjaan.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_keterlibatan">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_keterlibatan" min="1" max="100" value="80" oninput="syncScoreInput('keterlibatan', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_keterlibatan" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('keterlibatan', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 6. Interaksi Kolega -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">6</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Interaksi Kolega</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Kesantunan bergaul, empati sesama rekan, kemampuan mengelola emosi dan komunikasi yang baik.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_interaksi">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_interaksi" min="1" max="100" value="80" oninput="syncScoreInput('interaksi', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_interaksi" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('interaksi', this.value)" />
+                                </div>
+                            </div>
+
+                            <!-- 7. Tindak Lanjut -->
+                            <div class="criterion-item-box">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <span class="criterion-badge-num">7</span>
+                                        <strong style="color:#0f172a; font-size:13.5px;">Tindak Lanjut</strong>
+                                        <p class="text-muted mb-0 mt-1" style="font-size:11.5px;">Kecepatan merespon catatan evaluasi, implementasi saran perbaikan, dan eksekusi arahan kerja.</p>
+                                    </div>
+                                    <div class="fw-bold font-monospace text-teal fs-5" id="displayVal_tindaklanjut">80</div>
+                                </div>
+                                <div class="d-flex align-items-center gap-3 mt-2">
+                                    <input type="range" class="form-range flex-grow-1" id="slider_tindaklanjut" min="1" max="100" value="80" oninput="syncScoreInput('tindaklanjut', this.value)" />
+                                    <input type="number" class="form-field-input text-center" id="num_tindaklanjut" min="1" max="100" value="80" style="width:75px; height:34px; font-weight:700;" oninput="syncScoreSlider('tindaklanjut', this.value)" />
+                                </div>
+                            </div>
+
+                            <div class="row g-2 justify-content-end mt-4 pt-3 border-top">
+                                <div class="col-12 col-sm-auto">
+                                    <button type="button" class="btn-secondary-admin w-100" onclick="resetFormEvaluasi()">
+                                        <i class="fas fa-undo me-1"></i> Atur Nilai Standar (80)
+                                    </button>
+                                </div>
+                                <div class="col-12 col-sm-auto">
+                                    <button type="button" class="btn-primary-admin w-100" id="btnSubmitEvaluasi" onclick="kirimEvaluasi360()">
+                                        <i class="fas fa-paper-plane me-1"></i> Simpan Penilaian
+                                    </button>
+                                </div>
+                            </div>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Summary Widget -->
+            <div class="col-12 col-lg-4">
+                <div class="admin-card live-score-sticky-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Ringkasan Nilai Penilaian</h3>
+                        <p class="admin-card-desc mb-0">Perhitungan rata-rata nilai penilaian sebelum disimpan</p>
+                    </div>
+                    <div class="p-3">
+                        <div class="text-center p-3 rounded-3 mb-3 border" style="background:#f0fdfa; border-color:#99f6e4 !important;">
+                            <span class="text-muted" style="font-size:11.5px; text-transform:uppercase; font-weight:700;">Rata-rata Nilai:</span>
+                            <h1 class="fw-bold mb-0 font-monospace text-teal" style="font-size:36px;" id="liveAverageScoreText">80.00</h1>
+                            <span class="status-pill pill-active mt-2 d-inline-block" id="livePredicateBadge"><span class="dot-indicator"></span>Baik (Prioritas)</span>
+                        </div>
+
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="font-size:12.5px;">
+                            <span class="text-muted">Karyawan yang Dinilai:</span>
+                            <strong style="color:#0f172a;" id="liveTargetNameSummary">-</strong>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="font-size:12.5px;">
+                            <span class="text-muted">Hubungan Penilai:</span>
+                            <span class="status-pill pill-role" id="liveRelationTypeSummary">-</span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom" style="font-size:12.5px;">
+                            <span class="text-muted">Bobot Penilaian:</span>
+                            <strong class="text-teal font-monospace" id="liveRelationWeightSummary">-</strong>
+                        </div>
+
+                        <div class="p-3 rounded-3 mt-3 border" style="background:#f8fafc; font-size:12px;">
+                            <strong class="d-block mb-1" style="color:#0f172a;"><i class="fas fa-info-circle text-teal me-1"></i> Panduan Skala Penilaian:</strong>
+                            <ul class="list-unstyled mb-0 text-muted" style="line-height:1.7;">
+                                <li><span class="status-pill pill-active me-1" style="padding:1px 6px;">80 - 100</span> Sangat Baik</li>
+                                <li><span class="status-pill pill-role me-1" style="padding:1px 6px;">60 - 79</span> Cukup</li>
+                                <li><span class="status-pill pill-inactive me-1" style="padding:1px 6px;">1 - 59</span> Kurang</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+@section Scripts {
+<script>
+    var currentMyTasks = [];
+    var periodeList = [];
+    var selectedTaskIndex = -1;
+
+    function initPeriodeSelection() {
+        $.ajax({
+            url: API_BASE_URL + '/periode',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                periodeList = data || [];
+                var html = '';
+                var selectedId = null;
+
+                if (periodeList.length > 0) {
+                    for (var i = 0; i < periodeList.length; i++) {
+                        var p = periodeList[i];
+                        if (!selectedId && p.status === 'Berjalan') {
+                            selectedId = p.id;
+                        }
+                        html += '<option value="' + p.id + '">' + p.namaPeriode + ' (' + p.status + ')</option>';
+                    }
+                    if (!selectedId) selectedId = periodeList[0].id;
+                } else {
+                    html = '<option value="">Belum ada periode</option>';
+                }
+
+                $('#selectPeriodeTugas').html(html);
+                if (selectedId) {
+                    $('#selectPeriodeTugas').val(selectedId);
+                }
+                loadTugasSaya();
+            }
+        });
+    }
+
+    function onPeriodeTugasChanged() {
+        loadTugasSaya();
+    }
+
+    function loadTugasSaya() {
+        var currentUser = window.AuthSession ? window.AuthSession.getUser() : null;
+        if (!currentUser) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        var periodeId = parseInt($('#selectPeriodeTugas').val()) || 0;
+        var selectedPeriode = periodeList.find(function(p) { return p.id === periodeId; });
+
+        if (selectedPeriode) {
+            $('#bannerCampaignTitle').text(selectedPeriode.namaPeriode);
+        } else {
+            $('#bannerCampaignTitle').text('Periode Penilaian Aktif');
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/penilaian360/tugas-saya?penilaiId=' + currentUser.id + (periodeId > 0 ? '&periodeId=' + periodeId : ''),
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#containerDaftarTugas').html('<div class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-2"></i> Memuat tugas penilaian Anda...</div>');
+            },
+            success: function (tasks) {
+                currentMyTasks = tasks || [];
+                renderDaftarTugas();
+            },
+            error: function () {
+                $('#containerDaftarTugas').html('<div class="text-center py-4 text-danger">Gagal memuat tugas penilaian.</div>');
+            }
+        });
+    }
+
+    function renderDaftarTugas() {
+        if (!currentMyTasks || currentMyTasks.length === 0) {
+            $('#bannerProgressRatio').text('0 / 0 Selesai');
+            $('#bannerProgressBar').css('width', '0%');
+            $('#containerDaftarTugas').html(
+                '<div class="p-4 text-center rounded border" style="background:#f8fafc;">' +
+                    '<i class="fas fa-tasks text-muted fa-3x mb-3"></i>' +
+                    '<h5 class="fw-bold text-dark mb-1">Belum Ada Tugas Penilaian pada Periode Ini</h5>' +
+                    '<p class="text-muted mb-0" style="font-size:13px;">Belum ada daftar karyawan yang perlu Anda nilai pada periode evaluasi ini.</p>' +
+                '</div>'
+            );
+            $('#sectionFormEvaluasi').hide();
+            return;
+        }
+
+        var total = currentMyTasks.length;
+        var selesai = 0;
+        for (var i = 0; i < total; i++) {
+            if (currentMyTasks[i].statusPengisian === 'Selesai') selesai++;
+        }
+
+        var pct = total > 0 ? Math.round((selesai / total) * 100) : 0;
+        $('#bannerProgressRatio').text(selesai + ' / ' + total + ' Selesai (' + pct + '%)');
+        $('#bannerProgressBar').css('width', pct + '%');
+
+        var cardsHtml = '<div class="row g-3">';
+        for (var idx = 0; idx < currentMyTasks.length; idx++) {
+            var item = currentMyTasks[idx];
+            var isDone = item.statusPengisian === 'Selesai';
+            var initials = getInitials(item.namaKaryawanDinilai);
+
+            var relationLabel = item.tipePenilai === 'Self' ? 'Penilaian Mandiri' : 'Penilaian Rekan Kerja';
+            var badgeStatus = isDone 
+                ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Selesai</span>' 
+                : '<span class="status-pill pill-pending"><span class="dot-indicator"></span>Belum Dinilai</span>';
+
+            cardsHtml += 
+                '<div class="col-12 col-md-6 col-xl-4">' +
+                    '<div class="task-card-item h-100" id="taskCard_' + idx + '" onclick="selectTaskToEvaluate(' + idx + ')" style="cursor:pointer;">' +
+                        '<div class="d-flex align-items-start justify-content-between mb-2">' +
+                            '<div class="d-flex align-items-center gap-2.5">' +
+                                '<div class="avatar-initial-box">' + initials + '</div>' +
+                                '<div>' +
+                                    '<strong class="d-block text-dark" style="font-size:13.5px;">' + escHtml(item.namaKaryawanDinilai) + '</strong>' +
+                                    '<small class="text-muted">' + escHtml(item.kodeKaryawanDinilai || '-') + '</small>' +
+                                </div>' +
+                            '</div>' +
+                            badgeStatus +
+                        '</div>' +
+                        '<div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top" style="font-size:11.5px;">' +
+                            '<span class="text-muted">' + relationLabel + '</span>' +
+                            '<span class="fw-bold text-teal font-monospace">Bobot: ' + item.bobotPersen + '%</span>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+        }
+        cardsHtml += '</div>';
+
+        $('#containerDaftarTugas').html(cardsHtml);
+
+        // Pilih otomatis tugas pertama yang belum diisi
+        var firstPendingIndex = -1;
+        for (var j = 0; j < currentMyTasks.length; j++) {
+            if (currentMyTasks[j].statusPengisian !== 'Selesai') {
+                firstPendingIndex = j;
+                break;
+            }
+        }
+
+        if (firstPendingIndex !== -1) {
+            selectTaskToEvaluate(firstPendingIndex);
+        } else if (currentMyTasks.length > 0) {
+            selectTaskToEvaluate(0);
+        }
+    }
+
+    function selectTaskToEvaluate(index) {
+        if (!currentMyTasks || index < 0 || index >= currentMyTasks.length) return;
+        selectedTaskIndex = index;
+        var task = currentMyTasks[index];
+
+        $('.task-card-item').removeClass('active-selected');
+        $('#taskCard_' + index).addClass('active-selected');
+
+        $('#sectionFormEvaluasi').show();
+        $('#evaluasiTaskId').val(task.id);
+        $('#evaluasiPeriodeId').val(task.periodeId);
+        $('#evaluasiTargetUserId').val(task.userId || task.targetUserId || 0);
+        $('#evaluasiTipePenilai').val(task.tipePenilai);
+        $('#evaluasiBobotPersen').val(task.bobotPersen);
+
+        $('#targetAvatarInitial').text(getInitials(task.namaKaryawanDinilai));
+        $('#targetFullNameText').text(task.namaKaryawanDinilai);
+        $('#targetCodeText').text(task.kodeKaryawanDinilai || '-');
+        $('#targetRelationBadge').text(task.tipePenilai === 'Self' ? 'Penilaian Mandiri' : 'Penilaian Rekan Kerja');
+
+        $('#liveTargetNameSummary').text(task.namaKaryawanDinilai);
+        $('#liveRelationTypeSummary').text(task.tipePenilai === 'Self' ? 'Penilaian Mandiri' : 'Penilaian Rekan Kerja');
+        $('#liveRelationWeightSummary').text(task.bobotPersen + '%');
+
+        var isDone = task.statusPengisian === 'Selesai';
+        if (isDone) {
+            $('#badgeFormStatus').attr('class', 'status-pill pill-active').html('<span class="dot-indicator"></span>Penilaian Telah Disimpan');
+            $('#btnSubmitEvaluasi').html('<i class="fas fa-check me-1"></i> Simpan Perubahan Penilaian');
+
+            // Isi nilai yang sebelumnya sudah disimpan
+            setScoreValue('kerjasama', task.kerjasama_tim || 80);
+            setScoreValue('ketepatan', task.ketepatan_waktu || 80);
+            setScoreValue('tanggung', task.tanggung_jawab || 80);
+            setScoreValue('inisiatif', task.inisiatif || 80);
+            setScoreValue('keterlibatan', task.keterlibatan_kerja || 80);
+            setScoreValue('interaksi', task.interaksi_kolega || 80);
+            setScoreValue('tindaklanjut', task.tindak_lanjut || 80);
+        } else {
+            $('#badgeFormStatus').attr('class', 'status-pill pill-pending').html('<span class="dot-indicator"></span>Belum Dinilai');
+            $('#btnSubmitEvaluasi').html('<i class="fas fa-paper-plane me-1"></i> Simpan Penilaian');
+            resetFormEvaluasi();
+        }
+
+        recalculateLiveAverage();
+    }
+
+    function syncScoreInput(crit, val) {
+        var num = parseInt(val) || 1;
+        if (num > 100) num = 100;
+        if (num < 1) num = 1;
+        $('#num_' + crit).val(num);
+        $('#displayVal_' + crit).text(num);
+        recalculateLiveAverage();
+    }
+
+    function syncScoreSlider(crit, val) {
+        var num = parseInt(val) || 1;
+        if (num > 100) num = 100;
+        if (num < 1) num = 1;
+        $('#slider_' + crit).val(num);
+        $('#displayVal_' + crit).text(num);
+        recalculateLiveAverage();
+    }
+
+    function setScoreValue(crit, val) {
+        var num = parseInt(val) || 80;
+        $('#slider_' + crit).val(num);
+        $('#num_' + crit).val(num);
+        $('#displayVal_' + crit).text(num);
+    }
+
+    function resetFormEvaluasi() {
+        var defaultScore = 80;
+        var criteria = ['kerjasama', 'ketepatan', 'tanggung', 'inisiatif', 'keterlibatan', 'interaksi', 'tindaklanjut'];
+        for (var i = 0; i < criteria.length; i++) {
+            setScoreValue(criteria[i], defaultScore);
+        }
+        recalculateLiveAverage();
+    }
+
+    function recalculateLiveAverage() {
+        var criteria = ['kerjasama', 'ketepatan', 'tanggung', 'inisiatif', 'keterlibatan', 'interaksi', 'tindaklanjut'];
+        var sum = 0;
+        for (var i = 0; i < criteria.length; i++) {
+            sum += parseInt($('#num_' + criteria[i]).val()) || 0;
+        }
+        var avg = (sum / 7.0).toFixed(2);
+        $('#liveAverageScoreText').text(avg);
+
+        var numAvg = parseFloat(avg);
+        if (numAvg >= 80) {
+            $('#livePredicateBadge').attr('class', 'status-pill pill-active').html('<span class="dot-indicator"></span>Sangat Baik (Prioritas)');
+        } else if (numAvg >= 60) {
+            $('#livePredicateBadge').attr('class', 'status-pill pill-role').html('<span class="dot-indicator"></span>Cukup (Evaluasi)');
+        } else {
+            $('#livePredicateBadge').attr('class', 'status-pill pill-inactive').html('<span class="dot-indicator"></span>Kurang');
+        }
+    }
+
+    function kirimEvaluasi360() {
+        var taskId = parseInt($('#evaluasiTaskId').val()) || 0;
+        if (taskId <= 0) {
+            Swal.fire('Peringatan', 'Silakan pilih karyawan yang akan dinilai terlebih dahulu.', 'warning');
+            return;
+        }
+
+        var user = window.AuthSession ? window.AuthSession.getUser() : null;
+        var payload = {
+            id: taskId,
+            periodeId: parseInt($('#evaluasiPeriodeId').val()) || null,
+            userId: parseInt($('#evaluasiTargetUserId').val()) || 0,
+            penilaiUserId: user ? user.id : 0,
+            tipePenilai: $('#evaluasiTipePenilai').val() || "Rekan",
+            bobotPersen: parseFloat($('#evaluasiBobotPersen').val()) || 30.0,
+            kerjasama_tim: parseFloat($('#num_kerjasama').val()) || 0,
+            ketepatan_waktu: parseFloat($('#num_ketepatan').val()) || 0,
+            tanggung_jawab: parseFloat($('#num_tanggung').val()) || 0,
+            inisiatif: parseFloat($('#num_inisiatif').val()) || 0,
+            keterlibatan_kerja: parseFloat($('#num_keterlibatan').val()) || 0,
+            interaksi_kolega: parseFloat($('#num_interaksi').val()) || 0,
+            tindak_lanjut: parseFloat($('#num_tindaklanjut').val()) || 0,
+            statusPengisian: "Selesai"
+        };
+
+        var targetName = $('#targetFullNameText').text();
+
+        Swal.fire({
+            title: 'Simpan Penilaian Kinerja?',
+            text: 'Apakah Anda yakin ingin menyimpan penilaian kinerja untuk ' + targetName + '?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d9488',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Simpan Penilaian',
+            cancelButtonText: 'Batal'
+        }).then(function (result) {
+            if (result.isConfirmed) {
+                $('#btnSubmitEvaluasi').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+
+                $.ajax({
+                    url: API_BASE_URL + '/penilaian360/submit',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        $('#btnSubmitEvaluasi').prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Simpan Penilaian');
+                        if (res && res.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Penilaian Berhasil Disimpan',
+                                text: 'Penilaian kinerja untuk ' + targetName + ' telah berhasil disimpan.',
+                                confirmButtonColor: '#0d9488'
+                            });
+                            loadTugasSaya();
+                        } else {
+                            Swal.fire('Gagal', res.message || 'Gagal menyimpan penilaian.', 'error');
+                        }
+                    },
+                    error: function (xhr) {
+                        $('#btnSubmitEvaluasi').prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Simpan Penilaian');
+                        var msg = 'Terjadi kesalahan sistem saat menyimpan penilaian.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    function getInitials(name) {
+        if (!name) return '?';
+        var parts = name.trim().split(' ');
+        if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    $(function () {
+        initPeriodeSelection();
+    });
+</script>
+}

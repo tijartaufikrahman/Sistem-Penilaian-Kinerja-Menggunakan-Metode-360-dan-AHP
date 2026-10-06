@@ -1,0 +1,288 @@
+@{
+    ViewData["Title"] = "Rapor Kinerja Pribadi";
+}
+
+<style>
+    @@media print {
+        .no-print, .sidebar, .topbar, .btn, .content-breadcrumb-bar, .content-action-bar {
+            display: none !important;
+        }
+        .main-content {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: 100% !important;
+        }
+        .admin-card {
+            box-shadow: none !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+    }
+
+    .rapor-hero-card {
+        background: linear-gradient(135deg, #0a101d 0%, #1e293b 60%, #0d9488 100%);
+        border-radius: 14px;
+        padding: 2rem;
+        color: #ffffff;
+    }
+    .score-circle-badge {
+        width: 110px;
+        height: 110px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.1);
+        border: 3.5px solid #2dd4bf;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .score-circle-val {
+        font-size: 26px;
+        font-weight: 800;
+        line-height: 1;
+        color: #ffffff;
+    }
+    .score-circle-lbl {
+        font-size: 10px;
+        color: #99f6e4;
+        text-transform: uppercase;
+        margin-top: 4px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    .criterion-progress-card {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 1rem 1.15rem;
+        margin-bottom: 0.75rem;
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+    .criterion-progress-card:hover {
+        transform: translateY(-2px);
+        border-color: #0d9488;
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to styling guidelines -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar -->
+        <div class="content-breadcrumb-bar mb-2 no-print">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Informasi</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Rapor Kinerja Pribadi</span>
+            </div>
+        </div>
+
+        <!-- Action Bar: Select Periode & Print -->
+        <div class="content-action-bar row align-items-center g-2 mb-3 no-print">
+            <div class="col-12 col-md-auto d-flex align-items-center gap-2">
+                <label class="form-field-label mb-0 text-nowrap" style="font-size:12.5px;">Periode Penilaian:</label>
+                <select class="form-field-input" id="selectPeriodeRapor" style="min-width:220px; padding:6px 12px; height:38px;" onchange="onSelectPeriodeRaporChange()"></select>
+            </div>
+            <div class="col-12 col-md-auto ms-md-auto">
+                <button type="button" class="btn-secondary-admin w-100 w-md-auto" onclick="window.print()">
+                    <i class="fas fa-print me-1"></i> Cetak Rapor
+                </button>
+            </div>
+        </div>
+
+        <div id="raporContentContainer">
+            <!-- Hero Summary Card: Nilai Akhir, Kategori, & Rekomendasi -->
+            <div class="rapor-hero-card mb-4 shadow-sm">
+                <div class="row align-items-center g-3">
+                    <div class="col-12 col-md-8">
+                        <span class="status-pill pill-active mb-2 d-inline-flex" style="background:rgba(13,148,136,0.2); border-color:#2dd4bf; color:#5eead4;">
+                            <span class="dot-indicator"></span> Rapor Capaian Kinerja Karyawan
+                        </span>
+                        <h2 class="fw-bold mb-1 text-white" id="raporNamaKaryawan">-</h2>
+                        <p class="mb-3" style="color:#cbd5e1; font-size:13px;">
+                            ID Karyawan: <strong class="text-white" id="raporKodeKaryawan">-</strong> &bull; Periode Penilaian: <strong class="text-white" id="raporPeriodeText">-</strong>
+                        </p>
+                        
+                        <div class="d-flex flex-wrap align-items-center gap-3 mt-2">
+                            <div>
+                                <span style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700;" class="d-block mb-1">Kategori Capaian:</span>
+                                <span class="status-pill pill-active" style="padding:4px 12px; font-size:12px;" id="raporKategoriBadge">Memuat...</span>
+                            </div>
+                            <div>
+                                <span style="font-size:11px; color:#94a3b8; text-transform:uppercase; font-weight:700;" class="d-block mb-1">Rekomendasi Tindak Lanjut:</span>
+                                <strong class="text-white d-block" style="font-size:14px;" id="raporRekomendasiText">-</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-md-4 text-center">
+                        <div class="score-circle-badge shadow-sm">
+                            <span class="score-circle-val" id="raporSkorAHP">0.00</span>
+                            <span class="score-circle-lbl">Nilai Akhir</span>
+                        </div>
+                        <span class="status-pill pill-role mt-2 d-inline-block" style="font-size:11.5px;" id="raporRankingBadge">
+                            Rank #0
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 7 Criteria Breakdown Card -->
+            <div class="admin-card mb-4">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">Capaian Nilai per Aspek Kompetensi</h3>
+                    <p class="admin-card-desc mb-0">Rincian nilai capaian untuk masing-masing kriteria evaluasi kinerja</p>
+                </div>
+
+                <div class="p-3 p-md-4">
+                    <div class="row g-2" id="raporKriteriaContainer"></div>
+
+                    <!-- HRD Memo / Catatan Pembinaan Khusus -->
+                    <div class="p-3 rounded-3 mt-3 border" style="background:#f0fdfa; border-color:#99f6e4 !important;">
+                        <strong class="d-block mb-1" style="color:#0f766e; font-size:12.5px;">
+                            <i class="fas fa-comment-dots me-1"></i> Catatan Pembinaan dari Manajemen HRD:
+                        </strong>
+                        <p class="mb-0 text-muted" id="raporCatatanHRD" style="font-size:12px; line-height:1.5;">
+                            Pertahankan kinerja yang baik dan terus tingkatkan kompetensi kerja Anda.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State Container -->
+        <div id="raporEmptyState" class="admin-card p-5 text-center d-none mb-4">
+            <div class="mb-3">
+                <i class="fas fa-clipboard-question" style="font-size:48px; color:#94a3b8;"></i>
+            </div>
+            <h4 class="fw-bold" style="color:#0f172a;">Rapor Kinerja Belum Tersedia</h4>
+            <p class="text-muted mx-auto" style="max-width:520px; font-size:13px; line-height:1.6;">
+                Hasil penilaian kinerja untuk periode ini belum disahkan oleh pihak manajemen atau HRD. Rapor akan ditampilkan setelah seluruh proses evaluasi selesai.
+            </p>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+@section Scripts {
+<script>
+    var myRaporHistoryList = [];
+
+    function loadKaryawanRapor() {
+        var user = window.AuthSession ? window.AuthSession.getUser() : null;
+        if (!user) {
+            window.location.href = '/Account/Login';
+            return;
+        }
+
+        $('#raporNamaKaryawan').text(user.namaLengkap || 'Karyawan');
+        $('#raporKodeKaryawan').text(user.kodeKaryawan || '-');
+
+        $.ajax({
+            url: API_BASE_URL + '/hasilpenilaiansistem/my-history?userId=' + user.id,
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                myRaporHistoryList = list || [];
+
+                if (myRaporHistoryList.length > 0) {
+                    var html = '';
+                    for (var i = 0; i < myRaporHistoryList.length; i++) {
+                        var r = myRaporHistoryList[i];
+                        html += '<option value="' + i + '">' + escHtml(r.namaPeriode || ('Periode ID: ' + r.periodeId)) + '</option>';
+                    }
+                    $('#selectPeriodeRapor').html(html);
+                    renderRaporDetail(0);
+                    $('#raporContentContainer').removeClass('d-none');
+                    $('#raporEmptyState').addClass('d-none');
+                } else {
+                    $('#selectPeriodeRapor').html('<option value="">Belum ada hasil penilaian</option>');
+                    $('#raporContentContainer').addClass('d-none');
+                    $('#raporEmptyState').removeClass('d-none');
+                }
+            },
+            error: function () {
+                $('#raporContentContainer').addClass('d-none');
+                $('#raporEmptyState').removeClass('d-none');
+            }
+        });
+    }
+
+    function onSelectPeriodeRaporChange() {
+        var idx = parseInt($('#selectPeriodeRapor').val()) || 0;
+        renderRaporDetail(idx);
+    }
+
+    function renderRaporDetail(idx) {
+        var r = myRaporHistoryList[idx];
+        if (!r) return;
+
+        $('#raporPeriodeText').text(r.namaPeriode || ('Periode ' + r.periodeId));
+        $('#raporSkorAHP').text(r.skorAkhirAHP.toFixed(2));
+        $('#raporRankingBadge').text('Peringkat #' + r.ranking);
+        $('#raporRekomendasiText').text(r.rekomendasi || '-');
+        $('#raporCatatanHRD').text(r.catatanHRD ? r.catatanHRD : 'Belum ada catatan khusus dari manajemen HRD untuk periode ini.');
+
+        var statusClass = 'pill-role';
+        var kat = (r.namaKategori || '').toLowerCase();
+        if (kat.indexOf('sangat baik') !== -1 || kat.indexOf('istimewa') !== -1) statusClass = 'pill-active';
+        else if (kat.indexOf('baik') !== -1) statusClass = 'pill-active';
+        else if (kat.indexOf('cukup') !== -1) statusClass = 'pill-role';
+        else if (kat.indexOf('kurang') !== -1 || kat.indexOf('buruk') !== -1) statusClass = 'pill-inactive';
+
+        $('#raporKategoriBadge').attr('class', 'status-pill ' + statusClass).html('<span class="dot-indicator"></span>' + escHtml(r.namaKategori));
+
+        var knHtml = '';
+        if (r.kriteriaNilai && r.kriteriaNilai.length > 0) {
+            for (var k = 0; k < r.kriteriaNilai.length; k++) {
+                var item = r.kriteriaNilai[k];
+                var pctBobot = (item.bobot * 100).toFixed(1);
+                var colWidth = (r.kriteriaNilai.length % 2 !== 0 && k === r.kriteriaNilai.length - 1) ? 'col-12' : 'col-12 col-md-6';
+                knHtml += '<div class="' + colWidth + '">' +
+                    '<div class="criterion-progress-card">' +
+                        '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                            '<div>' +
+                                '<strong style="color:#0f172a; font-size:13px;">' + (k + 1) + '. ' + escHtml(item.namaKriteria) + '</strong> ' +
+                                '<span class="badge bg-light text-secondary border font-monospace ms-1" style="font-size:10.5px;">Bobot: ' + pctBobot + '%</span>' +
+                            '</div>' +
+                            '<span class="fw-bold font-monospace text-teal">' + item.nilaiRataRata.toFixed(2) + '</span>' +
+                        '</div>' +
+                        '<div class="progress" style="height: 7px;">' +
+                            '<div class="progress-bar bg-teal" role="progressbar" style="width: ' + Math.min(100, Math.max(0, item.nilaiRataRata)) + '%"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }
+        } else {
+            var fallback = [
+                { nama: 'Kerjasama Tim', val: r.rata2_KerjasamaTim },
+                { nama: 'Ketepatan Waktu', val: r.rata2_KetepatanWaktu },
+                { nama: 'Tanggung Jawab', val: r.rata2_TanggungJawab },
+                { nama: 'Inisiatif', val: r.rata2_Inisiatif },
+                { nama: 'Keterlibatan Kerja', val: r.rata2_KeterlibatanKerja },
+                { nama: 'Interaksi Kolega', val: r.rata2_InteraksiKolega },
+                { nama: 'Tindak Lanjut', val: r.rata2_TindakLanjut }
+            ];
+            for (var f = 0; f < fallback.length; f++) {
+                var colW = f === fallback.length - 1 ? 'col-12' : 'col-12 col-md-6';
+                knHtml += '<div class="' + colW + '">' +
+                    '<div class="criterion-progress-card">' +
+                        '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                            '<strong style="color:#0f172a; font-size:13px;">' + (f + 1) + '. ' + escHtml(fallback[f].nama) + '</strong>' +
+                            '<span class="fw-bold font-monospace text-teal">' + fallback[f].val.toFixed(2) + '</span>' +
+                        '</div>' +
+                        '<div class="progress" style="height: 7px;">' +
+                            '<div class="progress-bar bg-teal" role="progressbar" style="width: ' + Math.min(100, Math.max(0, fallback[f].val)) + '%"></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>';
+            }
+        }
+        $('#raporKriteriaContainer').html(knHtml);
+    }
+
+    $(function () {
+        loadKaryawanRapor();
+    });
+</script>
+}

@@ -1,0 +1,513 @@
+@{
+    ViewData["Title"] = "Generate Jadwal Baru";
+}
+
+<style>
+    /* Styling custom untuk komponen konten Form 2 */
+    .step-circle {
+        width: 22px;
+        height: 22px;
+        background: #0f766e;
+        color: #ffffff;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
+    .param-title {
+        font-size: 0.84rem;
+        font-weight: 700;
+        color: #0f172a;
+        margin-bottom: 0;
+    }
+    .field-label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0;
+    }
+    .field-input {
+        font-size: 0.8rem;
+        font-weight: 600;
+        border-color: #cbd5e1;
+        padding: 6px 10px;
+    }
+    .field-help-text {
+        font-size: 0.7rem;
+        line-height: 1.35;
+        color: #64748b;
+        display: block;
+        margin-top: 0.25rem;
+    }
+    .policy-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.85rem 1rem;
+        margin-bottom: 0.75rem;
+    }
+    .policy-box-info {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.7rem;
+        color: #475569;
+    }
+    .history-preview-box {
+        background: #f0fdfa;
+        border: 1px solid #ccfbf1;
+        border-radius: 8px;
+        padding: 0.65rem 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+    .custom-weeks-box {
+        background: #f8fafc;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+        padding: 0.5rem 0.75rem;
+        margin-top: 0.5rem;
+    }
+    .stepper-input-group {
+        width: 110px;
+    }
+    .stepper-btn-custom {
+        width: 32px;
+        height: 30px;
+    }
+    .stepper-input-custom {
+        border-color: #cbd5e1;
+        font-size: 0.78rem;
+        height: 30px;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+    .app-modal-content {
+        border-radius: 14px;
+        overflow: hidden;
+        border: none;
+        box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    }
+    .app-modal-header {
+        background: #f8fafc;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    .app-modal-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+    .app-modal-footer {
+        background: #f8fafc;
+        border-top: 1px solid #e2e8f0;
+    }
+</style>
+
+<!-- ATURAN 1: Tag pembungkus paling awal di file konten WAJIB diawali <div class="row ..."> -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <!-- Parameter Card: Pengaturan Jadwal Kerja -->
+        <div class="admin-card mb-4">
+            <!-- Card Header -->
+            <div class="admin-card-header py-3 px-4">
+                <div>
+                    <h3 class="admin-card-title mb-0">
+                        Pengaturan Jadwal Kerja
+                    </h3>
+                    <p class="admin-card-desc mb-0 mt-0.5">
+                        Tentukan tanggal mulai, durasi kerja, batasan hari kerja, serta acuan riwayat jadwal karyawan unit kerja
+                    </p>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="/Template/Table" class="btn-secondary-admin py-1.5 px-3">
+                        <i class="fas fa-arrow-left me-1.5 text-muted"></i> Kembali ke Jadwal
+                    </a>
+                </div>
+            </div>
+
+            <!-- Card Body -->
+            <div class="admin-card-body p-4">
+                <div id="alertFeedbackForm2"></div>
+
+                <!-- ATURAN 2: Onsubmit di tag HTML memanggil fungsi JS -->
+                <form id="formPengaturanJadwalGA" onsubmit="submitFormPengaturan(event)">
+                    <!-- 4 Parameter Groupings (1, 2, 3, 4) menggunakan Bootstrap Row & Col Klasik -->
+                    <div class="row g-3 g-xl-3 mb-3">
+                        
+                        <!-- Group 1: Waktu & Durasi Periode (col-xl-3 col-md-6) -->
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between p-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-2.5 pb-2 border-bottom">
+                                        <span class="step-circle">1</span>
+                                        <h5 class="param-title">Waktu &amp; Durasi Kerja</h5>
+                                    </div>
+
+                                    <!-- Tanggal Mulai Periode -->
+                                    <div class="mb-3 pb-1">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <label class="form-label field-label" for="startDateGA">
+                                                Tanggal Mulai Periode
+                                            </label>
+                                            <span class="status-pill pill-active">
+                                                WIB
+                                            </span>
+                                        </div>
+                                        <input type="date" id="startDateGA" class="form-control field-input" value="2026-10-01" required />
+                                        <small class="field-help-text">
+                                            Hari pertama berlakunya penugasan shift pada periode baru.
+                                        </small>
+                                    </div>
+
+                                    <!-- Durasi Periode Penjadwalan -->
+                                    <div class="pt-1">
+                                        <div class="d-flex align-items-center justify-content-between mb-1.5">
+                                            <label class="form-label field-label">
+                                                <i class="fas fa-arrows-left-right me-1.5 text-teal"></i> Durasi Periode
+                                            </label>
+                                            <span class="text-muted" style="font-size: 0.7rem;">Pilih salah satu</span>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-4">
+                                                <div class="duration-card h-100" id="card1WeekGA" onclick="pilihDurasiGA('1_Week')">
+                                                    <i class="fas fa-calendar-week mb-1 text-teal d-block"></i>
+                                                    <span class="fw-bold d-block text-slate-900">1 Minggu</span>
+                                                    <small class="text-muted d-block">7 Hari</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="duration-card h-100 selected" id="card2WeeksGA" onclick="pilihDurasiGA('2_Weeks')">
+                                                    <i class="fas fa-calendar-alt mb-1 text-primary d-block"></i>
+                                                    <span class="fw-bold d-block text-slate-900">2 Minggu</span>
+                                                    <small class="text-muted d-block">14 Hari</small>
+                                                </div>
+                                            </div>
+                                            <div class="col-4">
+                                                <div class="duration-card h-100" id="cardCustomGA" onclick="pilihDurasiGA('custom')">
+                                                    <i class="fas fa-calendar-plus mb-1 text-purple d-block"></i>
+                                                    <span class="fw-bold d-block text-slate-900">Kustom</span>
+                                                    <small class="text-muted d-block">Minggu</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" id="actualDurationTypeGA" value="2_Weeks" />
+
+                                        <!-- Custom Weeks Input Box -->
+                                        <div id="customWeeksContainerGA" class="custom-weeks-box" style="display: none;">
+                                            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                                <label class="form-label field-label">
+                                                    Jumlah Minggu:
+                                                </label>
+                                                <div class="d-flex align-items-center gap-1.5">
+                                                    <div class="input-group input-group-sm stepper-input-group">
+                                                        <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                                                        <button class="stepper-btn border-end-0" type="button" onclick="adjustCustomWeeksGA(-1)">
+                                                            <i class="fas fa-minus" style="font-size: 0.65rem;"></i>
+                                                        </button>
+                                                        <input type="number" id="customWeeksInputGA" class="form-control form-control-sm text-center fw-bold field-input" min="1" max="12" value="3" oninput="onCustomWeeksInputGA()" />
+                                                        <button class="stepper-btn border-start-0" type="button" onclick="adjustCustomWeeksGA(1)">
+                                                            <i class="fas fa-plus" style="font-size: 0.65rem;"></i>
+                                                        </button>
+                                                    </div>
+                                                    <span class="status-pill pill-role" id="customDaysBadgeGA">
+                                                        21 Hari
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 2: Batas Kerja & Kuota Libur (col-xl-3 col-md-6) -->
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between p-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-2.5 pb-2 border-bottom">
+                                        <span class="step-circle">2</span>
+                                        <h5 class="param-title">Batas Kerja &amp; Libur (OFF)</h5>
+                                    </div>
+
+                                    <!-- Batas Maksimal Kerja Berturut-turut -->
+                                    <div class="mb-3 pb-2 border-bottom border-light">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label field-label">
+                                                Maks. Kerja Beruntun
+                                            </label>
+                                            <span id="maxDaysValGA" class="status-pill pill-role">5 Hari</span>
+                                        </div>
+                                        <input type="range" class="form-range my-1" min="3" max="7" step="1" value="5" id="sliderMaxDaysGA" oninput="onMaxConsecutiveInputGA(this.value)" />
+                                        <div class="d-flex justify-content-between text-muted" style="font-size: 0.68rem;">
+                                            <span>3 Hari (Ketat)</span>
+                                            <span class="fw-semibold text-slate-700">5 Hari (Standar)</span>
+                                            <span>7 Hari (Fleksibel)</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Batas Hari Libur Mingguan (OFF) per Karyawan -->
+                                    <div class="pt-1">
+                                        <div class="d-flex justify-content-between align-items-center mb-1">
+                                            <label class="form-label field-label">
+                                                Hari Libur Mingguan per Karyawan
+                                            </label>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2 my-1.5">
+                                            <input type="range" id="maxOffDaysSliderGA" class="form-range flex-grow-1" min="1" max="4" step="1" value="1" oninput="onWeeklyOffDaysInputGA(this.value)" />
+                                            <div class="input-group input-group-sm flex-shrink-0" style="width: 105px;">
+                                                <input type="number" id="maxOffDaysNumGA" class="form-control text-center fw-bold field-input" min="1" max="4" value="1" oninput="onWeeklyOffDaysInputGA(this.value)" />
+                                                <span class="input-group-text bg-light text-muted px-2" style="font-size: 0.68rem;">Hari / Mg</span>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-between text-muted mb-2" style="font-size: 0.68rem;">
+                                            <span>1 Hari (Pola 6-1)</span>
+                                            <span class="text-teal fw-semibold">2 Hari (Pola 5-2)</span>
+                                            <span>Maks 4 Hari</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- System Proportional Notice (Pinned to bottom for equal-height balance) -->
+                                <div class="mt-auto pt-0">
+                                    <div class="policy-box-info d-flex align-items-center gap-2">
+                                        <span>Hari libur mingguan dihitung proporsional sesuai durasi periode dan dibagi merata.</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 3: Kebijakan Operasional Khusus (col-xl-3 col-md-6) -->
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between p-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-2.5 pb-2 border-bottom">
+                                        <span class="step-circle">3</span>
+                                        <h5 class="param-title">Kebijakan Operasional</h5>
+                                    </div>
+
+                                    <!-- Prevent Night to Morning -->
+                                    <div class="policy-box mb-3">
+                                        <div class="form-check form-switch mb-1.5">
+                                            <input class="form-check-input cursor-pointer" type="checkbox" id="preventNightSwitchGA" checked />
+                                            <label class="form-check-label field-label cursor-pointer" for="preventNightSwitchGA">
+                                                Larangan Malam ke Pagi
+                                            </label>
+                                        </div>
+                                        <small class="field-help-text">
+                                            Karyawan shift malam otomatis diberikan jeda minimal 24 jam &amp; dilarang shift pagi esoknya.
+                                        </small>
+                                    </div>
+
+                                    <!-- Min Senior per Shift -->
+                                    <div class="policy-box mb-2">
+                                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                            <label class="form-label field-label mb-0">
+                                                Min. Senior / Shift
+                                            </label>
+                                            <span class="status-pill pill-role" id="minSeniorBadgeGA">1 Karyawan</span>
+                                        </div>
+                                        <div class="input-group input-group-sm my-2">
+                                            <!-- ATURAN 2: Onclick di tag HTML memanggil fungsi JS -->
+                                            <button class="stepper-btn stepper-btn-custom border-end-0" type="button" onclick="adjustMinSeniorGA(-1)">
+                                                <i class="fas fa-minus" style="font-size: 0.65rem;"></i>
+                                            </button>
+                                            <input type="number" id="minSeniorInputGA" class="form-control text-center fw-bold stepper-input-custom" min="0" max="5" value="1" oninput="onMinSeniorInputGA(this.value)" />
+                                            <button class="stepper-btn stepper-btn-custom border-start-0" type="button" onclick="adjustMinSeniorGA(1)">
+                                                <i class="fas fa-plus" style="font-size: 0.65rem;"></i>
+                                            </button>
+                                        </div>
+                                        <small class="field-help-text">
+                                            Kuota minimal karyawan senior untuk supervisi &amp; pembimbingan di tiap shift kerja.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group 4: Acuan Riwayat Jadwal (col-xl-3 col-md-6) -->
+                        <div class="col-xl-3 col-md-6 mb-3">
+                            <div class="param-group-box h-100 d-flex flex-column justify-content-between p-3">
+                                <div>
+                                    <div class="d-flex align-items-center gap-2 mb-2.5 pb-2 border-bottom">
+                                        <span class="step-circle">4</span>
+                                        <h5 class="param-title">Acuan Riwayat Jadwal</h5>
+                                    </div>
+
+                                    <!-- Select Riwayat Periode -->
+                                    <div class="mb-2.5">
+                                        <label class="form-label field-label mb-1" for="previousPeriodSelectGA">
+                                            Sambung Dari Periode
+                                        </label>
+                                        <select id="previousPeriodSelectGA" class="form-select form-select-sm fw-semibold field-input" onchange="onPreviousPeriodChangedGA(this)">
+                                            <option value="4" selected data-start="17 Sep 2026" data-end="30 Sep 2026" data-name="Jadwal 17 Sep - 30 Sep 2026" data-status="Sedang Berjalan">
+                                                &#x2B50; [Sedang Berjalan] Jadwal 17 Sep - 30 Sep 2026
+                                            </option>
+                                            <option value="3" data-start="03 Sep 2026" data-end="16 Sep 2026" data-name="Jadwal 03 Sep - 16 Sep 2026" data-status="Arsip Resmi">
+                                                [Terbaru] Jadwal 03 Sep - 16 Sep 2026
+                                            </option>
+                                            <option value="0" data-start="" data-end="" data-name="Tanpa Riwayat" data-status="Mandiri">
+                                                Tanpa Riwayat (Mulai Baru)
+                                            </option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Dynamic Selected Period Card Summary -->
+                                    <div id="historyPeriodPreviewBoxGA" class="history-preview-box">
+                                        <div class="d-flex align-items-center justify-content-between mb-1">
+                                            <span class="status-pill pill-active" id="historyStatusPillGA">
+                                                <span class="dot-indicator pulse-dot"></span><span id="historyStatusTextGA">Sedang Berjalan</span>
+                                            </span>
+                                            <span class="text-muted" id="historyRangeTextGA" style="font-size: 0.7rem; font-weight: 600;">
+                                                17 Sep &ndash; 30 Sep 2026
+                                            </span>
+                                        </div>
+                                        <div class="text-slate-800 fw-bold mb-0.5" id="historyNameTextGA" style="font-size: 0.78rem;">
+                                            Jadwal 17 Sep - 30 Sep 2026
+                                        </div>
+                                        <small class="field-help-text" id="historyDescTextGA">
+                                            Rotasi shift & jeda istirahat shift malam karyawan periode ini otomatis dilanjutkan ke periode baru.
+                                        </small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom Action / Generate Button -->
+                    <div class="pt-3 mt-2 border-top d-flex flex-column align-items-center justify-content-center">
+                        <!-- ATURAN 2: Onclick/submit di tag HTML memanggil fungsi JS -->
+                        <button type="submit" class="btn-primary-admin py-2 px-4 shadow-sm" id="btnSubmitGA">
+                            <i class="fas fa-calendar-check me-2"></i> Buat Pratinjau Jadwal
+                        </button>
+                        <div class="d-flex align-items-center gap-2 text-muted mt-2" style="font-size: 0.72rem;">
+                            <i class="fas fa-shield-halved text-teal"></i>
+                            <span>Jadwal disusun dalam format pratinjau terlebih dahulu untuk Anda tinjau &amp; sesuaikan sebelum disimpan resmi.</span>
+                        </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Dialog Ringkasan Hasil Pratinjau (Pure Frontend) -->
+<div class="modal fade" id="modalPratinjauGA" tabindex="-1" aria-labelledby="modalPratinjauTitleGA" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content app-modal-content">
+            <div class="modal-header app-modal-header">
+                <h5 class="modal-title app-modal-title" id="modalPratinjauTitleGA">
+                    <i class="fas fa-calendar-check text-teal"></i> Parameter Pratinjau Jadwal
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+            </div>
+            <div class="modal-body" style="font-size:.88rem;">
+                <div class="mb-2"><strong>Tanggal Mulai:</strong> <span id="resStartDateGA" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Durasi Periode:</strong> <span id="resDurationGA" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Maks. Kerja Beruntun:</strong> <span id="resMaxConsecutiveGA" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Hari Libur Mingguan:</strong> <span id="resWeeklyOffGA" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Larangan Malam-Pagi:</strong> <span id="resPreventNightGA" class="badge bg-success">Aktif (Jeda 24 Jam)</span></div>
+                <div class="mb-2"><strong>Min. Senior / Shift:</strong> <span id="resMinSeniorGA" class="text-muted">-</span></div>
+                <div class="mb-2"><strong>Acuan Riwayat:</strong> <span id="resPreviousPeriodGA" class="text-muted">-</span></div>
+            </div>
+            <div class="modal-footer app-modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // ATURAN 2: Handler fungsi interaktif dipanggil dari tag HTML onclick & manipulasi DOM 100% menggunakan jQuery $('...')
+        function pilihDurasiGA(tipe) {
+            $('#actualDurationTypeGA').val(tipe);
+            $('.duration-card').removeClass('selected');
+
+            if (tipe === '1_Week') {
+                $('#card1WeekGA').addClass('selected');
+                $('#customWeeksContainerGA').hide();
+            } else if (tipe === '2_Weeks') {
+                $('#card2WeeksGA').addClass('selected');
+                $('#customWeeksContainerGA').hide();
+            } else if (tipe === 'custom') {
+                $('#cardCustomGA').addClass('selected');
+                $('#customWeeksContainerGA').show();
+                onCustomWeeksInputGA();
+            }
+        }
+
+        function adjustCustomWeeksGA(delta) {
+            var val = parseInt($('#customWeeksInputGA').val(), 10) || 1;
+            val = Math.max(1, Math.min(12, val + delta));
+            $('#customWeeksInputGA').val(val);
+            onCustomWeeksInputGA();
+        }
+
+        function onCustomWeeksInputGA() {
+            var val = parseInt($('#customWeeksInputGA').val(), 10) || 1;
+            $('#customDaysBadgeGA').text((val * 7) + ' Hari');
+        }
+
+        function onMaxConsecutiveInputGA(val) {
+            $('#maxDaysValGA').text(val + ' Hari');
+        }
+
+        function onWeeklyOffDaysInputGA(val) {
+            $('#maxOffDaysSliderGA').val(val);
+            $('#maxOffDaysNumGA').val(val);
+        }
+
+        function adjustMinSeniorGA(delta) {
+            var val = parseInt($('#minSeniorInputGA').val(), 10) || 0;
+            val = Math.max(0, Math.min(5, val + delta));
+            $('#minSeniorInputGA').val(val);
+            onMinSeniorInputGA(val);
+        }
+
+        function onMinSeniorInputGA(val) {
+            $('#minSeniorBadgeGA').text(val + ' Karyawan');
+        }
+
+        function onPreviousPeriodChangedGA(el) {
+            var $selected = $(el).find('option:selected');
+            var nama = $selected.data('name') || 'Tanpa Riwayat';
+            var start = $selected.data('start') || '';
+            var end = $selected.data('end') || '';
+            var status = $selected.data('status') || 'Mandiri';
+
+            $('#historyNameTextGA').text(nama);
+            $('#historyRangeTextGA').text(start && end ? start + ' – ' + end : '-');
+            $('#historyStatusTextGA').text(status);
+        }
+
+        function submitFormPengaturan(e) {
+            e.preventDefault();
+
+            // Manipulasi DOM 100% via jQuery
+            var start = $('#startDateGA').val();
+            var durasiTipe = $('#actualDurationTypeGA').val();
+            var durasiDesc = durasiTipe === '1_Week' ? '1 Minggu (7 Hari)' : (durasiTipe === '2_Weeks' ? '2 Minggu (14 Hari)' : $('#customWeeksInputGA').val() + ' Minggu (' + $('#customDaysBadgeGA').text() + ')');
+            var maxDays = $('#sliderMaxDaysGA').val() + ' Hari';
+            var weeklyOff = $('#maxOffDaysNumGA').val() + ' Hari / Minggu';
+            var preventNight = $('#preventNightSwitchGA').is(':checked');
+            var minSenior = $('#minSeniorInputGA').val() + ' Karyawan';
+            var prevPeriod = $('#previousPeriodSelectGA option:selected').text().trim();
+
+            $('#resStartDateGA').text(start);
+            $('#resDurationGA').text(durasiDesc);
+            $('#resMaxConsecutiveGA').text(maxDays);
+            $('#resWeeklyOffGA').text(weeklyOff);
+            $('#resPreventNightGA').attr('class', preventNight ? 'badge bg-success' : 'badge bg-secondary').text(preventNight ? 'Aktif (Jeda 24 Jam)' : 'Nonaktif');
+            $('#resMinSeniorGA').text(minSenior);
+            $('#resPreviousPeriodGA').text(prevPeriod);
+
+            $('#alertFeedbackForm2').html('<div class="alert alert-success py-2 mb-3" style="font-size:.85rem;"><i class="fas fa-check-circle me-1"></i> Parameter jadwal berhasil diproses di sisi Frontend! Membuka ringkasan...</div>');
+            $('#modalPratinjauGA').modal('show');
+        }
+    </script>
+}

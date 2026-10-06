@@ -1,0 +1,91 @@
+================================================================================
+ATURAN SISTEM PENILAIAN KINERJA KARYAWAN (360 - AHP)
+================================================================================
+
+1. DATA 7 PARAMETER KRITERIA PENILAIAN
+--------------------------------------------------------------------------------
+Nama Kolom         | Keterangan
+-------------------+------------------------------------------------------------
+kerjasama_tim      | Kemampuan bekerja sama dalam tim
+ketepatan_waktu    | Ketepatan menyelesaikan tugas sesuai deadline
+tanggung_jawab     | Tingkat tanggung jawab terhadap pekerjaan
+inisiatif          | Kemampuan proaktif dan kreatif
+keterlibatan_kerja | Tingkat motivasi dan keikutsertaan
+interaksi_kolega   | Kualitas interaksi dengan sesama karyawan
+tindak_lanjut      | Kemampuan melanjutkan pekerjaan
+
+
+2. ATURAN INPUT PENILAIAN 360 DERAJAT (TABEL: Penilaian360)
+--------------------------------------------------------------------------------
+- Sumber Penilai   : Atasan, Rekan Kerja, Diri Sendiri (Self-Evaluation).
+- Sifat Transaksi  : Input penilaian mandiri (tanpa terikat langsung ke periode).
+- Skala Input      : 1.00 - 100.00 untuk setiap 7 parameter kriteria.
+- Bobot Penilai    : Diatur dinamis per tugas (contoh default: Atasan 50%, Rekan 30%, Self 20%).
+
+
+3. ATURAN MASTER BOBOT AHP & AKTIVITAS HRD (TABEL: Master_BobotAHP)
+--------------------------------------------------------------------------------
+- Sifat Nilai      : DINAMIS (Tidak diketahui di awal, murni dihitung dari input riil HRD).
+- Aktivitas HRD    : HRD melakukan perbandingan berpasangan (Pairwise Comparison 1-9) 
+                     antar 7 kriteria dengan total 21 pasang perbandingan:
+                     Rumus = (n * (n - 1)) / 2 = (7 * 6) / 2 = 21 Pasang Pertanyaan.
+- Peran Sistem     : Sistem secara otomatis menghitung matriks perbandingan, normalisasi, 
+                     eigen vector, Lambda Max, Consistency Index (CI), dan Consistency Ratio (CR).
+- Syarat Sah Bobot : Consistency Ratio (CR) <= 0.1 (Wajib konsisten secara logika).
+                     * Jika CR > 0.1 : Sistem MENOLAK hasil perhitungan dan meminta HRD meninjau ulang.
+                     * Jika CR <= 0.1: Bobot SAH, sistem mengizinkan HRD mengunci dan menyimpan ke Master_BobotAHP.
+- Simulasi Contoh  : Angka bobot berikut HANYA SIMULASI ILUSTRASI (angka riil ditentukan hasil input HRD):
+                     * (Simulasi) Bobot_TanggungJawab    : 0.2500 (25%)
+                     * (Simulasi) Bobot_KetepatanWaktu   : 0.2000 (20%)
+                     * (Simulasi) Bobot_TindakLanjut     : 0.1500 (15%)
+                     * (Simulasi) Bobot_KerjasamaTim     : 0.1500 (15%)
+                     * (Simulasi) Bobot_Inisiatif        : 0.1000 (10%)
+                     * (Simulasi) Bobot_KeterlibatanKerja: 0.1000 (10%)
+                     * (Simulasi) Bobot_InteraksiKolega  : 0.0500 (5%)
+                     Total Bobot = 1.0000 (100%)
+
+
+4. ATURAN MASTER KATEGORI & REKOMENDASI (TABEL: Master_Kategori)
+--------------------------------------------------------------------------------
+Tabel Master Kategori menyatukan rentang skor akhir dengan rekomendasi kontrak:
+
+ID | Rentang Skor Akhir | Kategori | Rekomendasi Sistem                   | Keterangan Operasional HRD
+---+--------------------+----------+--------------------------------------+----------------------------------------------
+1  | 80.00 - 100.00     | Baik     | Perpanjangan Kontrak (Diprioritaskan)| Kinerja sangat memuaskan, perpanjangan langsung.
+2  | 60.00 - 79.99      | Cukup    | Perpanjangan Kontrak (Evaluasi Berkala)| Kinerja standar dasar, diperpanjang dengan evaluasi.
+3  | 0.00  - 59.99      | Kurang   | Tidak Diperpanjang                   | Kinerja di bawah standar, pemutusan kontrak (terminasi).
+
+
+5. ATURAN PERIODE & PERHITUNGAN HASIL SISTEM (TABEL: HasilPenilaianSistem)
+--------------------------------------------------------------------------------
+- Periode Penilaian memilih Master_BobotAHP yang sedang aktif (hasil olahan AHP oleh HRD).
+- Sistem menarik data Penilaian360 per karyawan dan menghitung nilai rata-rata 360 terbobot:
+  Rata2_Kriteria = Sum(Nilai_Penilai * %Bobot_Penilai)
+- Skor Akhir SPK dihitung dengan perkalian bobot AHP hasil perhitungan:
+  SkorAkhirAHP = Sum(Rata2_Kriteria * BobotAHP_Kriteria)
+- Kategori dan Rekomendasi otomatis terhubung via foreign key KategoriId ke Master_Kategori.
+- Ranking diurutkan menurun (descending) berdasarkan SkorAkhirAHP (Ranking 1 = Kinerja Tertinggi).
+
+
+6. STANDAR AUDIT METADATA (SELURUH TABEL)
+--------------------------------------------------------------------------------
+Semua tabel dilengkapi 4 atribut jejak audit tanpa relasi Foreign Key (FK):
+- CreatedAt (datetime, default now)
+- CreatedBy (int, nullable, mencatat UserId pembuat)
+- UpdatedAt (datetime, nullable)
+- UpdatedBy (int, nullable, mencatat UserId pengubah)
+
+
+7. CONTOH TABEL DATA OUTPUT SISTEM (SIMULASI PERHITUNGAN)
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Catatan: Bobot pada header tabel di bawah ini hanyalah simulasi, angka bobot riil akan ditarik dari Master_BobotAHP yang diisi HRD.
+
+Rank | Kode Karyawan | Nama Karyawan | Kerjasama Tim | Ketepatan Waktu | Tanggung Jawab | Inisiatif | Keterlibatan Kerja | Interaksi Kolega | Tindak Lanjut | Skor Akhir | KategoriId | Kategori | Rekomendasi Sistem
+     |               |               | (Simulasi 0.15)| (Simulasi 0.20)| (Simulasi 0.25)|(Simulasi 0.10)| (Simulasi 0.10)| (Simulasi 0.05)| (Simulasi 0.15)|           |            |          | 
+-----+---------------+---------------+---------------+-----------------+----------------+-----------+--------------------+------------------+---------------+------------+------------+----------+--------------------------------------
+1    | KRY-002       | Budi Santoso  | 85.00         | 92.00           | 90.00          | 80.00     | 88.00              | 78.00            | 90.00         | 88.10      | 1          | Baik     | Perpanjangan Kontrak (Diprioritaskan)
+2    | KRY-005       | Siti Rahma    | 88.00         | 85.00           | 85.00          | 85.00     | 80.00              | 90.00            | 82.00         | 84.65      | 1          | Baik     | Perpanjangan Kontrak (Diprioritaskan)
+3    | KRY-001       | Ahmad Fauzi   | 90.00         | 70.00           | 75.00          | 78.00     | 82.00              | 95.00            | 70.00         | 77.70      | 2          | Cukup    | Perpanjangan Kontrak (Evaluasi Berkala)
+4    | KRY-003       | Dewi Lestari  | 75.00         | 65.00           | 70.00          | 60.00     | 70.00              | 80.00            | 65.00         | 68.50      | 2          | Cukup    | Perpanjangan Kontrak (Evaluasi Berkala)
+5    | KRY-004       | Rian Pratama  | 60.00         | 50.00           | 55.00          | 50.00     | 60.00              | 65.00            | 55.00         | 55.50      | 3          | Kurang   | Tidak Diperpanjang
+=======================================================================================================================================================================================================================================

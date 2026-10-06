@@ -1,0 +1,786 @@
+@{
+    ViewData["Title"] = "Kelola Akses & Pengguna";
+}
+
+<!-- ATURAN 1: Tag pembungkus paling awal di file konten wajib diawali <div class="row ..."> -->
+<div class="row">
+    <div class="col-12">
+        <div id="dbAlertArea"></div>
+    </div>
+</div>
+
+<style>
+    .nav-pills .nav-link {
+        color: #64748b;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
+    }
+    .nav-pills .nav-link:hover {
+        background: #e2e8f0;
+        color: #0f172a;
+    }
+    .nav-pills .nav-link.active {
+        background-color: #0d9488 !important;
+        color: #ffffff !important;
+        border-color: #0d9488 !important;
+        box-shadow: 0 2px 6px rgba(13, 148, 136, 0.25);
+    }
+</style>
+
+<div class="row">
+    <div class="col-12">
+
+        <!-- Tab Navigation untuk Kelola Akses & Pengguna -->
+        <ul class="nav nav-pills mb-3 gap-2" id="dbTabNav" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active px-3 py-2" id="tab-users-btn" data-bs-toggle="pill" data-bs-target="#tabUsers" type="button" role="tab" style="font-size:13px; font-weight:600; border-radius:8px;">
+                    <i class="fas fa-users me-1.5"></i> Data Pengguna
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link px-3 py-2" id="tab-roles-btn" data-bs-toggle="pill" data-bs-target="#tabRoles" type="button" role="tab" style="font-size:13px; font-weight:600; border-radius:8px;">
+                    <i class="fas fa-shield-alt me-1.5"></i> Peran Pengguna (Role)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link px-3 py-2" id="tab-menu-roles-btn" data-bs-toggle="pill" data-bs-target="#tabMenuRoles" type="button" role="tab" style="font-size:13px; font-weight:600; border-radius:8px;">
+                    <i class="fas fa-bars me-1.5"></i> Pengaturan Menu Peran
+                </button>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="dbTabContent">
+            <!-- TAB 1: DATA PENGGUNA -->
+            <div class="tab-pane fade show active" id="tabUsers" role="tabpanel">
+                <div class="db-data-card mb-4">
+                    <div class="db-card-top">
+                        <h3 class="db-card-title"><i class="fas fa-users" style="color:#0f766e;margin-right:.45rem;"></i> Data Pengguna</h3>
+                        <button type="button" class="db-btn-primary" onclick="openModal('modalCreateUser')"><i class="fas fa-plus"></i> Tambah Pengguna</button>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="tableUsers" class="table table-hover align-middle mb-0 w-100 db-table">
+                                <thead>
+                                    <tr>
+                                        <th class="db-th-center" style="width:60px;">#</th>
+                                        <th>NAMA LENGKAP</th>
+                                        <th>EMAIL</th>
+                                        <th>PERAN</th>
+                                        <th>STATUS</th>
+                                        <th>WAKTU DIBUAT</th>
+                                        <th class="db-th-right" style="width:140px;text-align:right;">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="usersBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 2: DATA PERAN PENGGUNA -->
+            <div class="tab-pane fade" id="tabRoles" role="tabpanel">
+                <div class="db-data-card mb-4">
+                    <div class="db-card-top">
+                        <h3 class="db-card-title"><i class="fas fa-shield-alt" style="color:#0f766e;margin-right:.45rem;"></i> Data Peran Pengguna</h3>
+                        <button type="button" class="db-btn-primary" onclick="openModal('modalCreateRole')"><i class="fas fa-plus"></i> Tambah Peran</button>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="tableRoles" class="table table-hover align-middle mb-0 w-100 db-table">
+                                <thead>
+                                    <tr>
+                                        <th class="db-th-center" style="width:60px;">#</th>
+                                        <th>NAMA PERAN</th>
+                                        <th>DESKRIPSI</th>
+                                        <th class="db-th-right" style="width:140px;text-align:right;">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rolesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 3: PENGATURAN MENU PERAN -->
+            <div class="tab-pane fade" id="tabMenuRoles" role="tabpanel">
+                <div class="db-data-card mb-4">
+                    <div class="db-card-top">
+                        <h3 class="db-card-title"><i class="fas fa-bars" style="color:#0f766e;margin-right:.45rem;"></i> Pengaturan Menu Peran</h3>
+                        <button type="button" class="db-btn-primary" onclick="openModal('modalCreateMenuRole')"><i class="fas fa-plus"></i> Tambah Menu Akses</button>
+                    </div>
+                    <div class="card-body p-3">
+                        <div class="table-responsive">
+                            <table id="tableMenuRoles" class="table table-hover align-middle mb-0 w-100 db-table">
+                                <thead>
+                                    <tr>
+                                        <th class="db-th-center" style="width:60px;">#</th>
+                                        <th>PERAN</th>
+                                        <th>NAMA MENU</th>
+                                        <th>IKON</th>
+                                        <th>URL</th>
+                                        <th class="db-th-center" style="width:70px;text-align:center;">URUTAN</th>
+                                        <th class="db-th-right" style="width:140px;text-align:right;">AKSI</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="menuRolesBody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal Dialogs -->
+<div id="modalCreateUser" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-plus" style="color:#0f766e;margin-right:.45rem;"></i> Tambah Pengguna</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalCreateUser')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formCreateUser" onsubmit="handleCreateUser(event)">
+            <div class="modal-body">
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" name="NamaLengkap" class="form-control" required /></div>
+                <div class="form-group"><label>Email</label><input type="email" name="Email" class="form-control" required /></div>
+                <div class="form-group"><label>Kata Sandi</label><input type="password" name="PasswordHash" class="form-control" minlength="6" required /></div>
+                <div class="form-group"><label>Konfirmasi Kata Sandi</label><input type="password" name="ConfirmPassword" class="form-control" minlength="6" required /></div>
+                <div class="form-group"><label>Peran</label><select name="RoleId" id="createUserRole" class="form-control" required><option value="">-- Pilih Peran --</option></select></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalCreateUser')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalEditUser" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-edit" style="color:#0f766e;margin-right:.45rem;"></i> Ubah Data Pengguna</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalEditUser')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formEditUser" onsubmit="handleEditUser(event)">
+            <input type="hidden" name="Id" id="editUserId" />
+            <div class="modal-body">
+                <div class="form-group"><label>Nama Lengkap</label><input type="text" name="NamaLengkap" id="editUserName" class="form-control" required /></div>
+                <div class="form-group"><label>Email</label><input type="email" name="Email" id="editUserEmail" class="form-control" required /></div>
+                <div class="form-group"><label>Kata Sandi Baru (kosongkan jika tidak diubah)</label><input type="password" name="Password" class="form-control" minlength="6" /></div>
+                <div class="form-group"><label>Peran</label><select name="RoleId" id="editUserRole" class="form-control" required><option value="">-- Pilih Peran --</option></select></div>
+                <div class="form-group"><label>Status</label><select name="IsActive" id="editUserActive" class="form-control"><option value="true">Aktif</option><option value="false">Nonaktif</option></select></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalEditUser')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalCreateRole" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-shield-alt" style="color:#0f766e;margin-right:.45rem;"></i> Tambah Peran Pengguna</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalCreateRole')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formCreateRole" onsubmit="handleCreateRole(event)">
+            <div class="modal-body">
+                <div class="form-group"><label>Nama Peran</label><input type="text" name="NamaRole" class="form-control" required /></div>
+                <div class="form-group"><label>Deskripsi</label><input type="text" name="Deskripsi" class="form-control" /></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalCreateRole')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalEditRole" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-shield-alt" style="color:#0f766e;margin-right:.45rem;"></i> Ubah Peran Pengguna</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalEditRole')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formEditRole" onsubmit="handleEditRole(event)">
+            <input type="hidden" name="Id" id="editRoleId" />
+            <div class="modal-body">
+                <div class="form-group"><label>Nama Peran</label><input type="text" name="NamaRole" id="editRoleName" class="form-control" required /></div>
+                <div class="form-group"><label>Deskripsi</label><input type="text" name="Deskripsi" id="editRoleDesc" class="form-control" /></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalEditRole')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalCreateMenuRole" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle" style="color:#0f766e;margin-right:.45rem;"></i> Tambah Menu Akses</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalCreateMenuRole')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formCreateMenuRole" onsubmit="handleCreateMenuRole(event)">
+            <div class="modal-body">
+                <div class="form-group"><label>Peran</label><select name="RoleId" id="createMenuRoleRoleId" class="form-control" required><option value="">-- Pilih Peran --</option></select></div>
+                <div class="form-group"><label>Nama Menu</label><input type="text" name="NamaMenu" class="form-control" required /></div>
+                <div class="form-group">
+                    <label>Ikon</label>
+                    <input type="hidden" name="Icon" id="createMenuRoleIcon" value="fas fa-home" />
+                    <div class="icon-picker-trigger" onclick="openIconPicker('createMenuRoleIcon')">
+                        <i class="fas fa-home" id="createMenuRoleIconPreview"></i>
+                        <span>fas fa-home</span>
+                    </div>
+                </div>
+                <div class="form-group"><label>URL</label><input type="text" name="Url" class="form-control" required placeholder="/Admin/Dashboard" /></div>
+                <div class="form-group"><label>Nomor Urutan</label><input type="number" name="Urutan" class="form-control" value="0" /></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalCreateMenuRole')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Data</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalEditMenuRole" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit" style="color:#0f766e;margin-right:.45rem;"></i> Ubah Menu Akses</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalEditMenuRole')">&times;</button>
+        </div>
+        <!-- ATURAN 2: Handler submit langsung di tag HTML -->
+        <form id="formEditMenuRole" onsubmit="handleEditMenuRole(event)">
+            <input type="hidden" name="Id" id="editMenuRoleId" />
+            <div class="modal-body">
+                <div class="form-group"><label>Peran</label><select name="RoleId" id="editMenuRoleRoleId" class="form-control" required><option value="">-- Pilih Peran --</option></select></div>
+                <div class="form-group"><label>Nama Menu</label><input type="text" name="NamaMenu" id="editMenuRoleName" class="form-control" required /></div>
+                <div class="form-group">
+                    <label>Ikon</label>
+                    <input type="hidden" name="Icon" id="editMenuRoleIcon" value="" />
+                    <div class="icon-picker-trigger" onclick="openIconPicker('editMenuRoleIcon')">
+                        <i class="fas fa-home" id="editMenuRoleIconPreview"></i>
+                        <span id="editMenuRoleIconText">-</span>
+                    </div>
+                </div>
+                <div class="form-group"><label>URL</label><input type="text" name="Url" id="editMenuRoleUrl" class="form-control" required /></div>
+                <div class="form-group"><label>Nomor Urutan</label><input type="number" name="Urutan" id="editMenuRoleUrutan" class="form-control" /></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="db-btn-outline" onclick="closeModal('modalEditMenuRole')">Batal</button>
+                <button type="submit" class="db-btn-primary"><i class="fas fa-save"></i> Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div id="modalConfirmDelete" class="modal-overlay">
+    <div class="modal-box modal-small">
+        <div class="modal-header">
+            <h3><i class="fas fa-exclamation-triangle" style="color:#dc2626;margin-right:.45rem;"></i> Konfirmasi Penghapusan</h3>
+            <button type="button" class="modal-close" onclick="closeModal('modalConfirmDelete')">&times;</button>
+        </div>
+        <div class="modal-body">
+            <p>Apakah Anda yakin ingin menghapus <strong id="deleteItemName"></strong>?</p>
+            <p style="color:#64748b;font-size:.8rem;">Data yang dihapus tidak dapat dipulihkan kembali.</p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="db-btn-outline" onclick="closeModal('modalConfirmDelete')">Batal</button>
+            <!-- ATURAN 2: Onclick di tag HTML -->
+            <button type="button" id="btnConfirmDelete" class="db-btn-danger" onclick="executeDelete()"><i class="fas fa-trash"></i> Hapus</button>
+        </div>
+    </div>
+</div>
+
+<div id="iconPickerModal" class="modal-overlay" style="z-index:2500;">
+    <div class="modal-box" style="max-width:480px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-icons" style="color:#0f766e;margin-right:.45rem;"></i> Pilih Ikon</h3>
+            <button type="button" class="modal-close" onclick="closeIconPicker()">&times;</button>
+        </div>
+        <div class="modal-body" style="padding:1rem;">
+            <input type="text" id="iconPickerSearch" class="db-input-search" style="width:100%;margin-bottom:.75rem;" placeholder="Cari ikon..." oninput="handleIconPickerSearch(this.value)" />
+            <div id="iconPickerGrid" class="icon-picker-grid"></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+// Variabel global untuk state
+var allRoles = [];
+var pendingDelete = null;
+var iconPickerTarget = null;
+var usersTable = null;
+var rolesTable = null;
+var menuRolesTable = null;
+
+function esc(str) {
+    if (!str) return '';
+    return String(str).replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+// ============================================
+// DATATABLES SINKRON DENGAN ATURAN DATATABLES
+// ============================================
+var dtUsers = null;
+var dtRoles = null;
+var dtMenuRoles = null;
+
+var dataTableLanguageConfig = {
+    lengthMenu: "Tampilkan _MENU_ data per halaman",
+    zeroRecords: "Data tidak ditemukan",
+    info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ total data",
+    infoEmpty: "Menampilkan 0 sampai 0 dari 0 data",
+    infoFiltered: "(difilter dari _MAX_ total data)",
+    search: "Cari:",
+    searchPlaceholder: "Ketik kata kunci...",
+    paginate: {
+        first: "«",
+        last: "»",
+        next: "›",
+        previous: "‹"
+    },
+    processing: "Sedang memproses data...",
+    loadingRecords: "Memuat data..."
+};
+
+function initDataTables() {
+    if (!$.fn.DataTable.isDataTable('#tableUsers')) {
+        dtUsers = $('#tableUsers').DataTable({
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "Semua"]
+            ],
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: [0, 1, 2, 3, 4, 5] },
+                { orderable: false, targets: [6] },
+                { searchable: false, targets: [6] }
+            ],
+            language: dataTableLanguageConfig
+        });
+    }
+
+    if (!$.fn.DataTable.isDataTable('#tableRoles')) {
+        dtRoles = $('#tableRoles').DataTable({
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "Semua"]
+            ],
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: [0, 1, 2] },
+                { orderable: false, targets: [3] },
+                { searchable: false, targets: [3] }
+            ],
+            language: dataTableLanguageConfig
+        });
+    }
+
+    if (!$.fn.DataTable.isDataTable('#tableMenuRoles')) {
+        dtMenuRoles = $('#tableMenuRoles').DataTable({
+            autoWidth: false,
+            pageLength: 10,
+            lengthMenu: [
+                [10, 25, 50, 100, -1],
+                [10, 25, 50, 100, "Semua"]
+            ],
+            order: [[0, 'asc']],
+            columnDefs: [
+                { orderable: true, targets: [0, 1, 2, 3, 4, 5] },
+                { orderable: false, targets: [6] },
+                { searchable: false, targets: [6] }
+            ],
+            language: dataTableLanguageConfig
+        });
+    }
+}
+
+function populateUsersTable(data) {
+    if (!dtUsers) return;
+    dtUsers.clear();
+    if (data && data.length > 0) {
+        data.forEach(function (u, index) {
+            var status = u.isActive
+                ? '<span class="db-badge db-badge-green"><i class="fas fa-check"></i> Aktif</span>'
+                : '<span class="db-badge db-badge-red"><i class="fas fa-times"></i> Nonaktif</span>';
+            var actionBtns = '<div class="db-action-btns">' +
+                '<button type="button" class="db-btn-icon" onclick="openEditUser(' + u.id + ',\'' + esc(u.namaLengkap) + '\',\'' + esc(u.email) + '\',' + u.roleId + ',' + u.isActive + ')"><i class="fas fa-pen"></i> Edit</button>' +
+                '<button type="button" class="db-btn-icon danger" onclick="confirmDelete(\'/admin/DeleteUser\',' + u.id + ',\'' + esc(u.namaLengkap) + '\')"><i class="fas fa-trash"></i> Hapus</button>' +
+                '</div>';
+
+            dtUsers.row.add([
+                '<div class="db-td-center text-center">' + (index + 1) + '</div>',
+                '<span class="db-td-bold">' + esc(u.namaLengkap) + '</span>',
+                esc(u.email),
+                '<span class="db-badge db-badge-green">' + esc(u.roleName) + '</span>',
+                status,
+                u.createdAt || '-',
+                actionBtns
+            ]);
+        });
+    }
+    dtUsers.draw();
+}
+
+function populateRolesTable(data) {
+    if (!dtRoles) return;
+    dtRoles.clear();
+    if (data && data.length > 0) {
+        data.forEach(function (r, index) {
+            var actionBtns = '<div class="db-action-btns">' +
+                '<button type="button" class="db-btn-icon" onclick="openEditRole(' + r.id + ',\'' + esc(r.namaRole) + '\',\'' + esc(r.deskripsi) + '\')"><i class="fas fa-pen"></i> Edit</button>' +
+                '<button type="button" class="db-btn-icon danger" onclick="confirmDelete(\'/admin/DeleteRole\',' + r.id + ',\'' + esc(r.namaRole) + '\')"><i class="fas fa-trash"></i> Hapus</button>' +
+                '</div>';
+
+            dtRoles.row.add([
+                '<div class="db-td-center text-center">' + (index + 1) + '</div>',
+                '<span class="db-td-bold">' + esc(r.namaRole) + '</span>',
+                esc(r.deskripsi || '-'),
+                actionBtns
+            ]);
+        });
+    }
+    dtRoles.draw();
+}
+
+function populateMenuRolesTable(data) {
+    if (!dtMenuRoles) return;
+    dtMenuRoles.clear();
+    if (data && data.length > 0) {
+        data.forEach(function (m, index) {
+            var iconHtml = '<i class="' + m.icon + '"></i> <span style="color:#94a3b8;font-size:.72rem;">' + esc(m.icon) + '</span>';
+            var urlHtml = '<code style="font-size:.72rem;color:#0d9488;">' + esc(m.url) + '</code>';
+            var actionBtns = '<div class="db-action-btns">' +
+                '<button type="button" class="db-btn-icon" onclick="openEditMenuRole(' + m.id + ',' + m.roleId + ',\'' + esc(m.namaMenu) + '\',\'' + esc(m.icon) + '\',\'' + esc(m.url) + '\',' + m.urutan + ')"><i class="fas fa-pen"></i> Edit</button>' +
+                '<button type="button" class="db-btn-icon danger" onclick="confirmDelete(\'/admin/DeleteMenuRole\',' + m.id + ',\'' + esc(m.namaMenu) + '\')"><i class="fas fa-trash"></i> Hapus</button>' +
+                '</div>';
+
+            dtMenuRoles.row.add([
+                '<div class="db-td-center text-center">' + (index + 1) + '</div>',
+                esc(m.roleName),
+                '<span class="db-td-bold">' + esc(m.namaMenu) + '</span>',
+                iconHtml,
+                urlHtml,
+                '<div class="db-td-center text-center">' + m.urutan + '</div>',
+                actionBtns
+            ]);
+        });
+    }
+    dtMenuRoles.draw();
+}
+
+// ATURAN 2: Request wajib menggunakan struktur $.ajax() lengkap (DILARANG $.get / $.post)
+function loadAll() {
+    $.ajax({
+        url: API_BASE_URL + '/admin/GetUsers',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            populateUsersTable(data);
+        },
+        error: function (xhr, status, err) {
+            console.error('Gagal mengambil data users:', err);
+        }
+    });
+
+    $.ajax({
+        url: API_BASE_URL + '/admin/GetRoles',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            allRoles = data || [];
+            populateRolesTable(data);
+            populateSelects();
+        },
+        error: function (xhr, status, err) {
+            console.error('Gagal mengambil data roles:', err);
+        }
+    });
+
+    $.ajax({
+        url: API_BASE_URL + '/admin/GetMenuRoles',
+        type: 'GET',
+        dataType: 'json',
+        success: function (data) {
+            populateMenuRolesTable(data);
+        },
+        error: function (xhr, status, err) {
+            console.error('Gagal mengambil data menu roles:', err);
+        }
+    });
+}
+
+function populateSelects() {
+    var opts = '<option value="">-- Pilih Role --</option>';
+    for (var i = 0; i < allRoles.length; i++) {
+        opts += '<option value="' + allRoles[i].id + '">' + allRoles[i].namaRole + '</option>';
+    }
+    $('#createUserRole, #editUserRole, #createMenuRoleRoleId, #editMenuRoleRoleId').html(opts);
+}
+
+function resetModalForm(id) {
+    var $m = $('#' + id);
+    $m.find('form').each(function () { this.reset(); });
+    $m.find('.form-control').removeClass('is-invalid is-valid');
+}
+
+function openModal(id) {
+    $('#' + id).addClass('active');
+}
+
+function closeModal(id) {
+    resetModalForm(id);
+    $('#' + id).removeClass('active');
+}
+
+function showAlert(type, message) {
+    var icon = type === 'success' ? 'check-circle' : 'exclamation-circle';
+    $('#dbAlertArea').html('<div class="alert alert-' + type + ' db-alert"><i class="fas fa-' + icon + '"></i> ' + message + '</div>');
+    setTimeout(function () {
+        $('#dbAlertArea .db-alert').fadeOut(300, function () { $(this).remove(); });
+    }, 4000);
+}
+
+// ATURAN 2: Request POST via $.ajax() lengkap
+function ajaxPost(endpoint, data, cb) {
+    var fullUrl = endpoint.startsWith('http') ? endpoint : (API_BASE_URL + endpoint);
+    $.ajax({
+        url: fullUrl,
+        type: 'POST',
+        data: data,
+        dataType: 'json',
+        success: function (res) {
+            if (res.success) {
+                if (cb) cb();
+                showAlert('success', res.message || 'Operasi berhasil.');
+                setTimeout(loadAll, 500);
+            } else {
+                showAlert('danger', res.message || 'Terjadi kesalahan.');
+            }
+        },
+        error: function (xhr) {
+            var msg = 'Terjadi kesalahan server.';
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            showAlert('danger', msg);
+        }
+    });
+}
+
+function openEditUser(id, name, email, roleId, isActive) {
+    $('#editUserId').val(id);
+    $('#editUserName').val(name.replace(/\\'/g, "'"));
+    $('#editUserEmail').val(email.replace(/\\'/g, "'"));
+    $('#editUserRole').val(roleId);
+    $('#editUserActive').val(isActive ? 'true' : 'false');
+    openModal('modalEditUser');
+}
+
+function openEditRole(id, name, desc) {
+    $('#editRoleId').val(id);
+    $('#editRoleName').val(name.replace(/\\'/g, "'"));
+    $('#editRoleDesc').val(desc.replace(/\\'/g, "'"));
+    openModal('modalEditRole');
+}
+
+function openEditMenuRole(id, roleId, name, icon, url, urutan) {
+    $('#editMenuRoleId').val(id);
+    $('#editMenuRoleRoleId').val(roleId);
+    $('#editMenuRoleName').val(name.replace(/\\'/g, "'"));
+    var iconVal = icon.replace(/\\'/g, "'");
+    $('#editMenuRoleIcon').val(iconVal);
+    $('#editMenuRoleIconPreview').attr('class', iconVal || 'fas fa-home');
+    $('#editMenuRoleIconText').text(iconVal || '-');
+    $('#editMenuRoleUrl').val(url.replace(/\\'/g, "'"));
+    $('#editMenuRoleUrutan').val(urutan);
+    openModal('modalEditMenuRole');
+}
+
+function confirmDelete(endpoint, id, name) {
+    $('#deleteItemName').text(name.replace(/\\'/g, "'"));
+    pendingDelete = { endpoint: endpoint, id: id };
+    openModal('modalConfirmDelete');
+}
+
+function executeDelete() {
+    if (!pendingDelete) return;
+    ajaxPost(pendingDelete.endpoint, { id: pendingDelete.id }, function () {
+        closeModal('modalConfirmDelete');
+        pendingDelete = null;
+    });
+}
+
+// ATURAN 2: Fungsi Handler Form Submit dipanggil langsung dari onsubmit="..."
+function handleCreateUser(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formCreateUser').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/CreateUser', d, function () { closeModal('modalCreateUser'); });
+}
+
+function handleEditUser(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formEditUser').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/EditUser/' + d.Id, d, function () { closeModal('modalEditUser'); });
+}
+
+function handleCreateRole(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formCreateRole').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/CreateRole', d, function () { closeModal('modalCreateRole'); });
+}
+
+function handleEditRole(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formEditRole').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/EditRole/' + d.Id, d, function () { closeModal('modalEditRole'); });
+}
+
+function handleCreateMenuRole(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formCreateMenuRole').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/CreateMenuRole', d, function () { closeModal('modalCreateMenuRole'); });
+}
+
+function handleEditMenuRole(e) {
+    e.preventDefault();
+    var d = {};
+    $('#formEditMenuRole').serializeArray().forEach(function (f) { d[f.name] = f.value; });
+    ajaxPost('/admin/EditMenuRole/' + d.Id, d, function () { closeModal('modalEditMenuRole'); });
+}
+
+// ============================================
+// ICON PICKER (100% jQuery & fungsi terstruktur)
+// ============================================
+var iconPickerIcons = [
+    'fas fa-home','fas fa-tachometer-alt','fas fa-database','fas fa-users','fas fa-user',
+    'fas fa-user-plus','fas fa-user-edit','fas fa-user-shield','fas fa-users-cog',
+    'fas fa-shield-alt','fas fa-shield-halved','fas fa-lock','fas fa-key','fas fa-cog',
+    'fas fa-gear','fas fa-wrench','fas fa-tools','fas fa-bars','fas fa-bars-staggered',
+    'fas fa-list','fas fa-list-ul','fas fa-table','fas fa-th','fas fa-th-large',
+    'fas fa-calendar','fas fa-calendar-alt','fas fa-calendar-check','fas fa-clock',
+    'fas fa-chart-bar','fas fa-chart-line','fas fa-chart-pie','fas fa-chart-area',
+    'fas fa-bell','fas fa-envelope','fas fa-envelope-open','fas fa-phone',
+    'fas fa-search','fas fa-search-plus','fas fa-filter','fas fa-sort',
+    'fas fa-download','fas fa-upload','fas fa-cloud','fas fa-cloud-upload-alt',
+    'fas fa-file','fas fa-file-alt','fas fa-file-pdf','fas fa-file-word','fas fa-file-powerpoint',
+    'fas fa-file-excel','fas fa-folder','fas fa-folder-open','fas fa-folder-plus',
+    'fas fa-image','fas fa-video','fas fa-music','fas fa-camera',
+    'fas fa-star','fas fa-heart','fas fa-thumbs-up','fas fa-thumbs-down',
+    'fas fa-book','fas fa-book-open','fas fa-graduation-cap','fas fa-palette',
+    'fas fa-paint-brush','fas fa-pencil-alt','fas fa-edit','fas fa-trash',
+    'fas fa-trash-alt','fas fa-plus','fas fa-plus-circle','fas fa-minus',
+    'fas fa-minus-circle','fas fa-check','fas fa-check-circle','fas fa-times',
+    'fas fa-times-circle','fas fa-exclamation','fas fa-exclamation-circle',
+    'fas fa-info-circle','fas fa-question-circle','fas fa-arrow-left','fas fa-arrow-right',
+    'fas fa-arrow-up','fas fa-arrow-down','fas fa-chevron-left','fas fa-chevron-right',
+    'fas fa-chevron-up','fas fa-chevron-down','fas fa-angle-left','fas fa-angle-right',
+    'fas fa-sign-in-alt','fas fa-sign-out-alt','fas fa-power-off','fas fa-sync',
+    'fas fa-redo','fas fa-undo','fas fa-save','fas fa-print',
+    'fas fa-link','fas fa-external-link-alt','fas fa-qrcode','fas fa-code',
+    'fas fa-terminal','fas fa-laptop','fas fa-mobile-alt','fas fa-desktop',
+    'fas fa-server','fas fa-network-wired','fas fa-wifi','fas fa-map-marker-alt',
+    'fas fa-map','fas fa-directions','fas fa-globe','fas fa-globe-americas',
+    'fas fa-moon','fas fa-sun','fas fa-fire','fas fa-bolt',
+    'fas fa-droplet','fas fa-leaf','fas fa-tree','fas fa-seedling',
+    'fas fa-paw','fas fa-fish','fas fa-bug','fas fa-dove',
+    'fas fa-baby','fas fa-child','fas fa-man','fas fa-woman',
+    'fas fa-flag','fas fa-flag-checkered','fas fa-tag','fas fa-tags',
+    'fas fa-bookmark','fas fa-bookmark-alt','fas fa-thumbtack','fas fa-pushpin',
+    'fas fa-bullseye','fas fa-crosshairs','fas fa-ruler','fas fa-ruler-combined',
+    'fas fa-weight','fas fa-balance-scale','fas fa-coins','fas fa-money-bill',
+    'fas fa-credit-card','fas fa-wallet','fas fa-shopping-cart','fas fa-shopping-bag',
+    'fas fa-store','fas fa-industry','fas fa-construction','fas fa-hard-hat'
+];
+
+function openIconPicker(inputId) {
+    iconPickerTarget = inputId;
+    var currentVal = $('#' + inputId).val();
+    var $grid = $('#iconPickerGrid');
+    $grid.empty();
+    for (var i = 0; i < iconPickerIcons.length; i++) {
+        var cls = iconPickerIcons[i];
+        var sel = cls === currentVal ? ' selected' : '';
+        $grid.append('<div class="icon-picker-item' + sel + '" data-icon="' + cls + '" title="' + cls + '" onclick="selectIcon(\'' + cls + '\')"><i class="' + cls + '"></i></div>');
+    }
+    $('#iconPickerSearch').val('');
+    filterIconPicker('');
+    $('#iconPickerModal').addClass('active');
+}
+
+function closeIconPicker() {
+    $('#iconPickerModal').removeClass('active');
+    iconPickerTarget = null;
+}
+
+function selectIcon(cls) {
+    if (!iconPickerTarget) return;
+    $('#' + iconPickerTarget).val(cls);
+    var previewId = iconPickerTarget + 'Preview';
+    var textId = iconPickerTarget + 'Text';
+    $('#' + previewId).attr('class', cls);
+    var $text = $('#' + textId);
+    if ($text.length) $text.text(cls);
+    else $('#' + previewId).next('span').text(cls);
+    closeIconPicker();
+}
+
+function handleIconPickerSearch(query) {
+    filterIconPicker(query.toLowerCase());
+}
+
+function filterIconPicker(q) {
+    $('#iconPickerGrid .icon-picker-item').each(function () {
+        var icon = $(this).data('icon').toLowerCase();
+        $(this).toggle(icon.indexOf(q) > -1);
+    });
+}
+
+// Overlay click & Escape listener via jQuery
+$(function () {
+    $(document).on('click', '.modal-overlay', function (e) {
+        if (e.target === this) {
+            resetModalForm(this.id);
+            $(this).removeClass('active');
+        }
+    });
+
+    $(document).on('keydown', function (e) {
+        if (e.key === 'Escape') {
+            $('.modal-overlay.active').each(function () {
+                resetModalForm(this.id);
+                $(this).removeClass('active');
+            });
+        }
+    });
+
+    $('button[data-bs-toggle="pill"]').on('shown.bs.tab', function () {
+        $.fn.dataTable.tables({ visible: true, api: true }).columns.adjust();
+    });
+
+    initDataTables();
+    loadAll();
+});
+</script>
+}

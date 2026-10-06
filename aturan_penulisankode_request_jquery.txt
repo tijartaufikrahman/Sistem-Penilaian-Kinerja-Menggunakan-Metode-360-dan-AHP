@@ -1,0 +1,70 @@
+# ATURAN & PANDUAN REQUEST & DOM (JQUERY + AJAX)
+
+* CATATAN PENTING:
+Aturan di bawah ini adalah hal-hal yang WAJIB dan DILARANG sesuai yang disebutkan.
+Segala hal, teknik, atau logika coding yang TIDAK DISEBUTKAN dalam aturan ini berarti SEPENUHNYA BEBAS digunakan sesuai kebutuhan.
+
+1. Aturan Event Handler (Onclick di Tag HTML):
+   - JANGAN utamakan event listener di JS seperti `$('#btnKirim').on('click', ...)` atau `$('#btnKirim').click(...)`.
+   - UTAMAKAN membuat fungsi tersendiri di JS, lalu panggil langsung via atribut event di tag HTML:
+     * Di JS:
+       function kirimData() {
+         // Logika aksi & request di sini
+       }
+     * Di Tag HTML:
+       <button type="button" onclick="kirimData()">Kirim Data</button>
+   - Untuk event klik atau aksi tombol lainnya, terapkan pola yang sama (buat function, pasang di `onclick="..."`).
+
+2. Wajib Gunakan Selector & Manipulasi jQuery di Dalam Fungsi:
+   - Selalu gunakan sintaks jQuery: $('selector').method()
+   - Contoh manipulasi:
+     * Ambil / ubah teks: $('#judul').text('Halo');
+     * Ambil / ubah HTML: $('.konten').html('<p>Data baru</p>');
+     * Ambil / isi nilai input: $('#inputNama').val('Budi');
+     * Tampilkan / sembunyikan: $('#loading').show(); / $('#loading').hide();
+     * Tambah / hapus class: $('#btn').addClass('active'); / $('#btn').removeClass('active');
+
+3. LARANGAN KERAS: JANGAN Pakai DOM Bawaan Vanilla JS!
+   - DILARANG menggunakan:
+     * document.getElementById(...)
+     * document.getElementsByClassName(...)
+     * document.getElementsByTagName(...)
+     * document.querySelector(...)
+     * document.querySelectorAll(...)
+     * addEventListener(...) bawaan DOM
+   - Semua interaksi dan manipulasi elemen DOM WAJIB 100% menggunakan jQuery $('...').
+
+4. Wajib Gunakan $.ajax() & DILARANG Pakai $.get() / $.post():
+   - JANGAN PERNAH gunakan shorthand $.get() ataupun $.post().
+   - Semua request WAJIB menggunakan struktur lengkap $.ajax() agar terpantau jelas (type/method, url, data, beforeSend, success, error, complete).
+
+   Format Standar $.ajax():
+   
+   function simpanData() {
+     $.ajax({
+       url: '/api/endpoint',
+       type: 'POST', // atau 'GET', 'PUT', 'DELETE'
+       dataType: 'json',
+       data: {
+         nama: $('#inputNama').val()
+       },
+       beforeSend: function() {
+         // Indikator loading via jQuery
+         $('#spinner').show();
+         $('#btnSubmit').prop('disabled', true);
+       },
+       success: function(response) {
+         // Olah respons via jQuery
+         $('#hasil').html(response.data);
+       },
+       error: function(xhr, status, error) {
+         console.error('Error:', error);
+         $('#notif').text('Terjadi kesalahan data.');
+       },
+       complete: function() {
+         // Reset status via jQuery
+         $('#spinner').hide();
+         $('#btnSubmit').prop('disabled', false);
+       }
+     });
+   }

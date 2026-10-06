@@ -1,0 +1,415 @@
+@{
+    ViewData["Title"] = "Penilaian Kinerja";
+}
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Penilaian Kinerja</span>
+            </div>
+        </div>
+
+        <!-- Admin Table Card (Identik Project 7) -->
+        <div class="admin-card mb-4">
+            <div class="admin-card-header py-2.5 px-3 px-md-4">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                    <div>
+                        <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Penilaian Kinerja</h3>
+                        <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Menampilkan informasi seluruh periode evaluasi kinerja aktif beserta progresnya</p>
+                    </div>
+                    <div>
+                        <a href="/Admin/TambahPeriode" class="btn-primary-admin text-decoration-none d-inline-flex align-items-center justify-content-center">
+                            <i class="fas fa-plus me-1"></i> Buka Penilaian Kinerja Baru
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle w-100" id="tablePeriode">
+                    <thead class="table-light text-nowrap">
+                        <tr>
+                            <th style="width: 45px; text-align:center;">NO</th>
+                            <th style="width: 100px;">KODE</th>
+                            <th>NAMA PENILAIAN</th>
+                            <th>RENTANG WAKTU</th>
+                            <th style="min-width: 160px;">PROGRES PENGISIAN</th>
+                            <th>PEMBOBOTAN KRITERIA</th>
+                            <th>SKEMA REKOMENDASI</th>
+                            <th class="text-center" style="width: 90px;">STATUS</th>
+                            <th class="text-end text-nowrap" style="width: 130px;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tablePeriodeBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+@section Scripts {
+<script>
+    var dtPeriode = null;
+    var allPeriodeList = [];
+    var allBobotList = [];
+    var allKategoriList = [];
+
+    function loadKategoriDropdown(selectedId) {
+        $.ajax({
+            url: API_BASE_URL + '/masterkategori',
+            type: 'GET',
+            dataType: 'json',
+            success: function (list) {
+                allKategoriList = (list || []).filter(function (k) {
+                    return k.isActive || (selectedId && k.id === selectedId);
+                });
+
+                var html = '';
+                if (allKategoriList && allKategoriList.length > 0) {
+                    for (var i = 0; i < allKategoriList.length; i++) {
+                        var k = allKategoriList[i];
+                        var sel = (selectedId && k.id === selectedId) || (!selectedId && i === 0) ? 'selected' : '';
+                        var countGrade = k.details ? k.details.length : (k.totalDetail || 0);
+                        html += '<option value="' + k.id + '" ' + sel + '>' + escHtml(k.kodeKategori) + ' - ' + escHtml(k.namaKategori) + ' (' + countGrade + ' Grade)</option>';
+                    }
+                } else {
+                    html = '<option value="">Belum ada master skema kategori aktif</option>';
+                }
+                $('#pKategoriId').html(html);
+                onKategoriSelectionChanged();
+            }
+        });
+    }
+
+    function onKategoriSelectionChanged() {
+        var selectedId = parseInt($('#pKategoriId').val());
+        var k = allKategoriList.find(function (item) { return item.id === selectedId; });
+        if (!k) {
+            $('#boxKategoriPreview').hide();
+            return;
+        }
+
+        $('#previewKategoriNama').text(k.kodeKategori + ' - ' + k.namaKategori);
+        var countGrade = k.details ? k.details.length : (k.totalDetail || 0);
+        $('#previewKategoriCount').html('<span class="dot-indicator"></span>' + countGrade + ' Grade');
+        $('#previewKategoriKet').text(k.deskripsi || 'Tidak ada deskripsi skema.');
+
+        var badgesHtml = '';
+        if (k.details && k.details.length > 0) {
+            for (var i = 0; i < k.details.length; i++) {
+                var d = k.details[i];
+                badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">' +
+                    escHtml(d.namaGrade) + ': <b>' + Number(d.nilaiMin).toFixed(0) + '-' + Number(d.nilaiMax).toFixed(0) + '</b></span>';
+            }
+        } else {
+            badgesHtml = '<small class="text-muted">Belum ada rincian grade pada skema ini.</small>';
+        }
+        $('#previewKategoriBadges').html(badgesHtml);
+        $('#boxKategoriPreview').slideDown(150);
+    }
+
+    function loadBobotDropdown(selectedId) {
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp',
+            type: 'GET',
+            dataType: 'json',
+            success: function (rules) {
+                // Sesuai aturan: hanya aturan bobot AHP yang berstatus AKTIF (isActive == true) yang dapat dipilih pada periode
+                allBobotList = (rules || []).filter(function (r) {
+                    return r.isActive || (selectedId && r.id === selectedId);
+                });
+
+                var html = '';
+                if (allBobotList && allBobotList.length > 0) {
+                    for (var i = 0; i < allBobotList.length; i++) {
+                        var r = allBobotList[i];
+                        var sel = (selectedId && r.id === selectedId) || (!selectedId && i === 0) ? 'selected' : '';
+                        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+                        var crText = Number(crNum).toFixed(4);
+                        html += '<option value="' + r.id + '" ' + sel + '>' + escHtml(r.kodeAturan) + ' - ' + escHtml(r.namaAturan) + ' (CR: ' + crText + ')</option>';
+                    }
+                } else {
+                    html = '<option value="">Belum ada master bobot AHP aktif</option>';
+                }
+                $('#pBobotId').html(html);
+                onBobotAHPSelectionChanged();
+            }
+        });
+    }
+
+    function onBobotAHPSelectionChanged() {
+        var selectedId = parseInt($('#pBobotId').val());
+        var r = allBobotList.find(function (item) { return item.id === selectedId; });
+        if (!r) {
+            $('#boxBobotPreview').hide();
+            return;
+        }
+
+        $('#previewBobotNama').text(r.kodeAturan + ' - ' + r.namaAturan);
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+        $('#previewBobotCR').html('<span class="dot-indicator"></span>CR: ' + Number(crNum).toFixed(4));
+        $('#previewBobotKet').text(r.keterangan || 'Tidak ada catatan rationale kebijakan.');
+
+        var badgesHtml = '';
+        if (r.kriteriaDetails && r.kriteriaDetails.length > 0) {
+            for (var i = 0; i < r.kriteriaDetails.length; i++) {
+                var kd = r.kriteriaDetails[i];
+                badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">' +
+                    escHtml(kd.namaKriteria) + ': <b>' + (kd.bobot * 100).toFixed(1) + '%</b></span>';
+            }
+        } else {
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Kerjasama: <b>' + (r.bobot_KerjasamaTim * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Waktu: <b>' + (r.bobot_KetepatanWaktu * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Tanggung Jwb: <b>' + (r.bobot_TanggungJawab * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Inisiatif: <b>' + (r.bobot_Inisiatif * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Keterlibatan: <b>' + (r.bobot_KeterlibatanKerja * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Interaksi: <b>' + (r.bobot_InteraksiKolega * 100).toFixed(1) + '%</b></span>';
+            badgesHtml += '<span class="status-pill pill-role" style="font-size:10.5px; padding:2px 7px;">Tindak Lanjut: <b>' + (r.bobot_TindakLanjut * 100).toFixed(1) + '%</b></span>';
+        }
+        $('#previewBobotBadges').html(badgesHtml);
+        $('#boxBobotPreview').slideDown(150);
+    }
+
+    function showBobotModalDetail(bobotId) {
+        var r = allBobotList.find(function (item) { return item.id === bobotId; });
+        if (!r) {
+            $.ajax({
+                url: API_BASE_URL + '/masterbobotahp/' + bobotId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    renderBobotModalDetail(res);
+                }
+            });
+            return;
+        }
+        renderBobotModalDetail(r);
+    }
+
+    function renderBobotModalDetail(r) {
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? r.consistencyRatio_CR : (r.consistencyRatio || 0);
+        var tableRows = '';
+        if (r.kriteriaDetails && r.kriteriaDetails.length > 0) {
+            for (var i = 0; i < r.kriteriaDetails.length; i++) {
+                var kd = r.kriteriaDetails[i];
+                tableRows += '<tr><td style="text-align:left;">' + escHtml(kd.namaKriteria) + '</td><td class="font-monospace fw-bold text-teal">' + (kd.bobot * 100).toFixed(1) + '%</td></tr>';
+            }
+        } else {
+            tableRows += '<tr><td style="text-align:left;">Kerjasama Tim</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KerjasamaTim * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Ketepatan Waktu</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KetepatanWaktu * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tanggung Jawab</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TanggungJawab * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Inisiatif</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_Inisiatif * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Keterlibatan Kerja</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KeterlibatanKerja * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Interaksi Kolega</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_InteraksiKolega * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tindak Lanjut</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TindakLanjut * 100).toFixed(1) + '%</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(r.kodeAturan) + '</span> | <strong>CR:</strong> ' + Number(crNum).toFixed(4) + '</p>' +
+            (r.keterangan ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(r.keterangan) + '</p>' : '') +
+            '<div class="table-responsive border rounded">' +
+            '<table class="table table-bordered table-sm text-center mb-0">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Kriteria</th><th>Bobot</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        Swal.fire({
+            title: r.namaAturan,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488'
+        });
+    }
+
+    function showKategoriModalDetail(kategoriId) {
+        var k = allKategoriList.find(function (item) { return item.id === kategoriId; });
+        if (!k || !k.details || k.details.length === 0) {
+            $.ajax({
+                url: API_BASE_URL + '/masterkategori/' + kategoriId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    renderKategoriModalDetail(res);
+                },
+                error: function () {
+                    Swal.fire('Informasi', 'Data skema kategori tidak dapat dimuat.', 'warning');
+                }
+            });
+            return;
+        }
+        renderKategoriModalDetail(k);
+    }
+
+    function renderKategoriModalDetail(k) {
+        var tableRows = '';
+        if (k.details && k.details.length > 0) {
+            for (var i = 0; i < k.details.length; i++) {
+                var d = k.details[i];
+                tableRows += '<tr>' +
+                    '<td style="text-align:left; font-weight:600; color:#0f172a;">' + escHtml(d.namaGrade) + '</td>' +
+                    '<td class="font-monospace fw-bold text-teal">' + Number(d.nilaiMin).toFixed(2) + ' - ' + Number(d.nilaiMax).toFixed(2) + '</td>' +
+                    '<td style="text-align:left; font-size:11.5px;">' + escHtml(d.rekomendasi || '-') + '</td>' +
+                    '</tr>';
+            }
+        } else {
+            tableRows = '<tr><td colspan="3" class="text-center py-2 text-muted">Belum ada rincian grade pada skema kategori ini.</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(k.kodeKategori) + '</span> | <strong>Total:</strong> ' + (k.details ? k.details.length : (k.totalDetail || 0)) + ' Grade</p>' +
+            (k.deskripsi ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(k.deskripsi) + '</p>' : '') +
+            '<div class="table-responsive border rounded">' +
+            '<table class="table table-bordered table-sm text-center mb-0">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Nama Grade</th><th>Rentang Nilai</th><th style="text-align:left;">Rekomendasi</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>' +
+            '</div>';
+
+        Swal.fire({
+            title: k.namaKategori,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488',
+            width: '600px'
+        });
+    }
+
+    function loadPeriodeTable() {
+        if (dtPeriode) {
+            dtPeriode.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/periode?status=Berjalan',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tablePeriodeBody').html('<tr><td colspan="9" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat daftar penilaian kinerja berjalan...</td></tr>');
+            },
+            success: function (data) {
+                allPeriodeList = (data || []).filter(function (p) {
+                    return p.status === 'Berjalan';
+                });
+                var html = '';
+
+                if (allPeriodeList.length > 0) {
+                    // Isi card sorotan periode aktif
+                    var activeP = allPeriodeList[0];
+                    $('#highlightKodePeriode').text(activeP.kodePeriode || 'AKTIF');
+                    $('#highlightNamaPeriode').text(activeP.namaPeriode);
+                    $('#highlightRentangWaktu').text((activeP.tanggalMulai || '-') + ' s/d ' + (activeP.tanggalSelesai || '-'));
+                    $('#highlightAturanAHP').text(activeP.namaAturanAHP || '-');
+                    var hPct = activeP.persentasePengisian !== undefined ? activeP.persentasePengisian : 0;
+                    var hBarColor = hPct >= 100 ? '#10b981' : (hPct > 0 ? '#0d9488' : '#cbd5e1');
+                    $('#highlightPctResponden').text(hPct.toFixed(1) + '%').css('color', hBarColor);
+                    $('#highlightBarResponden').css({ width: hPct + '%', backgroundColor: hBarColor });
+                    $('#highlightDetailResponden').text((activeP.totalAkunMengisi || 0) + ' dari ' + (activeP.totalAkunPenilai || 0) + ' responden telah mengisi');
+                    $('#highlightLinkHasil').attr('href', '/Admin/HasilPenilaian?periodeId=' + activeP.id);
+                    $('#cardHighlightActivePeriode').slideDown(200);
+
+                    for (var i = 0; i < allPeriodeList.length; i++) {
+                        var p = allPeriodeList[i];
+                        var statusClass = 'pill-role';
+                        if (p.status === 'Berjalan') statusClass = 'pill-active';
+                        if (p.status === 'Selesai') statusClass = 'pill-inactive';
+
+                        var dateRange = (p.tanggalMulai || '-') + ' s/d ' + (p.tanggalSelesai || '-');
+
+                        // Progress pengisian
+                        var pct = p.persentasePengisian !== undefined ? p.persentasePengisian : 0;
+                        var barColor = pct >= 100 ? '#10b981' : (pct > 0 ? '#0d9488' : '#cbd5e1');
+
+                        var progressHtml = '' +
+                            '<div style="min-width:150px;">' +
+                                '<div class="mb-1 text-muted" style="font-size:11px;">' +
+                                    '<span>Total Responden Masuk: </span>' +
+                                    '<span class="fw-bold font-monospace" style="color:' + barColor + ';">' + pct.toFixed(1) + '%</span>' +
+                                '</div>' +
+                                '<div class="progress" style="height:6px; background-color:#e2e8f0; border-radius:4px; overflow:hidden;">' +
+                                    '<div class="progress-bar" role="progressbar" style="width:' + pct + '%; background-color:' + barColor + ';" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100"></div>' +
+                                '</div>' +
+                            '</div>';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td class="text-nowrap"><span class="code-tag">' + escHtml(p.kodePeriode) + '</span></td>' +
+                            '<td><strong style="color:#0f172a;">' + escHtml(p.namaPeriode) + '</strong></td>' +
+                            '<td><small style="color:#64748b;">' + dateRange + '</small></td>' +
+                            '<td>' + progressHtml + '</td>' +
+                            '<td><div class="d-flex align-items-center gap-1"><span class="status-pill pill-role">' + escHtml(p.namaAturanAHP || '-') + '</span><button type="button" class="btn-action-view" style="width:24px; height:24px; font-size:10px;" title="Lihat Bobot Kriteria Kebijakan Ini" onclick="showBobotModalDetail(' + p.bobotAHPId + ')"><i class="fas fa-eye"></i></button></div></td>' +
+                            '<td><div class="d-flex align-items-center gap-1"><span class="status-pill pill-active" style="font-size:11px;"><span class="dot-indicator"></span>' + escHtml(p.namaKategori || '-') + '</span><button type="button" class="btn-action-view" style="width:24px; height:24px; font-size:10px;" title="Lihat Rincian Skema Kategori Ini" onclick="showKategoriModalDetail(' + p.kategoriId + ')"><i class="fas fa-eye"></i></button></div></td>' +
+                            '<td class="text-center text-nowrap"><span class="status-pill ' + statusClass + '"><span class="dot-indicator"></span>' + escHtml(p.status) + '</span></td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group">' +
+                                    '<a href="/Admin/HasilPenilaian?periodeId=' + p.id + '" class="btn-action-spk" title="Buka Hasil Penilaian & Kalkulasi SPK">' +
+                                        '<i class="fas fa-chart-line"></i><span>Hasil &amp; SPK</span>' +
+                                    '</a>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Penilaian Kinerja" onclick="confirmDeletePeriode(' + p.id + ', \'' + escHtml(p.namaPeriode).replace(/'/g, "\\'") + '\')">' +
+                                        '<i class="fas fa-trash"></i>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                } else {
+                    $('#cardHighlightActivePeriode').hide();
+                    html = '<tr><td colspan="9" class="text-center py-4 text-muted">Belum ada periode penilaian kinerja aktif. Silakan buka periode baru.</td></tr>';
+                }
+
+                $('#tablePeriodeBody').html(html);
+
+                dtPeriode = $('#tablePeriode').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+            },
+            error: function () {
+                $('#tablePeriodeBody').html('<tr><td colspan="10" class="text-center py-4 text-danger">Gagal memuat daftar penilaian kinerja.</td></tr>');
+            }
+        });
+    }
+
+    function confirmDeletePeriode(id, name) {
+        Swal.fire({
+            title: 'Hapus Penilaian Kinerja?',
+            text: 'Apakah Anda yakin ingin menghapus data penilaian kinerja "' + name + '"?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/periode/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function (r) {
+                        if (r.success) {
+                            AdminToast.success('Data penilaian kinerja berhasil dihapus');
+                            loadPeriodeTable();
+                        } else {
+                            Swal.fire('Gagal', r.message || 'Gagal menghapus.', 'error');
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    $(function () {
+        loadPeriodeTable();
+    });
+</script>
+}

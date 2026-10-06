@@ -1,0 +1,1024 @@
+@{
+    ViewData["Title"] = "Pembobotan Kriteria";
+}
+
+<style>
+    .ahp-pair-row {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        margin-bottom: 8px;
+        transition: all 0.2s;
+    }
+    .ahp-pair-row:hover {
+        border-color: #0d9488;
+        background: #f0fdfa;
+    }
+    .ahp-matrix-table th, .ahp-matrix-table td {
+        font-size: 11.5px;
+        text-align: center;
+        padding: 6px 4px;
+    }
+    .kriteria-select-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid #e2e8f0;
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 10px 14px;
+    }
+    .kriteria-select-card:hover {
+        border-color: #0d9488;
+        background: #f0fdfa;
+    }
+    .kriteria-select-card.selected {
+        border-color: #0d9488;
+        background: #f0fdfa;
+        box-shadow: 0 0 0 1px rgba(13, 148, 136, 0.2);
+    }
+    .btn-status-edit {
+        width: 22px;
+        height: 22px;
+        border-radius: 4px;
+        border: 1px solid #cbd5e1;
+        background: #ffffff;
+        color: #0f766e;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        padding: 0;
+        vertical-align: middle;
+    }
+    .btn-status-edit:hover {
+        background: #f0fdfa;
+        border-color: #0d9488;
+        color: #0d9488;
+        transform: scale(1.08);
+    }
+</style>
+
+<!-- Outermost View Wrapper adhering to aturan_styling.txt -->
+<div class="row">
+    <div class="col-12">
+
+        <!-- Breadcrumb Bar (Identik Project 7) -->
+        <div class="content-breadcrumb-bar mb-2">
+            <div class="breadcrumb-nav" id="pageBreadcrumb">
+                <span class="breadcrumb-parent">Sistem Penilaian</span>
+                <span class="breadcrumb-separator">/</span>
+                <span class="breadcrumb-current">Pembobotan Kriteria</span>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: TABEL KATALOG KEBIJAKAN BOBOT AHP   -->
+        <!-- ========================================== -->
+        <div id="viewKatalogBobot">
+            <div class="admin-card mb-4">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Pembobotan Kriteria Penilaian</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Daftar penetapan tingkat kepentingan antar kriteria dalam penilaian kinerja</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-primary-admin" onclick="showFormPerumusanBobot()">
+                                <i class="fas fa-plus me-1"></i> Tambah Pembobotan Kriteria
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle w-100" id="tableBobotAHP">
+                        <thead class="table-light text-nowrap">
+                            <tr>
+                                <th style="width: 45px; text-align:center;">NO</th>
+                                <th>KODE ATURAN</th>
+                                <th>NAMA ATURAN BOBOT</th>
+                                <th class="text-center">KONSISTENSI</th>
+                                <th class="text-center">STATUS</th>
+                                <th>TANGGAL DIBUAT</th>
+                                <th style="text-align: right; width: 85px;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBobotAHPBody">
+                            <tr>
+                                <td colspan="7" class="text-center py-4 text-muted">
+                                    <i class="fas fa-spinner fa-spin me-1"></i> Memuat daftar pembobotan...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: FORM PERUMUSAN KALKULATOR BOBOT    -->
+        <!-- ========================================== -->
+        <div id="viewFormPerumusanBobot" style="display: none;">
+
+            <!-- 1. Form Utama Kebijakan Bobot AHP Baru -->
+            <div class="admin-card mb-4" id="cardFormKebijakanBaru">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Informasi Pembobotan Baru</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Tentukan nama dan keterangan aturan pembobotan sebelum membandingkan kriteria</p>
+                        </div>
+                        <div>
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="showKatalogBobot()">
+                                <i class="fas fa-arrow-left me-1"></i> Kembali ke Daftar Pembobotan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 p-md-4">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <div class="form-field-group mb-0">
+                                <label class="form-field-label">Nama Aturan Pembobotan Kriteria <span style="color:#ef4444;">*</span></label>
+                                <input type="text" id="inputNamaAturanAHP" class="form-field-input" placeholder="Contoh: Pembobotan Kriteria Standar 2026" required />
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-field-group mb-0">
+                                <label class="form-field-label">Keterangan / Alasan Pembobotan</label>
+                                <textarea id="inputDeskripsiAHP" class="form-field-textarea" rows="3" placeholder="Catatan pertimbangan kepentingan kriteria..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Pemilihan Kriteria yang Digunakan dari Master Kriteria -->
+            <div class="admin-card mb-4" id="cardPilihKriteria">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Pilih Kriteria yang Dibandingkan</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Pilih minimal dua kriteria yang akan dinilai tingkat kepentingannya</p>
+                        </div>
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="selectAllKriteria(true)">
+                                <i class="fas fa-check-double me-1"></i> Pilih Semua
+                            </button>
+                            <button type="button" class="btn-secondary-admin btn-sm" onclick="resetKriteriaSelection()">
+                                <i class="fas fa-rotate-left me-1"></i> Default
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="p-3 p-md-4">
+                    <div class="row g-2" id="containerKriteriaChecklist">
+                        <div class="col-12 text-center text-muted py-3">
+                            <i class="fas fa-spinner fa-spin me-1"></i> Memuat kriteria...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Kalkulator Perbandingan Berpasangan & Matriks -->
+            <div class="admin-card mb-4" id="cardKalkulatorAHP">
+                <div class="admin-card-header py-2.5 px-3 px-md-4">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h3 class="admin-card-title" style="font-size: 0.95rem; font-weight: 700; line-height: 1.2; margin: 0 0 2px 0;">Penetapan Perbandingan Tingkat Kepentingan</h3>
+                            <p class="admin-card-desc" style="font-size: 0.76rem; line-height: 1.3; color: #64748b; margin: 0;">Tentukan tingkat kepentingan relatif antara satu kriteria dengan kriteria lainnya</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 p-md-4">
+                    <div class="row g-4">
+                        <!-- Left: Pairwise Comparisons -->
+                        <div class="col-12 col-lg-6">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h6 class="fw-bold text-dark mb-0" style="font-size:13.5px;">
+                                    <i class="fas fa-sliders text-teal me-1"></i> <span id="labelPairCountHeader">21 Pasangan Komparasi Matriks</span>
+                                </h6>
+                                <span class="status-pill pill-role" style="font-size:10.5px;">Skala Saaty 1–9</span>
+                            </div>
+                            <div id="containerPairwiseList" style="max-height: 520px; overflow-y: auto; padding-right: 6px;">
+                                <!-- Dimuat dinamis via JS -->
+                            </div>
+                        </div>
+
+                        <!-- Right: Matrix Visual, Consistency Validation -->
+                        <div class="col-12 col-lg-6">
+                            <!-- Matriks Perbandingan & Hasil Normalisasi -->
+                            <h6 class="fw-bold text-dark mb-2" style="font-size:13px;">
+                                <i class="fas fa-table-cells text-teal me-1"></i> <span id="labelMatrixHeader">Matriks Perbandingan &amp; Hasil Normalisasi</span>
+                            </h6>
+
+                            <div class="table-responsive border rounded-3 mb-3 bg-white">
+                                <table class="table table-bordered mb-0 ahp-matrix-table" id="matrixAHPTable">
+                                    <thead class="table-light" id="matrixHead"></thead>
+                                    <tbody id="matrixBody"></tbody>
+                                </table>
+                            </div>
+
+                            <!-- Consistency Validation Banner -->
+                            <div class="p-2 px-3 rounded-3 mb-3 border" id="consistencyBanner" style="background:#f0fdfa; border-color:#99f6e4 !important;">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <strong style="font-size:12.5px; color:#0f766e;">Status Konsistensi Matriks:</strong>
+                                    <span class="status-pill pill-active" id="labelCRStatus" style="font-size:10.5px;"><span class="dot-indicator"></span>Konsisten (CR &le; 0.1)</span>
+                                </div>
+                                <div class="row g-2 text-muted" style="font-size:11px;">
+                                    <div class="col-4">&lambda; Max: <strong class="text-dark" id="valLambdaMax">0.000</strong></div>
+                                    <div class="col-4">CI: <strong class="text-dark" id="valCI">0.000</strong></div>
+                                    <div class="col-4">CR: <strong class="text-teal fw-bold" id="valCR">0.000</strong></div>
+                                </div>
+                            </div>
+                        </div> <!-- Close col-lg-6 (Right) -->
+
+                        <!-- Full Width (col-12): Hasil Persentase Tiap Kriteria (Sebelum Tombol Simpan) -->
+                        <div class="col-12">
+                            <div class="p-3 rounded-3 border mb-3 bg-white">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <div>
+                                        <strong class="text-dark" style="font-size:13.5px;">
+                                            <i class="fas fa-chart-pie text-teal me-1"></i> Hasil Persentase Bobot Tiap Kriteria
+                                        </strong>
+                                        <p class="text-muted mb-0" style="font-size:11.5px;">Rasio prioritas relatif hasil kalkulasi eigen matriks perbandingan AHP (total akumulasi 100%)</p>
+                                    </div>
+                                    <span class="status-pill pill-active" style="font-size:10px;"><span class="dot-indicator"></span>Total: 100%</span>
+                                </div>
+                                <div id="containerHasilBobotKriteria" class="d-flex flex-column gap-2">
+                                    <!-- Dimuat dinamis via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Action Box Finalisasi Simpan & Reset (Full Width) -->
+                            <div class="p-3 rounded-3 border" style="background:#f8fafc;">
+                                <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+                                    <div>
+                                        <strong class="text-dark d-block" style="font-size:13.5px;">Simpan Kebijakan Bobot AHP</strong>
+                                        <p class="text-muted mb-0" style="font-size:12px;">Hasil perhitungan bobot di atas akan disimpan menggunakan nama kebijakan di form atas</p>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <button type="button" class="btn-secondary-admin justify-content-center" style="min-width:100px;" onclick="showKatalogBobot()">
+                                            Batal
+                                        </button>
+                                        <button type="button" class="btn-secondary-admin justify-content-center" style="min-width:120px;" onclick="resetPerbandinganDefault()">
+                                            <i class="fas fa-undo me-1"></i> Reset Saaty
+                                        </button>
+                                        <button type="button" class="btn-primary-admin justify-content-center" id="btnSimpanAturanAHP" onclick="simpanKebijakanBobot()">
+                                            <i class="fas fa-save me-1"></i> Simpan Kebijakan Bobot AHP
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div> <!-- Close col-12 -->
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- Close viewFormPerumusanBobot -->
+
+    </div> <!-- Close outer col-12 -->
+</div> <!-- Close outer row -->
+
+<!-- Modal Edit Status Kebijakan Bobot AHP -->
+<div class="admin-modal-backdrop" id="modalStatusBobot">
+    <div class="admin-modal-card" style="max-width: 440px;">
+        <div class="admin-modal-head">
+            <div class="d-flex align-items-center gap-2">
+                <div class="icon-preview-box" style="width:30px; height:30px; font-size:13px; border-radius:6px;">
+                    <i class="fas fa-sliders text-teal"></i>
+                </div>
+                <h4 class="admin-modal-title">Ubah Status Kebijakan Bobot</h4>
+            </div>
+            <button type="button" class="btn-modal-close" onclick="AdminModal.close('modalStatusBobot')">&times;</button>
+        </div>
+        <form id="formStatusBobot" onsubmit="event.preventDefault(); submitStatusBobot();">
+            <input type="hidden" id="editStatusBobotId" />
+            <div class="admin-modal-content">
+                <!-- Info Ringkas Kebijakan -->
+                <div class="p-3 mb-3 rounded-2" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                    <div class="d-flex align-items-center justify-content-between gap-2 mb-1.5">
+                        <span class="code-tag fw-bold" id="editStatusBobotKode" style="font-size:11.5px;">-</span>
+                        <span class="status-pill" id="editStatusBobotCurrentPill" style="font-size:10px; padding:1px 7px;">Status Saat Ini</span>
+                    </div>
+                    <div style="color:#0f172a; font-weight:700; font-size:13px; line-height:1.3; margin-bottom:4px;" id="editStatusBobotNama">-</div>
+                    <div class="text-muted" style="font-size:11.5px; line-height:1.4;" id="editStatusBobotDesc">Kelola status keaktifan kebijakan bobot AHP ini.</div>
+                </div>
+
+                <!-- Pilihan Status Kebijakan Checkbox -->
+                <div class="form-field-group" style="margin-top:12px; margin-bottom:12px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.8rem; font-weight:600;">
+                        <input type="checkbox" id="editStatusBobotActive" style="width:16px; height:16px;" checked />
+                        <span>Status Kebijakan Aktif</span>
+                    </label>
+                </div>
+
+                <!-- Callout Info Box -->
+                <div class="p-2.5 rounded-2 d-flex align-items-start gap-2" style="background:#f0fdfa; border:1px solid #ccfbf1; font-size:11.5px; color:#0f766e; line-height:1.45;">
+                    <i class="fas fa-circle-info mt-0.5 text-teal" style="font-size:12px; flex-shrink:0;"></i>
+                    <span>Hanya kebijakan berstatus <strong>Aktif</strong> yang dapat dipilih sebagai acuan matriks saat membuka periode penilaian kinerja baru.</span>
+                </div>
+            </div>
+            <div class="admin-modal-foot">
+                <button type="button" class="btn-secondary-admin" onclick="AdminModal.close('modalStatusBobot')">
+                    Batal
+                </button>
+                <button type="submit" class="btn-primary-admin" id="btnSaveStatusBobot">
+                    <i class="fas fa-check"></i> Simpan Status
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    // Tabel Random Index (RI) Saaty untuk n = 1..15
+    var RI_TABLE = {
+        1: 0.00,
+        2: 0.00,
+        3: 0.58,
+        4: 0.90,
+        5: 1.12,
+        6: 1.24,
+        7: 1.32,
+        8: 1.41,
+        9: 1.45,
+        10: 1.49,
+        11: 1.51,
+        12: 1.54,
+        13: 1.56,
+        14: 1.57,
+        15: 1.59
+    };
+
+    var dtBobotAHP = null;
+    var allBobotList = [];
+    var allMasterKriteria = []; // Daftar semua kriteria dari API
+    var selectedKriteria = [];  // Kriteria yang dipilih saat ini [{ id, kode, nama }]
+    var currentMatrix = [];     // Matriks n x n
+    var calculatedWeights = []; // Array bobot hasil kalkulasi (panjang n)
+    var isConsistent = false;
+
+    // ====================================================
+    // NAVIGASI VIEW: KATALOG vs FORM PERUMUSAN
+    // ====================================================
+    function showKatalogBobot() {
+        $('#viewFormPerumusanBobot').hide();
+        $('#sectionMetricsBobot').show();
+        $('#viewKatalogBobot').fadeIn(200);
+        $('#pageBreadcrumb').html('<span class="breadcrumb-parent">Sistem Penilaian</span> <span class="breadcrumb-separator">/</span> <span class="breadcrumb-current">Pembobotan Kriteria</span>');
+        loadBobotTable();
+    }
+
+    function showFormPerumusanBobot() {
+        $('#viewKatalogBobot').hide();
+        $('#sectionMetricsBobot').hide();
+        $('#viewFormPerumusanBobot').fadeIn(200);
+        $('#pageBreadcrumb').html('<span class="breadcrumb-parent">Sistem Penilaian</span> <span class="breadcrumb-separator">/</span> <span class="breadcrumb-parent" style="cursor:pointer;" onclick="showKatalogBobot()">Pembobotan Kriteria</span> <span class="breadcrumb-separator">/</span> <span class="breadcrumb-current">Tambah Pembobotan Kriteria</span>');
+        
+        // Bersihkan input nama & keterangan
+        $('#inputNamaAturanAHP').val('');
+        $('#inputDeskripsiAHP').val('');
+
+        if (allMasterKriteria.length === 0) {
+            loadKriteriaChecklist();
+        } else {
+            resetKriteriaSelection();
+        }
+    }
+
+    // ====================================================
+    // 1. MEMUAT & MERENDER TABEL KATALOG BOBOT AHP
+    // ====================================================
+    function loadBobotTable() {
+        if (dtBobotAHP) {
+            dtBobotAHP.destroy();
+        }
+
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp',
+            type: 'GET',
+            dataType: 'json',
+            beforeSend: function () {
+                $('#tableBobotAHPBody').html('<tr><td colspan="7" class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin me-1"></i> Memuat katalog bobot AHP...</td></tr>');
+            },
+            success: function (data) {
+                allBobotList = data || [];
+
+                var totalBobot = allBobotList.length;
+                var bobotAktif = 0;
+                var konsistenCR = 0;
+                for (var bIdx = 0; bIdx < allBobotList.length; bIdx++) {
+                    var itm = allBobotList[bIdx];
+                    if (itm.isActive) bobotAktif++;
+                    var cr = (itm.consistencyRatio_CR !== undefined && itm.consistencyRatio_CR !== null) ? Number(itm.consistencyRatio_CR) : 0;
+                    if (cr <= 0.1001) konsistenCR++;
+                }
+                $('#statTotalBobot').text(totalBobot);
+                $('#statBobotAktif').text(bobotAktif);
+                $('#statKonsistenCR').text(konsistenCR);
+
+                var html = '';
+
+                if (allBobotList.length > 0) {
+                    for (var i = 0; i < allBobotList.length; i++) {
+                        var b = allBobotList[i];
+                        var crNum = (b.consistencyRatio_CR !== undefined && b.consistencyRatio_CR !== null) ? Number(b.consistencyRatio_CR) : 0;
+                        var isCRValid = crNum <= 0.1001;
+
+                        var crBadge = isCRValid
+                            ? '<span class="status-pill pill-active" style="font-size:10px;"><span class="dot-indicator"></span>' + crNum.toFixed(4) + ' &le; 0.1</span>'
+                            : '<span class="status-pill pill-inactive" style="font-size:10px;"><span class="dot-indicator"></span>' + crNum.toFixed(4) + ' > 0.1</span>';
+
+                        var statusBadge = b.isActive
+                            ? '<span class="status-pill pill-active"><span class="dot-indicator"></span>Aktif</span>'
+                            : '<span class="status-pill pill-inactive"><span class="dot-indicator"></span>Tidak Aktif</span>';
+
+                        html += '<tr>' +
+                            '<td class="text-center text-muted fw-bold" style="font-size:11px;">' + (i + 1) + '</td>' +
+                            '<td class="text-nowrap"><span class="code-tag" style="font-size:11px;">' + escHtml(b.kodeAturan || '-') + '</span></td>' +
+                            '<td>' +
+                                '<strong style="color:#0f172a; font-size:12.5px;">' + escHtml(b.namaAturan) + '</strong>' +
+                                (b.keterangan ? '<br><small class="text-muted" style="font-size:11px;">' + escHtml(b.keterangan) + '</small>' : '') +
+                            '</td>' +
+                            '<td class="text-center text-nowrap">' + crBadge + '</td>' +
+                            '<td class="text-center text-nowrap">' +
+                                '<div class="d-inline-flex align-items-center gap-1.5">' +
+                                    statusBadge +
+                                    '<button type="button" class="btn-status-edit" title="Ubah Status Kebijakan" onclick="openEditStatusBobotModal(' + i + ')">' +
+                                        '<i class="fas fa-pen"></i>' +
+                                    '</button>' +
+                                '</div>' +
+                            '</td>' +
+                            '<td class="text-nowrap"><small class="text-muted">' + (b.createdAt || '-') + '</small></td>' +
+                            '<td class="text-end text-nowrap">' +
+                                '<div class="table-btn-group justify-content-end">' +
+                                    '<button type="button" class="btn-action-view" title="Detail Komposisi Bobot" onclick="showBobotModalDetail(' + b.id + ')"><i class="fas fa-eye"></i></button>' +
+                                    '<button type="button" class="btn-action-delete" title="Hapus Kebijakan" onclick="confirmDeleteBobot(' + b.id + ', \'' + escHtml(b.namaAturan).replace(/'/g, "\\'") + '\')"><i class="fas fa-trash"></i></button>' +
+                                '</div>' +
+                            '</td>' +
+                            '</tr>';
+                    }
+                }
+
+                $('#tableBobotAHPBody').html(html);
+
+                dtBobotAHP = $('#tableBobotAHP').DataTable({
+                    pageLength: 10,
+                    lengthMenu: window.dtLengthMenuConfig,
+                    language: window.dtLanguageConfig
+                });
+            },
+            error: function () {
+                $('#tableBobotAHPBody').html('<tr><td colspan="7" class="text-center py-4 text-danger">Gagal memuat katalog bobot AHP.</td></tr>');
+            }
+        });
+    }
+
+    // Modal Edit Status Kebijakan Bobot
+    function openEditStatusBobotModal(index) {
+        var b = allBobotList[index];
+        if (!b) return;
+
+        $('#editStatusBobotId').val(b.id);
+        $('#editStatusBobotKode').text(b.kodeAturan || '-');
+        $('#editStatusBobotNama').text(b.namaAturan || '-');
+        $('#editStatusBobotDesc').text(b.keterangan || 'Kelola status keaktifan kebijakan bobot AHP ini.');
+        $('#editStatusBobotActive').prop('checked', !!b.isActive);
+
+        if (b.isActive) {
+            $('#editStatusBobotCurrentPill').attr('class', 'status-pill pill-active').html('<span class="dot-indicator"></span>Aktif');
+        } else {
+            $('#editStatusBobotCurrentPill').attr('class', 'status-pill pill-inactive').html('<span class="dot-indicator"></span>Tidak Aktif');
+        }
+
+        AdminModal.open('modalStatusBobot');
+    }
+
+    function submitStatusBobot() {
+        var id = $('#editStatusBobotId').val();
+        var isActive = $('#editStatusBobotActive').is(':checked');
+
+        $('#btnSaveStatusBobot').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+
+        $.ajax({
+            url: API_BASE_URL + '/masterbobotahp/' + id + '/status',
+            type: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify({ isActive: isActive }),
+            dataType: 'json',
+            success: function (res) {
+                $('#btnSaveStatusBobot').prop('disabled', false).html('<i class="fas fa-check"></i> Simpan Status');
+                AdminModal.close('modalStatusBobot');
+                AdminToast.success(res.message || 'Status kebijakan bobot AHP berhasil diperbarui');
+                loadBobotTable();
+            },
+            error: function (xhr) {
+                $('#btnSaveStatusBobot').prop('disabled', false).html('<i class="fas fa-check"></i> Simpan Status');
+                var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal memperbarui status kebijakan bobot.';
+                Swal.fire('Gagal', msg, 'error');
+            }
+        });
+    }
+
+    // Hapus Aturan Bobot
+    function confirmDeleteBobot(id, nama) {
+        Swal.fire({
+            title: 'Hapus Kebijakan Bobot?',
+            text: 'Apakah Anda yakin ingin menghapus kebijakan "' + nama + '"? Tindakan ini tidak dapat dibatalkan.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/masterbobotahp/' + id,
+                    type: 'DELETE',
+                    dataType: 'json',
+                    success: function () {
+                        AdminToast.success('Kebijakan bobot AHP berhasil dihapus');
+                        loadBobotTable();
+                    },
+                    error: function (xhr) {
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menghapus aturan bobot.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    // Detail Modal Bobot
+    function showBobotModalDetail(bobotId) {
+        var r = allBobotList.find(function (item) { return item.id === bobotId; });
+        if (!r) {
+            $.ajax({
+                url: API_BASE_URL + '/masterbobotahp/' + bobotId,
+                type: 'GET',
+                dataType: 'json',
+                success: function (res) {
+                    renderBobotModalDetail(res);
+                }
+            });
+            return;
+        }
+        renderBobotModalDetail(r);
+    }
+
+    function renderBobotModalDetail(r) {
+        var crNum = (r.consistencyRatio_CR !== undefined && r.consistencyRatio_CR !== null) ? Number(r.consistencyRatio_CR) : 0;
+        var tableRows = '';
+        if (r.kriteriaDetails && r.kriteriaDetails.length > 0) {
+            for (var i = 0; i < r.kriteriaDetails.length; i++) {
+                var kd = r.kriteriaDetails[i];
+                tableRows += '<tr><td style="text-align:left;">' + escHtml(kd.namaKriteria) + ' (' + escHtml(kd.kodeKriteria) + ')</td><td class="font-monospace fw-bold text-teal">' + (kd.bobot * 100).toFixed(1) + '%</td></tr>';
+            }
+        } else {
+            tableRows += '<tr><td style="text-align:left;">Kerjasama Tim</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KerjasamaTim * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Ketepatan Waktu</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KetepatanWaktu * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tanggung Jawab</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TanggungJawab * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Inisiatif</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_Inisiatif * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Keterlibatan Kerja</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_KeterlibatanKerja * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Interaksi Kolega</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_InteraksiKolega * 100).toFixed(1) + '%</td></tr>';
+            tableRows += '<tr><td style="text-align:left;">Tindak Lanjut</td><td class="font-monospace fw-bold text-teal">' + (r.bobot_TindakLanjut * 100).toFixed(1) + '%</td></tr>';
+        }
+
+        var html = '<div class="text-start" style="font-size:12.5px;">' +
+            '<p class="mb-2"><strong>Kode:</strong> <span class="code-tag">' + escHtml(r.kodeAturan) + '</span> | <strong>Consistency Ratio (CR):</strong> ' + crNum.toFixed(4) + '</p>' +
+            (r.keterangan ? '<p class="text-muted mb-3" style="font-size:11.5px;">' + escHtml(r.keterangan) + '</p>' : '') +
+            '<table class="table table-bordered table-sm text-center">' +
+                '<thead class="table-light"><tr><th style="text-align:left;">Kriteria Penilaian</th><th>Bobot Ilmiah</th></tr></thead>' +
+                '<tbody>' + tableRows + '</tbody>' +
+            '</table>' +
+            '</div>';
+
+        Swal.fire({
+            title: r.namaAturan,
+            html: html,
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#0d9488'
+        });
+    }
+
+    // ====================================================
+    // 2. LOGIKA PERUMUSAN KALKULATOR AHP (VIEW 2)
+    // ====================================================
+    function loadKriteriaChecklist() {
+        $.ajax({
+            url: API_BASE_URL + '/masterkriteria',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                allMasterKriteria = data || [];
+                if (allMasterKriteria.length === 0) {
+                    $('#containerKriteriaChecklist').html('<div class="col-12 text-center text-danger py-2">Belum ada kriteria di Master Kriteria. Tambahkan terlebih dahulu di menu Master Kriteria.</div>');
+                    return;
+                }
+
+                // Default: pilih semua kriteria yang isActive
+                selectedKriteria = [];
+                for (var i = 0; i < allMasterKriteria.length; i++) {
+                    if (allMasterKriteria[i].isActive) {
+                        selectedKriteria.push({
+                            id: allMasterKriteria[i].id,
+                            kode: allMasterKriteria[i].kodeKriteria,
+                            nama: allMasterKriteria[i].namaKriteria
+                        });
+                    }
+                }
+
+                renderChecklistUI();
+                initMatrixFromSelected();
+                renderPairwiseInputs();
+                kalkulasiAHP();
+            },
+            error: function () {
+                $('#containerKriteriaChecklist').html('<div class="col-12 text-center text-danger py-2">Gagal memuat kriteria dari server.</div>');
+            }
+        });
+    }
+
+    // Render checkbox list
+    function renderChecklistUI() {
+        var html = '';
+        for (var i = 0; i < allMasterKriteria.length; i++) {
+            var k = allMasterKriteria[i];
+            var isChecked = selectedKriteria.some(function (sk) { return sk.id === k.id; });
+            var cardClass = isChecked ? 'kriteria-select-card selected' : 'kriteria-select-card';
+
+            html += '<div class="col-md-4 col-sm-6">' +
+                '<label class="' + cardClass + ' d-flex align-items-center gap-2 w-100" id="cardKrt_' + k.id + '">' +
+                    '<input type="checkbox" class="form-check-input mt-0 kriteria-check-input" value="' + k.id + '" ' + (isChecked ? 'checked' : '') + ' onchange="onKriteriaCheckboxToggle(' + k.id + ')" />' +
+                    '<span class="code-tag fw-bold" style="font-size:11px;">' + escHtml(k.kodeKriteria) + '</span>' +
+                    '<span class="fw-semibold text-dark flex-grow-1 text-truncate" style="font-size:12.5px;" title="' + escHtml(k.namaKriteria) + '">' + escHtml(k.namaKriteria) + '</span>' +
+                '</label>' +
+                '</div>';
+        }
+        $('#containerKriteriaChecklist').html(html);
+    }
+
+    // Toggle kriteria checkbox
+    function onKriteriaCheckboxToggle(kriteriaId) {
+        var k = allMasterKriteria.find(function (item) { return item.id === kriteriaId; });
+        if (!k) return;
+
+        var index = selectedKriteria.findIndex(function (item) { return item.id === kriteriaId; });
+        if (index >= 0) {
+            // Uncheck
+            if (selectedKriteria.length <= 2) {
+                Swal.fire('Peringatan', 'Minimal harus memilih 2 kriteria untuk perumusan perbandingan AHP.', 'warning');
+                renderChecklistUI();
+                return;
+            }
+            selectedKriteria.splice(index, 1);
+        } else {
+            // Check
+            selectedKriteria.push({
+                id: k.id,
+                kode: k.kodeKriteria,
+                nama: k.namaKriteria
+            });
+        }
+
+        renderChecklistUI();
+        initMatrixFromSelected();
+        renderPairwiseInputs();
+        kalkulasiAHP();
+    }
+
+    function selectAllKriteria(select) {
+        if (!select) {
+            selectedKriteria = [];
+        } else {
+            selectedKriteria = allMasterKriteria.filter(function (k) { return k.isActive; }).map(function (k) {
+                return { id: k.id, kode: k.kodeKriteria, nama: k.namaKriteria };
+            });
+        }
+        renderChecklistUI();
+        initMatrixFromSelected();
+        renderPairwiseInputs();
+        kalkulasiAHP();
+    }
+
+    function resetKriteriaSelection() {
+        selectAllKriteria(true);
+    }
+
+    // Inisialisasi matriks n x n (default 1.0 pada diagonal)
+    function initMatrixFromSelected() {
+        var n = selectedKriteria.length;
+        currentMatrix = [];
+        for (var i = 0; i < n; i++) {
+            currentMatrix[i] = [];
+            for (var j = 0; j < n; j++) {
+                if (i === j) {
+                    currentMatrix[i][j] = 1.0;
+                } else if (i < j) {
+                    currentMatrix[i][j] = 1.0;
+                } else {
+                    currentMatrix[i][j] = 1.0;
+                }
+            }
+        }
+    }
+
+    // Render daftar pasangan perbandingan (n*(n-1)/2)
+    function renderPairwiseInputs() {
+        var n = selectedKriteria.length;
+        var totalPairs = (n * (n - 1)) / 2;
+
+        $('#labelPairCountHeader').text(totalPairs + ' Pasangan Komparasi Matriks');
+        $('#labelMatrixHeader').text('Matriks Perbandingan ' + n + 'x' + n + ' & Hasil Normalisasi');
+
+        if (n < 2) {
+            $('#containerPairwiseList').html('<div class="text-muted text-center py-4">Pilih minimal 2 kriteria untuk merumuskan perbandingan berpasangan.</div>');
+            return;
+        }
+
+        var html = '';
+        var pairIndex = 1;
+
+        for (var i = 0; i < n; i++) {
+            for (var j = i + 1; j < n; j++) {
+                var c1 = selectedKriteria[i];
+                var c2 = selectedKriteria[j];
+                var val = currentMatrix[i][j];
+
+                var selectVal = 1;
+                var dominant = 'i';
+
+                if (val >= 1.0) {
+                    selectVal = Math.round(val);
+                    dominant = 'i';
+                } else {
+                    selectVal = Math.round(1.0 / val);
+                    dominant = 'j';
+                }
+
+                html += '<div class="ahp-pair-row">' +
+                    '<div class="d-flex justify-content-between align-items-center mb-1">' +
+                        '<span class="fw-bold" style="font-size:12px; color:#0f172a;">#' + pairIndex + ': ' + escHtml(c1.nama) + ' vs ' + escHtml(c2.nama) + '</span>' +
+                        '<span class="code-tag" style="font-size:10.5px;">' + escHtml(c1.kode) + ' &bull; ' + escHtml(c2.kode) + '</span>' +
+                    '</div>' +
+                    '<div class="row g-2 align-items-center">' +
+                        '<div class="col-7">' +
+                            '<select class="form-field-input" style="padding:4px 8px; height:34px; font-size:12px;" id="pair_dom_' + i + '_' + j + '" onchange="onPairwiseChanged(' + i + ',' + j + ')">' +
+                                '<option value="i" ' + (dominant === 'i' ? 'selected' : '') + '>' + escHtml(c1.nama) + ' lebih penting</option>' +
+                                '<option value="j" ' + (dominant === 'j' ? 'selected' : '') + '>' + escHtml(c2.nama) + ' lebih penting</option>' +
+                            '</select>' +
+                        '</div>' +
+                        '<div class="col-5">' +
+                            '<select class="form-field-input" style="padding:4px 8px; height:34px; font-size:12px;" id="pair_val_' + i + '_' + j + '" onchange="onPairwiseChanged(' + i + ',' + j + ')">' +
+                                '<option value="1" ' + (selectVal === 1 ? 'selected' : '') + '>1 - Sama penting</option>' +
+                                '<option value="2" ' + (selectVal === 2 ? 'selected' : '') + '>2 - Sedikit lebih</option>' +
+                                '<option value="3" ' + (selectVal === 3 ? 'selected' : '') + '>3 - Cukup penting</option>' +
+                                '<option value="4" ' + (selectVal === 4 ? 'selected' : '') + '>4 - Cukup s/d jelas</option>' +
+                                '<option value="5" ' + (selectVal === 5 ? 'selected' : '') + '>5 - Lebih penting</option>' +
+                                '<option value="6" ' + (selectVal === 6 ? 'selected' : '') + '>6 - Lebih s/d sangat</option>' +
+                                '<option value="7" ' + (selectVal === 7 ? 'selected' : '') + '>7 - Sangat penting</option>' +
+                                '<option value="8" ' + (selectVal === 8 ? 'selected' : '') + '>8 - Sangat s/d mutlak</option>' +
+                                '<option value="9" ' + (selectVal === 9 ? 'selected' : '') + '>9 - Mutlak penting</option>' +
+                            '</select>' +
+                        '</div>' +
+                    '</div>' +
+                    '</div>';
+
+                pairIndex++;
+            }
+        }
+
+        $('#containerPairwiseList').html(html);
+    }
+
+    function onPairwiseChanged(i, j) {
+        var dom = $('#pair_dom_' + i + '_' + j).val();
+        var num = parseFloat($('#pair_val_' + i + '_' + j).val()) || 1.0;
+
+        if (dom === 'i') {
+            currentMatrix[i][j] = num;
+            currentMatrix[j][i] = 1.0 / num;
+        } else {
+            currentMatrix[i][j] = 1.0 / num;
+            currentMatrix[j][i] = num;
+        }
+
+        kalkulasiAHP();
+    }
+
+    // Kalkulasi AHP matematis & rasio konsistensi
+    function kalkulasiAHP() {
+        var n = selectedKriteria.length;
+        if (n < 2) {
+            $('#containerHasilBobotKriteria').html('<div class="col-12 text-muted text-center py-3" style="font-size:12px;">Pilih minimal 2 kriteria untuk melihat kalkulasi bobot.</div>');
+            return;
+        }
+
+        // 1. Jumlah per kolom
+        var colSums = [];
+        for (var j = 0; j < n; j++) {
+            colSums[j] = 0;
+            for (var i = 0; i < n; i++) {
+                colSums[j] += currentMatrix[i][j];
+            }
+        }
+
+        // 2. Normalisasi dan rata-rata baris untuk menghitung bobot
+        var normalized = [];
+        calculatedWeights = [];
+        for (var i = 0; i < n; i++) {
+            normalized[i] = [];
+            var rowSum = 0;
+            for (var j = 0; j < n; j++) {
+                normalized[i][j] = currentMatrix[i][j] / colSums[j];
+                rowSum += normalized[i][j];
+            }
+            calculatedWeights[i] = rowSum / n;
+        }
+
+        // 3. Lambda Max
+        var lambdaMax = 0;
+        for (var i = 0; i < n; i++) {
+            var rowWeightedSum = 0;
+            for (var j = 0; j < n; j++) {
+                rowWeightedSum += currentMatrix[i][j] * calculatedWeights[j];
+            }
+            lambdaMax += (calculatedWeights[i] > 0 ? (rowWeightedSum / calculatedWeights[i]) : 0);
+        }
+        lambdaMax = lambdaMax / n;
+
+        // 4. CI & CR
+        var CI = n > 1 ? (lambdaMax - n) / (n - 1) : 0;
+        var RI = RI_TABLE[n] !== undefined ? RI_TABLE[n] : 1.59;
+        var CR = RI > 0 ? (CI / RI) : 0;
+        if (CR < 0) CR = 0;
+
+        isConsistent = (n <= 2) || (CR <= 0.1001);
+
+        $('#valLambdaMax').text(lambdaMax.toFixed(4));
+        $('#valCI').text(CI.toFixed(4));
+        $('#valCR').text(CR.toFixed(4));
+
+        if (isConsistent) {
+            $('#labelCRStatus').attr('class', 'status-pill pill-active').html('<span class="dot-indicator"></span>Konsisten (CR &le; 0.1)');
+            $('#consistencyBanner').css({ 'background': '#f0fdfa', 'border-color': '#99f6e4' });
+            $('#btnSimpanAturanAHP').prop('disabled', false);
+        } else {
+            $('#labelCRStatus').attr('class', 'status-pill pill-inactive').html('<span class="dot-indicator"></span>Tidak Konsisten (CR > 0.1)');
+            $('#consistencyBanner').css({ 'background': '#fef2f2', 'border-color': '#fecaca' });
+            $('#btnSimpanAturanAHP').prop('disabled', true);
+        }
+
+        renderMatrixTable();
+        renderHasilBobotKriteria();
+    }
+
+    // Render tabel matriks n x n
+    function renderMatrixTable() {
+        var n = selectedKriteria.length;
+        var headHtml = '<tr><th>Kriteria</th>';
+        for (var j = 0; j < n; j++) {
+            headHtml += '<th>' + escHtml(selectedKriteria[j].kode) + '</th>';
+        }
+        headHtml += '<th class="bg-teal text-white">Bobot</th></tr>';
+        $('#matrixHead').html(headHtml);
+
+        var bodyHtml = '';
+        for (var i = 0; i < n; i++) {
+            bodyHtml += '<tr>';
+            bodyHtml += '<td class="fw-bold bg-light text-start" style="font-size:11px;" title="' + escHtml(selectedKriteria[i].nama) + '">' + escHtml(selectedKriteria[i].kode) + '</td>';
+            for (var j = 0; j < n; j++) {
+                var v = currentMatrix[i][j];
+                var displayVal = v >= 1 ? v.toFixed(2) : v.toFixed(2);
+                bodyHtml += '<td style="' + (i === j ? 'background:#f1f5f9; font-weight:bold;' : '') + '">' + displayVal + '</td>';
+            }
+            bodyHtml += '<td class="fw-bold text-teal" style="background:#f0fdfa; font-size:12px;">' + (calculatedWeights[i] * 100).toFixed(1) + '%</td>';
+            bodyHtml += '</tr>';
+        }
+        $('#matrixBody').html(bodyHtml);
+    }
+
+    // Render Hasil Persentase Bobot Tiap Kriteria
+    function renderHasilBobotKriteria() {
+        var html = '';
+        var n = selectedKriteria.length;
+        if (n === 0 || calculatedWeights.length === 0) {
+            $('#containerHasilBobotKriteria').html('<div class="text-muted text-center py-3" style="font-size:12px;">Belum ada bobot yang dikalkulasi.</div>');
+            return;
+        }
+
+        for (var i = 0; i < n; i++) {
+            var k = selectedKriteria[i];
+            var w = calculatedWeights[i] || 0;
+            var pct = (w * 100).toFixed(1);
+
+            html += '<div class="p-2 px-3 rounded-2 border bg-light d-flex flex-column gap-1 w-100">' +
+                '<div class="d-flex justify-content-between align-items-center">' +
+                    '<div class="d-flex align-items-center gap-2">' +
+                        '<span class="code-tag fw-bold" style="font-size:11px;">' + escHtml(k.kode) + '</span>' +
+                        '<span class="fw-semibold text-dark" style="font-size:13px;">' + escHtml(k.nama) + '</span>' +
+                    '</div>' +
+                    '<strong class="text-teal font-monospace" style="font-size:13.5px;">' + pct + '%</strong>' +
+                '</div>' +
+                '<div class="progress" style="height: 6px; background: #e2e8f0; border-radius: 4px;">' +
+                    '<div class="progress-bar" role="progressbar" style="width: ' + pct + '%; background: #0d9488; border-radius: 4px;"></div>' +
+                '</div>' +
+            '</div>';
+        }
+        $('#containerHasilBobotKriteria').html(html);
+    }
+
+    function resetPerbandinganDefault() {
+        initMatrixFromSelected();
+        renderPairwiseInputs();
+        kalkulasiAHP();
+        AdminToast.show('Matriks perbandingan direset ke 1.0', 'success');
+    }
+
+    // Simpan Kebijakan Bobot AHP ke server
+    function simpanKebijakanBobot() {
+        var nama = $('#inputNamaAturanAHP').val().trim();
+        if (!nama) {
+            Swal.fire('Peringatan', 'Harap masukkan nama kebijakan bobot AHP pada form di bagian atas terlebih dahulu.', 'warning');
+            $('#inputNamaAturanAHP').focus();
+            $('html, body').animate({ scrollTop: $('#cardFormKebijakanBaru').offset().top - 80 }, 300);
+            return;
+        }
+
+        if (selectedKriteria.length < 2) {
+            Swal.fire('Kriteria Kurang', 'Pilih minimal 2 kriteria untuk perumusan AHP.', 'warning');
+            return;
+        }
+
+        if (!isConsistent) {
+            Swal.fire('Matriks Tidak Konsisten', 'Consistency Ratio (CR) harus &le; 0.1 sebelum dapat disimpan.', 'error');
+            return;
+        }
+
+        var crVal = parseFloat($('#valCR').text()) || 0;
+
+        // Siapkan array bobot detail per kriteria yang dipilih
+        var kriteriaBobotList = [];
+        for (var i = 0; i < selectedKriteria.length; i++) {
+            kriteriaBobotList.push({
+                kriteriaId: selectedKriteria[i].id,
+                kodeKriteria: selectedKriteria[i].kode,
+                namaKriteria: selectedKriteria[i].nama,
+                bobot: calculatedWeights[i] || 0
+            });
+        }
+
+        var payload = {
+            namaAturan: nama,
+            keterangan: $('#inputDeskripsiAHP').val().trim(),
+            consistencyRatio_CR: crVal,
+            isActive: true,
+            kriteriaBobot: kriteriaBobotList
+        };
+
+        Swal.fire({
+            title: 'Simpan Kebijakan Bobot AHP?',
+            text: 'Kebijakan bobot "' + nama + '" (' + selectedKriteria.length + ' kriteria) akan disimpan ke katalog master dan dapat dipilih pada siklus periode penilaian.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0d9488',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Ya, Simpan Kebijakan',
+            cancelButtonText: 'Batal'
+        }).then(function (res) {
+            if (res.isConfirmed) {
+                $.ajax({
+                    url: API_BASE_URL + '/masterbobotahp',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(payload),
+                    beforeSend: function () {
+                        $('#btnSimpanAturanAHP').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Menyimpan...');
+                    },
+                    success: function (r) {
+                        $('#btnSimpanAturanAHP').prop('disabled', false).html('<i class="fas fa-save me-1"></i> Simpan Kebijakan Bobot AHP');
+                        AdminToast.success('Kebijakan bobot AHP baru berhasil disimpan ke katalog');
+                        showKatalogBobot();
+                    },
+                    error: function (xhr) {
+                        $('#btnSimpanAturanAHP').prop('disabled', false).html('<i class="fas fa-save me-1"></i> Simpan Kebijakan Bobot AHP');
+                        var msg = xhr.responseJSON && xhr.responseJSON.message ? xhr.responseJSON.message : 'Gagal menyimpan aturan AHP.';
+                        Swal.fire('Gagal', msg, 'error');
+                    }
+                });
+            }
+        });
+    }
+
+    $(function () {
+        loadBobotTable();
+    });
+</script>
+}
